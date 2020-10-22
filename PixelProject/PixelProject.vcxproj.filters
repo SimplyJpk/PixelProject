@@ -107,5 +107,8 @@
     <ClInclude Include="MemoryUsage.h">
       <Filter>Header Files\Debug</Filter>
     </ClInclude>
+    <ClInclude Include="boost\threadpool.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,6 +3,9 @@
 #include <map>
 #include "Camera.h"
 #include "InputHandler.h"
+#include <thread>
+#include <vector>
+#include <atomic>
 
 void WorldSimulator::Start()
 {
@@ -12,9 +15,6 @@ void WorldSimulator::Start()
 		//gameSettings->_CONFIG_SCREEN_SIZE = IVec2(WORLD_DIMENSIONS.x;
 		// pixels = new Uint32[WORLD_DIMENSIONS.x, WORLD_DIMENSIONS.y, ChunkTotalSize];
 		// isProcessed = new bool[WORLD_DIMENSIONS.x, WORLD_DIMENSIONS.y, ChunkTotalSize];
-
-		// Set our memory values
-		isProcessed = new bool[ChunkTotalSize] {false};
 
 		// Generate our chunks and the pixel data
 		for (int y = 0; y < WORLD_DIMENSIONS.y; y++)
@@ -74,6 +74,8 @@ void WorldSimulator::Start()
 				printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
 				SDL_ClearError();
 		}
+		// Set our memory values
+		isProcessed = new bool[gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_DIMENSIONS.x * 2) * gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_DIMENSIONS.y * 2)] {false};
 }
 
 void WorldSimulator::Pen(IVec2 point, int size)
@@ -118,6 +120,9 @@ void WorldSimulator::Pen(IVec2 point, int size)
 
 void WorldSimulator::Update() {
 		int ChunkOrder = rand() % 2;
+
+		//TODO Remvoe this
+		//? Just draws some pixels so that some updates can happen.
 		for (int x = 0; x < WORLD_DIMENSIONS.x; x++)
 		{
 				for (int xDim = 0; xDim < CHUNK_DIMENSIONS.x; xDim++)
@@ -128,11 +133,39 @@ void WorldSimulator::Update() {
 				}
 		}
 
-		for (int xChunk = 0; xChunk < WORLD_DIMENSIONS.x; xChunk++)
+		memset(isProcessed, false, (gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_DIMENSIONS.x * 2) * gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_DIMENSIONS.y * 2)) * sizeof(bool));
+
+		std::atomic<int> threadCounter = (0);
+		int xLimits = WORLD_DIMENSIONS.x / 2;
+		int yLimits = WORLD_DIMENSIONS.y / 2;
+		int worldLimits = xLimits * yLimits;
+
+		int xStage, yStage = 0;
+		for (int i = 0; i < 4; i++)
 		{
-				for (int yChunk = 0; yChunk < WORLD_DIMENSIONS.y; yChunk++)
+				std::vector<std::thread> threadContainer;
+
+				switch (i++)
 				{
-						UpdateChunk(IVec2(xChunk, yChunk));
+				case 0: xStage = 0; yStage = 0; break;
+				case 1: xStage = 1; yStage = 1; break;
+				case 2: xStage = 1; yStage = 0; break;
+				case 3: xStage = 0; yStage = 1; break;
+				}
+
+				for (int xChunk = xStage; xChunk < WORLD_DIMENSIONS.x; xChunk += 2)
+				{
+						for (int yChunk = yStage; yChunk < WORLD_DIMENSIONS.y; yChunk += 2)
+						{
+								//UpdateChunk(IVec2(xChunk, yChunk));
+								std::thread t(&WorldSimulator::UpdateChunk, this, IVec2(xChunk, yChunk));
+								threadContainer.push_back(std::move(t));
+						}
+				}
+
+				// Wait for our chunks to complete
+				for (auto& t : threadContainer) {
+						t.join();
 				}
 		}
 }
@@ -235,9 +268,9 @@ bool WorldSimulator::Draw(Camera* camera) {
 		//SDL_RenderDrawLine(gameRenderer, 0, CHUNK_DIMENSIONS.y, MaxRenderBox.x, CHUNK_DIMENSIONS.y);
 		//SDL_RenderDrawLine(gameRenderer, CHUNK_DIMENSIONS.x, 0, CHUNK_DIMENSIONS.x, MaxRenderBox.y);
 		IVec2 MaxGridSize((ScreenSize.x + (CHUNK_DIMENSIONS.x * 2)) / CHUNK_DIMENSIONS.x, (ScreenSize.y + (CHUNK_DIMENSIONS.y * 2)) / CHUNK_DIMENSIONS.y);
-		for (int x = 0; x < MaxGridSize.x; x ++)
+		for (int x = 0; x < MaxGridSize.x; x++)
 		{
-				for (int y = 0; y < MaxGridSize.y; y ++)
+				for (int y = 0; y < MaxGridSize.y; y++)
 				{
 						SDL_RenderDrawLine(gameRenderer, 0, (y * CHUNK_DIMENSIONS.y) + cameraWorldOffset.y, (CHUNK_DIMENSIONS.x * MaxGridSize.x), (y * CHUNK_DIMENSIONS.y) + cameraWorldOffset.y);
 						SDL_RenderDrawLine(gameRenderer, (x * CHUNK_DIMENSIONS.x) + cameraWorldOffset.x, 0, (x * CHUNK_DIMENSIONS.x) + cameraWorldOffset.x, (CHUNK_DIMENSIONS.y * MaxGridSize.y));
@@ -247,16 +280,14 @@ bool WorldSimulator::Draw(Camera* camera) {
 		return true;
 }
 
-bool WorldSimulator::UpdateChunk(IVec2 chunkIndex)
+void WorldSimulator::UpdateChunk(IVec2 chunkIndex)
 {
 		//? May need this later?
 		int _localChunkIndex = (chunkIndex.y * WORLD_DIMENSIONS.x) + chunkIndex.x;
 		//TODO We should pool these so when I chunk this properly we can use only a handful of arrays
 		//Now we know our chunk indexes we create a local group to simplify lookup
 		Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
-		//x bool* localProcessed = isProcessed[_localChunkIndex];
-		// Clear our processed array
-		memset(isProcessed, false, ChunkTotalSize * sizeof(bool));
+
 		for (int y = CHUNK_DIMENSIONS.y - 1; y >= 0; y--)
 		{
 				for (int x = CHUNK_DIMENSIONS.x - 1; x >= 0; x--)
@@ -314,7 +345,6 @@ bool WorldSimulator::UpdateChunk(IVec2 chunkIndex)
 						}
 				}
 		}
-		return true;
 }
 
 Uint32* WorldSimulator::returnChunk(int chunkIndex)

@@ -161,6 +161,7 @@
     <ClCompile Include="WorldSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="boost\threadpool.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkDirectionIndex.h" />
     <ClInclude Include="GameObject.h" />

@@ -22,7 +22,7 @@ class WorldSimulator : public GameObject
 		Uint32 white = 0xFFFFFF00;
 public:
 		//TODO Add to settings of some sort?
-		const IVec2 WORLD_DIMENSIONS = IVec2(4, 2);
+		const IVec2 WORLD_DIMENSIONS = IVec2(6, 6);
 		const IVec2 CHUNK_DIMENSIONS = IVec2(256, 256);
 		// Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
 		IVec2 MaxVisibleChunksOnScreen = IVec2::Zero();
@@ -77,7 +77,7 @@ public:
 
 protected:
 		// Attempts to update the entire chunk using the game logic.
-		bool UpdateChunk(IVec2 chunkIndex);
+		void UpdateChunk(IVec2 chunkIndex);
 		// Returns the index to the chunk array, should be used for neighbouring calls to save repeat calls.
 		Uint32* returnChunk(int chunkIndex);
 		// Moves a pixel from one location to another, returning true if anything was moved.
