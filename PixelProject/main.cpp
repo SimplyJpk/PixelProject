@@ -34,6 +34,8 @@ void ExitGame(int eventType, SDL_Event* _event) {
 
 int main(int argc, char** argv)
 {
+		srand(time(NULL));
+
 		MemoryUsage memUsage;
 		// Initalize our settings
 		//TODO Make a serializable settings file?
@@ -75,6 +77,7 @@ int main(int argc, char** argv)
 
 		FC_Font* font = FC_CreateFont();
 		FC_LoadFont(font, renderer, "fonts/FreeSans.ttf", 20, FC_MakeColor(255, 255, 255, 255), TTF_STYLE_NORMAL);
+		settings->_font = font;
 
 		Uint32 activeColour = blue;
 

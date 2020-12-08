@@ -7,19 +7,21 @@
 #include <vector>
 #include <atomic>
 
+#include "Logger.h"
+
 void WorldSimulator::Start()
 {
 		// Allocate our pixels and processing bools
-		ChunkTotalSize = CHUNK_DIMENSIONS.x * CHUNK_DIMENSIONS.y;
+		ChunkTotalSize = CHUNK_SIZE_X * CHUNK_SIZE_Y;
 
 		//gameSettings->_CONFIG_SCREEN_SIZE = IVec2(WORLD_DIMENSIONS.x;
 		// pixels = new Uint32[WORLD_DIMENSIONS.x, WORLD_DIMENSIONS.y, ChunkTotalSize];
 		// isProcessed = new bool[WORLD_DIMENSIONS.x, WORLD_DIMENSIONS.y, ChunkTotalSize];
 
 		// Generate our chunks and the pixel data
-		for (int y = 0; y < WORLD_DIMENSIONS.y; y++)
+		for (int y = 0; y <= WORLD_DIMENSIONS.y; y++)
 		{
-				for (int x = 0; x < WORLD_DIMENSIONS.x; x++)
+				for (int x = 0; x <= WORLD_DIMENSIONS.x; x++)
 				{
 						// Create and store our chunk
 						WorldChunk* newChunk = new WorldChunk(IVec2(x, y));
@@ -69,13 +71,11 @@ void WorldSimulator::Start()
 		}
 
 		// Create our world texture, we use this to render the world chunks.
-		worldTexture = SDL_CreateTexture(gameRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_DIMENSIONS.x * 2), gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_DIMENSIONS.y * 2));
+		worldTexture = SDL_CreateTexture(gameRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_SIZE_X * 2), gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_SIZE_Y * 2));
 		if (worldTexture == NULL) {
 				printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
 				SDL_ClearError();
 		}
-		// Set our memory values
-		isProcessed = new bool[gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_DIMENSIONS.x * 2) * gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_DIMENSIONS.y * 2)] {false};
 }
 
 void WorldSimulator::Pen(IVec2 point, int size)
@@ -83,35 +83,35 @@ void WorldSimulator::Pen(IVec2 point, int size)
 		// Grab our CameraPosition in Pixels
 		SDL_Rect cameraPos = cam->viewPort;
 		// Calculate the Position of the Camera in the world in Chunks
-		Vec2 cameraWorldPosition = Vec2((float)cameraPos.x / CHUNK_DIMENSIONS.x, (float)cameraPos.y / CHUNK_DIMENSIONS.y);
+		Vec2 cameraWorldPosition = Vec2((float)cameraPos.x / CHUNK_SIZE_X, (float)cameraPos.y / CHUNK_SIZE_Y);
 		// Same as above, but now we round to floor
 		IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
 		// Now we remove our position to get our offset
-		IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * CHUNK_DIMENSIONS.x, (cameraWorldPosition.y - cameraChunk.y) * CHUNK_DIMENSIONS.y);
+		IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * CHUNK_SIZE_X, (cameraWorldPosition.y - cameraChunk.y) * CHUNK_SIZE_Y);
 
 		//TODO Fix this? Error based on drawing, likely on Line 111 when we're just passing our CameraChunk in without any additional checks
 
 		//TODO A lot of math, we should be able to simplify this easily enough by storing within scope. 
 		//TODO IE: (WORLD_DIM * CHUNK_DIM) This'll likely never change?
-		if (point.x >= 0 && point.x < WORLD_DIMENSIONS.x * CHUNK_DIMENSIONS.x) {
-				if (point.y >= 0 && point.y <= WORLD_DIMENSIONS.y * CHUNK_DIMENSIONS.y) {
+		if (point.x >= 0 && point.x < WORLD_DIMENSIONS.x * CHUNK_SIZE_X) {
+				if (point.y >= 0 && point.y <= WORLD_DIMENSIONS.y * CHUNK_SIZE_Y) {
 						for (int x = point.x - size; x < point.x + size; x++)
 						{
 								// We skip calculations if our position is outside the realm of our world.
-								if (x < 0 || x > WORLD_DIMENSIONS.x * CHUNK_DIMENSIONS.x - 1) continue;
+								if (x < 0 || x > WORLD_DIMENSIONS.x * CHUNK_SIZE_X - 1) continue;
 								// We get the floor of X divided by Size of Chunks
 								static int xFloor;
-								xFloor = floor(x / CHUNK_DIMENSIONS.x);
+								xFloor = floor(x / CHUNK_SIZE_X);
 								if (xFloor > WORLD_DIMENSIONS.x) continue;
 								for (int y = point.y - size; y < point.y + size; y++)
 								{
-										if (y < 0 || y > WORLD_DIMENSIONS.y * CHUNK_DIMENSIONS.y - 1) continue;
+										if (y < 0 || y > WORLD_DIMENSIONS.y * CHUNK_SIZE_Y - 1) continue;
 										static int yFloor;
-										yFloor = floor(y / CHUNK_DIMENSIONS.y);
+										yFloor = floor(y / CHUNK_SIZE_Y);
 										if (yFloor > WORLD_DIMENSIONS.y) continue;
 
-										chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[((y - (yFloor * CHUNK_DIMENSIONS.y) - cameraWorldOffset.y) * CHUNK_DIMENSIONS.x) + (x - (xFloor * CHUNK_DIMENSIONS.x) - cameraWorldOffset.x)] = green;
-										//x pixels[(yFloor * WORLD_DIMENSIONS.x) + xFloor][((y - (yFloor * CHUNK_DIMENSIONS.y)) * CHUNK_DIMENSIONS.x) + (x - (xFloor * CHUNK_DIMENSIONS.x))] = green;
+										chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[((y - (yFloor * CHUNK_SIZE_Y) - cameraWorldOffset.y) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X) - cameraWorldOffset.x)] = green;
+										//x pixels[(yFloor * WORLD_DIMENSIONS.x) + xFloor][((y - (yFloor * CHUNK_SIZE_Y)) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X))] = green;
 								}
 						}
 				}
@@ -119,13 +119,13 @@ void WorldSimulator::Pen(IVec2 point, int size)
 }
 
 void WorldSimulator::Update() {
-		int ChunkOrder = rand() % 2;
+		// int ChunkOrder = rand() % 2;
 
 		//TODO Remvoe this
 		//? Just draws some pixels so that some updates can happen.
 		for (int x = 0; x < WORLD_DIMENSIONS.x; x++)
 		{
-				for (int xDim = 0; xDim < CHUNK_DIMENSIONS.x; xDim++)
+				for (int xDim = 0; xDim < CHUNK_SIZE_X; xDim++)
 				{
 						if (rand() % 1000 == 0) {
 								chunks[IVec2(x, 0)]->pixels[(xDim * 0) + xDim] = blue;
@@ -133,19 +133,15 @@ void WorldSimulator::Update() {
 				}
 		}
 
-		memset(isProcessed, false, (gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_DIMENSIONS.x * 2) * gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_DIMENSIONS.y * 2)) * sizeof(bool));
-
-		std::atomic<int> threadCounter = (0);
 		int xLimits = WORLD_DIMENSIONS.x / 2;
 		int yLimits = WORLD_DIMENSIONS.y / 2;
 		int worldLimits = xLimits * yLimits;
 
-		int xStage, yStage = 0;
+		int xStage, yStage;
+		int chunkUpdates = 0;
 		for (int i = 0; i < 4; i++)
 		{
-				std::vector<std::thread> threadContainer;
-
-				switch (i++)
+				switch (i)
 				{
 				case 0: xStage = 0; yStage = 0; break;
 				case 1: xStage = 1; yStage = 1; break;
@@ -153,21 +149,118 @@ void WorldSimulator::Update() {
 				case 3: xStage = 0; yStage = 1; break;
 				}
 
+				int pendingTasks = 0;
+
+				//TODO ADD threadPoolQue.push(threadPool.add(add_func, size_t(i)));	//tp will block here until add_and_detach_func complete to below
 				for (int xChunk = xStage; xChunk < WORLD_DIMENSIONS.x; xChunk += 2)
 				{
+						if (xChunk >= WORLD_DIMENSIONS.x)
+								continue;
 						for (int yChunk = yStage; yChunk < WORLD_DIMENSIONS.y; yChunk += 2)
 						{
-								//UpdateChunk(IVec2(xChunk, yChunk));
-								std::thread t(&WorldSimulator::UpdateChunk, this, IVec2(xChunk, yChunk));
-								threadContainer.push_back(std::move(t));
+								if (yChunk >= WORLD_DIMENSIONS.y)
+										continue;
+
+								// std::async(UpdateChunk(IVec2(xChunk, yChunk), isProcessedData));
+								threadPoolTasks++;
+								// Submit a lambda object to the pool.
+								boost::asio::post(threadPool, [this, xChunk, yChunk, chunkUpdates]()
+										mutable {
+												// UpdateChunk(xChunk, yChunk, chunkUpdates);
+												// Start
+												IVec2 chunkIndex = IVec2(xChunk, yChunk);
+												//? May need this later?
+												int _localChunkIndex = (yChunk * WORLD_DIMENSIONS.x) + xChunk;
+												//TODO We should pool these so when I chunk this properly we can use only a handful of arrays
+												//Now we know our chunk indexes we create a local group to simplify lookup
+												Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
+												bool* isProcessed = isProcessedQueue[chunkUpdates];
+
+
+												//TODO God this looks ugly
+												// A value of either -1 or 1
+												IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
+
+												int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
+												int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
+
+												if (rand() % 100 == 0)
+														printf("Loop Direction: x%i, y%i\n", LoopDir.x, LoopDir.y);
+
+												while ((LoopDir.y == -1) ? y > 0 : y < CHUNK_SIZE_Y)
+												{
+														y += LoopDir.y;
+														x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
+														if (x < 0 && LoopDir.x < 0) {
+																printf("Wow");
+														}
+														while ((LoopDir.x == -1) ? x > 0 : x < CHUNK_SIZE_X)
+														{
+																x += LoopDir.x;
+
+																int _localIndex = (y * CHUNK_SIZE_X) + x;
+																int _adjustedIndex;
+
+																if (!isProcessed[_localIndex] && localPixels[_localIndex] != 0) {
+
+																		if (localPixels[_localIndex] == brown) {
+																				continue;
+																		}
+
+																		// Check if we're not on the bottom
+																		if (y != CHUNK_SIZE_Y) {
+																				// Down
+																				_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + x;
+																				if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
+																				// Any left-Bound logic
+																				if (x > 0) {
+																						// Down & Left
+																						_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (x - 1);
+																						if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
+																				}
+																				else {
+																						//? IS THIS WORKING?
+																						//? It isn't, at least not well
+																						_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (CHUNK_SIZE_X - 1);
+																						WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x - 1, chunkIndex.y)];
+																						if (neighbourChunk != NULL)
+																								MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
+																				}
+																				// Any Right-Bound logic
+																				if (x < CHUNK_SIZE_X - 1)
+																				{
+																						// Down & Right
+																						_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (x + 1);
+																						if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
+																				}
+																				else {
+																						//? IS THIS WORKING?
+																						_adjustedIndex = ((y)*CHUNK_SIZE_X) + 1;
+																						WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x + 1, chunkIndex.y)];
+																						if (neighbourChunk != NULL)
+																								MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
+																				}
+																		}
+																		else if (chunkIndex.y < WORLD_DIMENSIONS.y - 1) {
+																				_adjustedIndex = x;
+																				WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x, chunkIndex.y + 1)];
+																				// if (neighbourChunk != NULL)
+																				// 		MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
+																		}
+																}
+														}
+												}
+												// End
+												threadPoolTasks--;
+										});
+								chunkUpdates++;
 						}
 				}
-
-				// Wait for our chunks to complete
-				for (auto& t : threadContainer) {
-						t.join();
+				while (threadPoolTasks > 0) {
+						Sleep(1);
 				}
 		}
+		memset(isProcessedQueue, false, (CHUNK_SIZE_X * CHUNK_SIZE_Y) * chunkUpdates + 1);
 }
 
 void WorldSimulator::SubscribeInputs(InputHandler* inputHandler)
@@ -191,17 +284,17 @@ void WorldSimulator::UpdateInput(const int eventType, const SDL_Event* _event)
 bool WorldSimulator::Draw(Camera* camera) {
 		// Copy our texture
 		SDL_Rect rect;
-		rect.w = CHUNK_DIMENSIONS.x;
-		rect.h = CHUNK_DIMENSIONS.y;
+		rect.w = CHUNK_SIZE_X;
+		rect.h = CHUNK_SIZE_Y;
 
 		// Grab our CameraPosition in Pixels
 		SDL_Rect cameraPos = camera->viewPort;
 		// Calculate the Position of the Camera in the world in Chunks
-		Vec2 cameraWorldPosition = Vec2((float)cameraPos.x / CHUNK_DIMENSIONS.x, (float)cameraPos.y / CHUNK_DIMENSIONS.y);
+		Vec2 cameraWorldPosition = Vec2((float)cameraPos.x / CHUNK_SIZE_X, (float)cameraPos.y / CHUNK_SIZE_Y);
 		// Same as above, but now we round to floor
 		IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
 		// Now we remove our position to get our offset
-		IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * CHUNK_DIMENSIONS.x, (cameraWorldPosition.y - cameraChunk.y) * CHUNK_DIMENSIONS.y);
+		IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * CHUNK_SIZE_X, (cameraWorldPosition.y - cameraChunk.y) * CHUNK_SIZE_Y);
 		printf("CameraWorld X: %f, Y: %f\n", cameraWorldPosition.x, cameraWorldPosition.y);
 		printf("CameraPixelOffset X: %i, Y: %i\n", cameraWorldOffset.x, cameraWorldOffset.y);
 
@@ -210,27 +303,27 @@ bool WorldSimulator::Draw(Camera* camera) {
 		//TODO Fix all this vv
 		for (int xVal = 0; xVal < MaxVisibleChunksOnScreen.x; xVal++)
 		{
-				int XChunk = xVal + cameraChunk.x;
+				int XChunk = xVal; // +cameraChunk.x;
 				if (XChunk < 0) continue;
 				else if (XChunk >= WORLD_DIMENSIONS.x) { xVal = MaxVisibleChunksOnScreen.x; continue; }
 
 				for (int yVal = 0; yVal < MaxVisibleChunksOnScreen.y; yVal++)
 				{
-						int YChunk = yVal + cameraChunk.y;
+						int YChunk = yVal;// cameraChunk.y;
 						if (YChunk < 0) continue;
 						else if (YChunk >= WORLD_DIMENSIONS.y) { yVal = MaxVisibleChunksOnScreen.y; continue; }
 
 						// We add one just to center the world based on how we're rendering (Bad choice)
-						rect.x = ((xVal + 1) * CHUNK_DIMENSIONS.x) + cameraWorldOffset.x;
-						rect.y = ((yVal + 1) * CHUNK_DIMENSIONS.y) + cameraWorldOffset.y;
+						rect.x = ((xVal + 1) * CHUNK_SIZE_X); // +cameraWorldOffset.x;
+						rect.y = ((yVal + 1) * CHUNK_SIZE_Y); // +cameraWorldOffset.y;
 
 						// If part of our visible chunk isn't on screen we need to update the texture a different way
-						if (rect.x + CHUNK_DIMENSIONS.x > MaxRenderBox.x || rect.y + CHUNK_DIMENSIONS.y > MaxRenderBox.y) {
+						if (rect.x + CHUNK_SIZE_X > MaxRenderBox.x || rect.y + CHUNK_SIZE_Y > MaxRenderBox.y) {
 								//printf("We Skipped X:%i Y:%i\n", XChunk, y + cameraChunk.y);
 						}
 						else {
 								// We update the texture using the entire chunk data
-								if (SDL_UpdateTexture(worldTexture, &rect, chunks[IVec2(XChunk, YChunk)]->pixels, CHUNK_DIMENSIONS.x * sizeof(Uint32))) {
+								if (SDL_UpdateTexture(worldTexture, &rect, chunks[IVec2(XChunk, YChunk)]->pixels, CHUNK_SIZE_X * sizeof(Uint32))) {
 								}
 						}
 				}
@@ -241,18 +334,18 @@ bool WorldSimulator::Draw(Camera* camera) {
 		// {
 		// 		for (int y = 0; y < WORLD_DIMENSIONS.y; y++)
 		// 		{
-		// 				rect.x = x * CHUNK_DIMENSIONS.x + (CHUNK_DIMENSIONS.x); // +camera->viewPort.x;
-		// 				rect.y = y * CHUNK_DIMENSIONS.y + (CHUNK_DIMENSIONS.y); // +camera->viewPort.y;
+		// 				rect.x = x * CHUNK_SIZE_X + (CHUNK_SIZE_X); // +camera->viewPort.x;
+		// 				rect.y = y * CHUNK_SIZE_Y + (CHUNK_SIZE_Y); // +camera->viewPort.y;
 		// 
 		// 				if (rect.x < 0 || rect.x >= ScreenSize.x) continue;
 		// 				if (rect.y < 0 || rect.y >= ScreenSize.y) continue;
 		// 
 		// 				// If part of our visible chunk isn't on screen we need to update the texture a different way
-		// 				if (rect.x + CHUNK_DIMENSIONS.x + (ScreenSize.x / 2) > ScreenSize.x + (CHUNK_DIMENSIONS.x * 2) || rect.y + CHUNK_DIMENSIONS.y + (ScreenSize.y / 2) > ScreenSize.y + (CHUNK_DIMENSIONS.y * 2)) {
+		// 				if (rect.x + CHUNK_SIZE_X + (ScreenSize.x / 2) > ScreenSize.x + (CHUNK_SIZE_X * 2) || rect.y + CHUNK_SIZE_Y + (ScreenSize.y / 2) > ScreenSize.y + (CHUNK_SIZE_Y * 2)) {
 		// 				}
 		// 				else {
 		// 						// We update the texture using the entire chunk data
-		// 						if (SDL_UpdateTexture(worldTexture, &rect, chunks[IVec2(x, y)]->pixels, CHUNK_DIMENSIONS.x * sizeof(Uint32))) {
+		// 						if (SDL_UpdateTexture(worldTexture, &rect, chunks[IVec2(x, y)]->pixels, CHUNK_SIZE_X * sizeof(Uint32))) {
 		// 						}
 		// 				}
 		// 		}
@@ -265,36 +358,64 @@ bool WorldSimulator::Draw(Camera* camera) {
 
 		//TODO Move or remove this
 		SDL_SetRenderDrawColor(gameRenderer, 50, 50, 50, 50);
-		//SDL_RenderDrawLine(gameRenderer, 0, CHUNK_DIMENSIONS.y, MaxRenderBox.x, CHUNK_DIMENSIONS.y);
-		//SDL_RenderDrawLine(gameRenderer, CHUNK_DIMENSIONS.x, 0, CHUNK_DIMENSIONS.x, MaxRenderBox.y);
-		IVec2 MaxGridSize((ScreenSize.x + (CHUNK_DIMENSIONS.x * 2)) / CHUNK_DIMENSIONS.x, (ScreenSize.y + (CHUNK_DIMENSIONS.y * 2)) / CHUNK_DIMENSIONS.y);
-		for (int x = 0; x < MaxGridSize.x; x++)
-		{
-				for (int y = 0; y < MaxGridSize.y; y++)
-				{
-						SDL_RenderDrawLine(gameRenderer, 0, (y * CHUNK_DIMENSIONS.y) + cameraWorldOffset.y, (CHUNK_DIMENSIONS.x * MaxGridSize.x), (y * CHUNK_DIMENSIONS.y) + cameraWorldOffset.y);
-						SDL_RenderDrawLine(gameRenderer, (x * CHUNK_DIMENSIONS.x) + cameraWorldOffset.x, 0, (x * CHUNK_DIMENSIONS.x) + cameraWorldOffset.x, (CHUNK_DIMENSIONS.y * MaxGridSize.y));
-				}
-		}
+		//SDL_RenderDrawLine(gameRenderer, 0, CHUNK_SIZE_Y, MaxRenderBox.x, CHUNK_SIZE_Y);
+		//SDL_RenderDrawLine(gameRenderer, CHUNK_SIZE_X, 0, CHUNK_SIZE_X, MaxRenderBox.y);
+		
+		// IVec2 MaxGridSize((ScreenSize.x + (CHUNK_SIZE_X * 2)) / CHUNK_SIZE_X, (ScreenSize.y + (CHUNK_SIZE_Y * 2)) / CHUNK_SIZE_Y);
+		// for (int x = 0; x < MaxGridSize.x; x++)
+		// {
+		// 		for (int y = 0; y < MaxGridSize.y; y++)
+		// 		{
+		// 				SDL_RenderDrawLine(gameRenderer, 0, (y * CHUNK_SIZE_Y) + cameraWorldOffset.y, (CHUNK_SIZE_X * MaxGridSize.x), (y * CHUNK_SIZE_Y) + cameraWorldOffset.y);
+		// 				SDL_RenderDrawLine(gameRenderer, (x * CHUNK_SIZE_X) + cameraWorldOffset.x, 0, (x * CHUNK_SIZE_X) + cameraWorldOffset.x, (CHUNK_SIZE_Y * MaxGridSize.y));
+		// 		}
+		// }
 
 		return true;
 }
 
-void WorldSimulator::UpdateChunk(IVec2 chunkIndex)
+void WorldSimulator::UpdateChunk(int xIndex, int yIndex, int isProcessedIndex)
 {
+		IVec2 chunkIndex = IVec2(xIndex, yIndex);
 		//? May need this later?
-		int _localChunkIndex = (chunkIndex.y * WORLD_DIMENSIONS.x) + chunkIndex.x;
+		int _localChunkIndex = (yIndex * WORLD_DIMENSIONS.x) + xIndex;
 		//TODO We should pool these so when I chunk this properly we can use only a handful of arrays
 		//Now we know our chunk indexes we create a local group to simplify lookup
 		Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
+		bool* isProcessed = isProcessedQueue[isProcessedIndex];
 
-		for (int y = CHUNK_DIMENSIONS.y - 1; y >= 0; y--)
+
+		//TODO God this looks ugly
+		// A value of either -1 or 1
+		IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
+
+		int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
+		int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
+
+		if (rand() % 100 == 0)
+				printf("Loop Direction: x%i, y%i\n", LoopDir.x, LoopDir.y);
+
+		while ((LoopDir.y == -1) ? y > 0 : y < CHUNK_SIZE_Y)
 		{
-				for (int x = CHUNK_DIMENSIONS.x - 1; x >= 0; x--)
+				y += LoopDir.y;
+				x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
+				if (x < 0 && LoopDir.x < 0) {
+						printf("Wow");
+				}
+				while ((LoopDir.x == -1) ? x > 0 : x < CHUNK_SIZE_X)
 				{
-						// Set our Local Index
-						int _localIndex = (y * CHUNK_DIMENSIONS.x) + x;
+						x += LoopDir.x;
+						//for (int y = CHUNK_SIZE_Y - 1; y >= 0; y--)
+						//{
+						//		for (int x = CHUNK_SIZE_X - 1; x >= 0; x--)
+						//		{
+										// Set our Local Index
+						int _localIndex = (y * CHUNK_SIZE_X) + x;
 						int _adjustedIndex;
+
+						if (_localIndex < 0) {
+								printf("Wow");
+						}
 
 						if (!isProcessed[_localIndex] && localPixels[_localIndex] != 0) {
 								//printf("Wow");
@@ -303,41 +424,41 @@ void WorldSimulator::UpdateChunk(IVec2 chunkIndex)
 								}
 
 								// Check if we're not on the bottom
-								if (y < CHUNK_DIMENSIONS.y - 1) {
+								if (y < CHUNK_SIZE_Y - 1) {
 										// Down
-										_adjustedIndex = ((y + 1) * CHUNK_DIMENSIONS.x) + x;
+										_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + x;
 										if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
 										// Any left-Bound logic
 										if (x > 0) {
 												// Down & Left
-												_adjustedIndex = ((y + 1) * CHUNK_DIMENSIONS.x) + (x - 1);
+												_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (x - 1);
 												if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
 										}
 										else {
 												//? IS THIS WORKING?
 												//? It isn't, at least not well
-												_adjustedIndex = ((y + 1) * CHUNK_DIMENSIONS.x) + (CHUNK_DIMENSIONS.x - 1);
+												_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (CHUNK_SIZE_X - 1);
 												WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x - 1, chunkIndex.y)];
 												if (neighbourChunk != NULL)
 														MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
 										}
 										// Any Right-Bound logic
-										if (x < CHUNK_DIMENSIONS.x - 1)
+										if (x < CHUNK_SIZE_X - 1)
 										{
 												// Down & Right
-												_adjustedIndex = ((y + 1) * CHUNK_DIMENSIONS.x) + (x + 1);
+												_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (x + 1);
 												if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
 										}
 										else {
 												//? IS THIS WORKING?
-												_adjustedIndex = ((y)*CHUNK_DIMENSIONS.x) + 1;
+												_adjustedIndex = ((y)*CHUNK_SIZE_X) + 1;
 												WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x + 1, chunkIndex.y)];
 												if (neighbourChunk != NULL)
 														MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
 										}
 								}
 								else if (chunkIndex.y < WORLD_DIMENSIONS.y - 1) {
-										_adjustedIndex = ((0) * CHUNK_DIMENSIONS.x) + x;
+										_adjustedIndex = ((0) * CHUNK_SIZE_X) + x;
 										WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x, chunkIndex.y + 1)];
 										if (neighbourChunk != NULL)
 												MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
@@ -346,6 +467,7 @@ void WorldSimulator::UpdateChunk(IVec2 chunkIndex)
 				}
 		}
 }
+
 
 Uint32* WorldSimulator::returnChunk(int chunkIndex)
 {
