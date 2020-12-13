@@ -56,6 +56,8 @@ public:
 
 		SDL_Texture* worldTexture = nullptr;
 
+		bool DEBUG_DrawChunkLines = true;
+
 		//std::vector<SDL_Texture*> activeTextures;
 
 		WorldSimulator(SDL_Renderer* renderer, GameSettings* settings) {
@@ -89,9 +91,7 @@ public:
 
 protected:
 		// Attempts to update the entire chunk using the game logic.
-		void UpdateChunk(int x, int y, int isProcessedIndex);
+		//? void UpdateChunk(int x, int y, int isProcessedIndex);
 		// Returns the index to the chunk array, should be used for neighbouring calls to save repeat calls.
 		Uint32* returnChunk(int chunkIndex);
-		// Moves a pixel from one location to another, returning true if anything was moved.
-		bool MovePixel(Uint32* chunk, int from, int to, Uint32* toChunk = nullptr);
 };

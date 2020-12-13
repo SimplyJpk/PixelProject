@@ -1,5 +1,5 @@
 #pragma once
-#include "ChunkDirectionIndex.h"
+#include "ChunkDirection.h"
 #include "Vec2.h"
 
 #include <vector>
@@ -9,7 +9,7 @@ class WorldChunk
 {
 public:
 		IVec2 position;
-		WorldChunk* neighbourChunks[ChunkDirectionIndex::DIR_COUNT] = { nullptr };
+		WorldChunk* neighbourChunks[ChunkDirection::DIR_COUNT];
 
 		Uint32* pixels = nullptr;
 
@@ -18,7 +18,7 @@ public:
 		}
 
 		/// <summary> Sets the chunks neighbour with zero error checking.</summary>
-		void SetNeighbour(ChunkDirectionIndex dir, WorldChunk* neighbour) {
+		void SetNeighbour(ChunkDirection dir, WorldChunk* neighbour) {
 				neighbourChunks[dir] = neighbour;
 		}
 };

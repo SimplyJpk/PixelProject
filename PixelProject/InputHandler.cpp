@@ -24,6 +24,7 @@ void InputHandler::HandleInput()
 								CallEvents(InputEvent::USER_CLICK_DOWN, &_inputEvent);
 								leftClickUpdated = true;
 						}
+						break;
 				case SDL_KEYDOWN:
 						// We fire any KeyBoard events listening for just a keyboard update (These may just use the event to determine what they're doing)
 						CallEvents(InputEvent::RAW_KEYBOARD_INPUT, &_inputEvent);

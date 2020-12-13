@@ -163,7 +163,8 @@
   <ItemGroup>
     <ClInclude Include="boost\threadpool.hpp" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="ChunkDirectionIndex.h" />
+    <ClInclude Include="ChunkDirection.h" />
+    <ClInclude Include="ChunkUtility.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputEventTypes.h" />
     <ClInclude Include="InputHandler.h" />
