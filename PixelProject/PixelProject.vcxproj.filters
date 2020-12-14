@@ -52,6 +52,12 @@
     <Filter Include="Header Files\Containers">
       <UniqueIdentifier>{425c57c3-7891-46fd-94de-92163ed0270e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\World\Pixels">
+      <UniqueIdentifier>{d4470289-2011-4e2f-aa37-150f6ba0a023}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\World\Utility">
+      <UniqueIdentifier>{dbca8756-a4a7-49a4-8dc1-9ca66c22779f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -71,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="PaintManager.cpp">
+      <Filter>Source Files\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,11 +125,26 @@
     <ClInclude Include="Logger.h">
       <Filter>Header Files\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkDirection.h">
-      <Filter>Header Files\World</Filter>
+    <ClInclude Include="GroundPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
     <ClInclude Include="ChunkUtility.h">
+      <Filter>Header Files\World\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkDirection.h">
+      <Filter>Header Files\World\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="PaintManager.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldDataHandler.h">
       <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="BasePixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

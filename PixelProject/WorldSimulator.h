@@ -9,6 +9,7 @@
 #include "GameObject.h"
 #include "GameSettings.h"
 #include "WorldChunk.h"
+#include "WorldDataHandler.h"
 
 #include <boost/asio/post.hpp>
 #include <boost/asio/thread_pool.hpp>
@@ -53,6 +54,7 @@ public:
 		const int MAX_ACTIVE_CHUNKS = 12;
 
 		GameSettings* gameSettings;
+		WorldDataHandler* worldDataHandler;
 
 		SDL_Texture* worldTexture = nullptr;
 
@@ -70,6 +72,8 @@ public:
 				MaxVisibleChunksOnScreen = IVec2((gameSettings->_CONFIG_SCREEN_SIZE.x / CHUNK_SIZE_X) + 2, (gameSettings->_CONFIG_SCREEN_SIZE.y / CHUNK_SIZE_Y) + 2);
 				// Max pixel width/height allowed for the texture
 				MaxRenderBox = IVec2(gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_SIZE_X * 2), gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_SIZE_Y * 2));
+
+				worldDataHandler = settings->_worldPixelData;
 		}
 
 		//TODO Chunk object?

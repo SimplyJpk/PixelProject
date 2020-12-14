@@ -166,16 +166,20 @@
     <ClInclude Include="ChunkDirection.h" />
     <ClInclude Include="ChunkUtility.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GroundPixel.h" />
     <ClInclude Include="InputEventTypes.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="LinkedList.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MemoryUsage.h" />
+    <ClInclude Include="BasePixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="VecHash.h" />
+    <ClInclude Include="WaterPixel.h" />
     <ClInclude Include="WorldChunk.h" />
+    <ClInclude Include="WorldDataHandler.h" />
     <ClInclude Include="WorldSimulator.h" />
   </ItemGroup>
   <ItemGroup>
