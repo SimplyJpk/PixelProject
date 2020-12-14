@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="PaintManager.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkDirection.h" />
     <ClInclude Include="ChunkUtility.h" />
+    <ClInclude Include="PaintManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GroundPixel.h" />
     <ClInclude Include="InputEventTypes.h" />
