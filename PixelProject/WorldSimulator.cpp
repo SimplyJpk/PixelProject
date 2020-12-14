@@ -220,7 +220,7 @@ void WorldSimulator::Update() {
 																								}
 																								else if (chunkIndex.x < WORLD_DIMENSIONS.x - 1) {
 																										if (isProcessed[_adjustedIndex] = 
-																												ChunkUtility::MovePixel(localPixels, _localIndex, ((y + 1) * CHUNK_SIZE_X) , chunks[chunkIndex]->neighbourChunks[ChunkDirection::East]->pixels)) continue;
+																												ChunkUtility::MovePixel(localPixels, _localIndex, ((y + 2) * CHUNK_SIZE_X) , chunks[chunkIndex]->neighbourChunks[ChunkDirection::East]->pixels)) continue;
 																								}
 																						}
 																						else if (LoopDir.x == -1) {
