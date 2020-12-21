@@ -2,20 +2,20 @@
 #include <math.h>
 #include <map>
 #include "Camera.h"
-#include "InputHandler.h"
 #include <thread>
 #include <vector>
 #include <atomic>
 
 #include "Logger.h"
 #include "ChunkUtility.h"
+#include "InputManager.h"
 
 void WorldSimulator::Start()
 {
 		// Allocate our pixels and processing bools
 		ChunkTotalSize = CHUNK_SIZE_X * CHUNK_SIZE_Y;
 
-		//gameSettings->_CONFIG_SCREEN_SIZE = IVec2(WORLD_DIMENSIONS.x;
+		//gameSettings->Screen_Size = IVec2(WORLD_DIMENSIONS.x;
 		// pixels = new Uint32[WORLD_DIMENSIONS.x, WORLD_DIMENSIONS.y, ChunkTotalSize];
 		// isProcessed = new bool[WORLD_DIMENSIONS.x, WORLD_DIMENSIONS.y, ChunkTotalSize];
 
@@ -72,14 +72,14 @@ void WorldSimulator::Start()
 		}
 
 		// Create our world texture, we use this to render the world chunks.
-		worldTexture = SDL_CreateTexture(gameRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, gameSettings->_CONFIG_SCREEN_SIZE.x + (CHUNK_SIZE_X * 2), gameSettings->_CONFIG_SCREEN_SIZE.y + (CHUNK_SIZE_Y * 2));
+		worldTexture = SDL_CreateTexture(gameRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, gameSettings->Screen_Size.x + (CHUNK_SIZE_X * 2), gameSettings->Screen_Size.y + (CHUNK_SIZE_Y * 2));
 		if (worldTexture == NULL) {
 				printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
 				SDL_ClearError();
 		}
 }
 
-void WorldSimulator::Pen(IVec2 point, int size)
+void WorldSimulator::Pen(IVec2 point, BasePixel* pixelType, int size)
 {
 		// Grab our CameraPosition in Pixels
 		SDL_Rect cameraPos = cam->viewPort;
@@ -90,6 +90,7 @@ void WorldSimulator::Pen(IVec2 point, int size)
 		// Now we remove our position to get our offset
 		IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * CHUNK_SIZE_X, (cameraWorldPosition.y - cameraChunk.y) * CHUNK_SIZE_Y);
 
+		short min = 0, max = pixelType->ColourCount;
 		//TODO Fix this? Error based on drawing, likely on Line 111 when we're just passing our CameraChunk in without any additional checks
 
 		//TODO A lot of math, we should be able to simplify this easily enough by storing within scope. 
@@ -111,8 +112,9 @@ void WorldSimulator::Pen(IVec2 point, int size)
 										yFloor = floor(y / CHUNK_SIZE_Y);
 										if (yFloor > WORLD_DIMENSIONS.y) continue;
 
-										chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[((y - (yFloor * CHUNK_SIZE_Y) - cameraWorldOffset.y) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X) - cameraWorldOffset.x)] = green;
-										//x pixels[(yFloor * WORLD_DIMENSIONS.x) + xFloor][((y - (yFloor * CHUNK_SIZE_Y)) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X))] = green;
+										chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[
+												((y - (yFloor * CHUNK_SIZE_Y) - cameraWorldOffset.y) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X) - cameraWorldOffset.x)
+										] = pixelType->TypeColours[(rand() % max)];
 								}
 						}
 				}
@@ -120,16 +122,21 @@ void WorldSimulator::Pen(IVec2 point, int size)
 }
 
 void WorldSimulator::Update() {
-		// int ChunkOrder = rand() % 2;
-
+		//TODO Put this somewhere more expected and not stupid
+		gameSettings->_paintManager->UpdateInput();
+		// Update our Input First
+		UpdateInput();
 		//TODO Remvoe this
-		//? Just draws some pixels so that some updates can happen.
-		for (int x = 0; x < WORLD_DIMENSIONS.x; x++)
-		{
-				for (int xDim = 0; xDim < CHUNK_SIZE_X; xDim++)
+		if (DEBUG_DropSand) {
+				BasePixel* sandPixel = worldDataHandler->GetPixelFromIndex(3);
+				short maxSandColours = sandPixel->ColourCount;
+				for (int x = 0; x < WORLD_DIMENSIONS.x; x++)
 				{
-						if (rand() % 1000 == 0) {
-								chunks[IVec2(x, 0)]->pixels[(xDim * 0) + xDim] = blue;
+						for (int xDim = 0; xDim < CHUNK_SIZE_X; xDim++)
+						{
+								if (rand() % DEBUG_SandDropRate == 0) {
+										chunks[IVec2(x, 0)]->pixels[(xDim * 0) + xDim] = sandPixel->TypeColours[0, (rand() % maxSandColours)];
+								}
 						}
 				}
 		}
@@ -177,15 +184,12 @@ void WorldSimulator::Update() {
 												Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
 												bool* isProcessed = isProcessedQueue[chunkUpdates];
 
-												//TODO God this looks ugly
+												//TODO God this looks ugly, also rand is expensive, use a different rand imp
 												// A value of either -1 or 1
 												IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
 
 												int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
 												int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
-
-												//if (rand() % 100 == 0)
-												//		printf("Loop Direction: x%i, y%i\n", LoopDir.x, LoopDir.y);
 
 												while ((LoopDir.y == -1) ? y > 0 : y < (CHUNK_SIZE_Y - 1))
 												{
@@ -200,9 +204,10 @@ void WorldSimulator::Update() {
 
 																if (!isProcessed[_localIndex] && localPixels[_localIndex] != 0) {
 
-																		if (localPixels[_localIndex] == brown) {
+																		BasePixel* pixel = worldDataHandler->GetPixelType(localPixels[_localIndex]);
+
+																		if (!pixel->isUpdateable())
 																				continue;
-																		}
 
 																		// Check if we're not on the bottom
 																		if (y < CHUNK_SIZE_Y - 1) {
@@ -271,31 +276,42 @@ void WorldSimulator::Update() {
 		}
 }
 
-void WorldSimulator::SubscribeInputs(InputHandler* inputHandler)
+void WorldSimulator::UpdateInput()
 {
-		// When user is clicking/holding mouse down, we want to draw
-		inputHandler->Subscribe(this, InputEvent::USER_CLICK_DOWN);
-		inputHandler->Subscribe(this, InputEvent::RAW_KEYBOARD_INPUT);
-}
+		InputManager* input = InputManager::Instance();
+		IVec2 mousePos = input->MousePosition();
 
-void WorldSimulator::UpdateInput(const int eventType, const SDL_Event* _event)
-{
-		switch (eventType)
-		{
-		case USER_CLICK_DOWN:
-				Pen(IVec2(_event->motion.x, _event->motion.y), 5);
-				break;
-		case RAW_KEYBOARD_INPUT:
-				switch (_event->key.keysym.sym)
-				{
-				case SDL_KeyCode::SDLK_d:
-								DEBUG_DrawChunkLines = !DEBUG_DrawChunkLines;
-								break;
-				default:
-						break;
+		if (input->GetMouseButton(MouseLeft)) {
+				Pen(mousePos, gameSettings->_paintManager->SelectedPixel, 5);
+		}
+		if (input->GetMouseButton(MouseRight)) {
+				Pen(mousePos, worldDataHandler->GetPixelFromIndex(0), 5);
+		}
+
+		if (input->GetKeyDown(KeyCode::D)) {
+				DEBUG_DrawChunkLines != DEBUG_DrawChunkLines;
+		}
+		if (input->GetKeyDown(KeyCode::Space)) {
+				DEBUG_DropSand = !DEBUG_DropSand;
+		}
+		if (input->GetKeyDown(KeyCode::M)) {
+				DEBUG_SandDropRate += 5;
+		}
+		if (input->GetKeyDown(KeyCode::N)) {
+				if (DEBUG_SandDropRate > 1) {
+						DEBUG_SandDropRate--;
 				}
-		default:
-				break;
+		}
+		//TODO Move this into its own method?
+		//? Only debug, a more complete solution that only deletes pixels of type would be cool
+		if (input->GetKeyDown(KeyCode::Return)) {
+				for (int y = 0; y < WORLD_DIMENSIONS.y; y++)
+				{
+						for (int x = 0; x < WORLD_DIMENSIONS.x; x++)
+						{
+								memset(chunks[IVec2(x, y)]->pixels, 0, ChunkTotalSize * sizeof(Uint32));
+						}
+				}
 		}
 }
 
@@ -316,7 +332,7 @@ bool WorldSimulator::Draw(Camera* camera) {
 		//? printf("CameraWorld X: %f, Y: %f\n", cameraWorldPosition.x, cameraWorldPosition.y);
 		//? printf("CameraPixelOffset X: %i, Y: %i\n", cameraWorldOffset.x, cameraWorldOffset.y);
 
-		IVec2 ScreenSize = gameSettings->_CONFIG_SCREEN_SIZE;
+		IVec2 ScreenSize = gameSettings->Screen_Size;
 
 		//TODO Fix all this vv
 		for (int xVal = 0; xVal < MaxVisibleChunksOnScreen.x; xVal++)
@@ -347,28 +363,6 @@ bool WorldSimulator::Draw(Camera* camera) {
 				}
 		}
 
-		///  Old attempt at rendering, doesn't account for world padding
-		// for (int x = cameraChunk.x; x < WORLD_DIMENSIONS.x; x++)
-		// {
-		// 		for (int y = 0; y < WORLD_DIMENSIONS.y; y++)
-		// 		{
-		// 				rect.x = x * CHUNK_SIZE_X + (CHUNK_SIZE_X); // +camera->viewPort.x;
-		// 				rect.y = y * CHUNK_SIZE_Y + (CHUNK_SIZE_Y); // +camera->viewPort.y;
-		// 
-		// 				if (rect.x < 0 || rect.x >= ScreenSize.x) continue;
-		// 				if (rect.y < 0 || rect.y >= ScreenSize.y) continue;
-		// 
-		// 				// If part of our visible chunk isn't on screen we need to update the texture a different way
-		// 				if (rect.x + CHUNK_SIZE_X + (ScreenSize.x / 2) > ScreenSize.x + (CHUNK_SIZE_X * 2) || rect.y + CHUNK_SIZE_Y + (ScreenSize.y / 2) > ScreenSize.y + (CHUNK_SIZE_Y * 2)) {
-		// 				}
-		// 				else {
-		// 						// We update the texture using the entire chunk data
-		// 						if (SDL_UpdateTexture(worldTexture, &rect, chunks[IVec2(x, y)]->pixels, CHUNK_SIZE_X * sizeof(Uint32))) {
-		// 						}
-		// 				}
-		// 		}
-		// }
-
 		if (SDL_RenderCopy(gameRenderer, worldTexture, &WorldRenderRect, NULL) != 0) {
 				printf("WorldRender Failed!\nError:%s\n", SDL_GetError());
 				SDL_ClearError();
@@ -392,101 +386,6 @@ bool WorldSimulator::Draw(Camera* camera) {
 		}
 		return true;
 }
-
-//? void WorldSimulator::UpdateChunk(int xIndex, int yIndex, int isProcessedIndex)
-//{
-//		IVec2 chunkIndex = IVec2(xIndex, yIndex);
-//		//? May need this later?
-//		int _localChunkIndex = (yIndex * WORLD_DIMENSIONS.x) + xIndex;
-//		//TODO We should pool these so when I chunk this properly we can use only a handful of arrays
-//		//Now we know our chunk indexes we create a local group to simplify lookup
-//		Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
-//		bool* isProcessed = isProcessedQueue[isProcessedIndex];
-//
-//
-//		//TODO God this looks ugly
-//		// A value of either -1 or 1
-//		IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
-//
-//		int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
-//		int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
-//
-//		if (rand() % 100 == 0)
-//				printf("Loop Direction: x%i, y%i\n", LoopDir.x, LoopDir.y);
-//
-//		while ((LoopDir.y == -1) ? y > 0 : y < CHUNK_SIZE_Y)
-//		{
-//				y += LoopDir.y;
-//				x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
-//				if (x < 0 && LoopDir.x < 0) {
-//						printf("Wow");
-//				}
-//				while ((LoopDir.x == -1) ? x > 0 : x < CHUNK_SIZE_X)
-//				{
-//						x += LoopDir.x;
-//						//for (int y = CHUNK_SIZE_Y - 1; y >= 0; y--)
-//						//{
-//						//		for (int x = CHUNK_SIZE_X - 1; x >= 0; x--)
-//						//		{
-//										// Set our Local Index
-//						int _localIndex = (y * CHUNK_SIZE_X) + x;
-//						int _adjustedIndex;
-//
-//						if (_localIndex < 0) {
-//								printf("Wow");
-//						}
-//
-//						if (!isProcessed[_localIndex] && localPixels[_localIndex] != 0) {
-//								//printf("Wow");
-//								if (localPixels[_localIndex] == brown) {
-//										continue;
-//								}
-//
-//								// Check if we're not on the bottom
-//								if (y < CHUNK_SIZE_Y - 1) {
-//										// Down
-//										_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + x;
-//										if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
-//										// Any left-Bound logic
-//										if (x > 0) {
-//												// Down & Left
-//												_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (x - 1);
-//												if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
-//										}
-//										else {
-//												//? IS THIS WORKING?
-//												//? It isn't, at least not well
-//												_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (CHUNK_SIZE_X - 1);
-//												WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x - 1, chunkIndex.y)];
-//												if (neighbourChunk != NULL)
-//														MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
-//										}
-//										// Any Right-Bound logic
-//										if (x < CHUNK_SIZE_X - 1)
-//										{
-//												// Down & Right
-//												_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + (x + 1);
-//												if (isProcessed[_adjustedIndex] = MovePixel(localPixels, _localIndex, _adjustedIndex)) continue;
-//										}
-//										else {
-//												//? IS THIS WORKING?
-//												_adjustedIndex = ((y)*CHUNK_SIZE_X) + 1;
-//												WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x + 1, chunkIndex.y)];
-//												if (neighbourChunk != NULL)
-//														MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
-//										}
-//								}
-//								else if (chunkIndex.y < WORLD_DIMENSIONS.y - 1) {
-//										_adjustedIndex = ((0) * CHUNK_SIZE_X) + x;
-//										WorldChunk* neighbourChunk = chunks[IVec2(chunkIndex.x, chunkIndex.y + 1)];
-//										if (neighbourChunk != NULL)
-//												MovePixel(localPixels, _localIndex, _adjustedIndex, neighbourChunk->pixels);
-//								}
-//						}
-//				}
-//		}
-//}
-
 
 Uint32* WorldSimulator::returnChunk(int chunkIndex)
 {

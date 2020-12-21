@@ -28,9 +28,6 @@
     <Filter Include="Source Files\Config">
       <UniqueIdentifier>{40ed5509-e7ed-4fa1-ad47-a1a4a176f0d9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Math">
-      <UniqueIdentifier>{03a16b45-cbf7-4615-89c1-7ef79a49a7f3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Camera">
       <UniqueIdentifier>{8ebc31ba-d166-49b2-a725-51ba9b9c5c76}</UniqueIdentifier>
     </Filter>
@@ -58,6 +55,21 @@
     <Filter Include="Header Files\World\Utility">
       <UniqueIdentifier>{dbca8756-a4a7-49a4-8dc1-9ca66c22779f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{eb7eb40a-8728-4c6b-9759-9188af90ce27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{72295bee-62cd-48c5-9e51-92515e73ebcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Math">
+      <UniqueIdentifier>{03a16b45-cbf7-4615-89c1-7ef79a49a7f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ImGUI">
+      <UniqueIdentifier>{f28b432e-ad37-47e0-a679-66e5e35657e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ImGUI\ImGUISDL">
+      <UniqueIdentifier>{f66781e2-75b0-484d-97cb-b0a206837fe7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,14 +84,32 @@
     <ClCompile Include="WorldChunk.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
-    <ClCompile Include="InputHandler.cpp">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="PaintManager.cpp">
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_draw.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_tables.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_widgets.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_demo.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui_sdl-master\imgui_sdl.cpp">
+      <Filter>Source Files\ImGUI\ImGUISDL</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
       <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldDataHandler.cpp">
+      <Filter>Source Files\World</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,12 +133,6 @@
     </ClInclude>
     <ClInclude Include="VecHash.h">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="InputHandler.h">
-      <Filter>Header Files\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="InputEventTypes.h">
-      <Filter>Header Files\Input</Filter>
     </ClInclude>
     <ClInclude Include="LinkedList.h">
       <Filter>Header Files</Filter>
@@ -145,6 +169,45 @@
     </ClInclude>
     <ClInclude Include="BasePixel.h">
       <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui_internal.h">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_rectpack.h">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_textedit.h">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_truetype.h">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imconfig.h">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui.h">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui_sdl-master\imgui_sdl.h">
+      <Filter>Source Files\ImGUI\ImGUISDL</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIManager.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SandPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug_StopWatch.h">
+      <Filter>Header Files\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="SpacePixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="InputKeyCodes.h">
+      <Filter>Source Files\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

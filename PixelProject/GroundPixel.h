@@ -5,6 +5,7 @@ class GroundPixel : public BasePixel
 {
 public:
 		GroundPixel() {
+				name = "Ground";
 				ColourCount = 3;
 				// Browns
 				TypeColours[0] = 0x964b0000;
@@ -12,10 +13,7 @@ public:
 				TypeColours[2] = 0x96260000;
 		}
 
-		const char* Name()
-		{
-				return "Ground";
-		}
+		bool isUpdateable() { return false; }
 
 private:
 };

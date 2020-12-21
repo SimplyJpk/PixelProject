@@ -14,9 +14,9 @@ public:
 		virtual void Update() { };
 		virtual void Destroy() { };
 
-		//TODO this could probably be made into its own interface?
-		virtual void SubscribeInputs(InputHandler* inputHandler) {};
-		virtual void UpdateInput(const int eventType, const SDL_Event* _event) { };
+		//x TODO this could probably be made into its own interface?
+		//x  virtual void SubscribeInputs(InputHandler* inputHandler) {};
+		//x  virtual void UpdateInput(const int eventType, const SDL_Event* _event) { };
 
 		//TODO Move this into a renderer class?
 		// TODO Hopefully temp draw method?

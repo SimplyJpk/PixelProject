@@ -3,22 +3,22 @@
 
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "Vec2.h"
-#include "WorldDataHandler.h"
+#include "PaintManager.h"
 
 //TODO Should probably wrap this up into an object
 
 struct GameSettings
 {
-		IVec2 _CONFIG_SCREEN_SIZE;
+		IVec2 Screen_Size;
 		FC_Font* _font;
 
-		WorldDataHandler* _worldPixelData;
+		PaintManager* _paintManager;
 
 		GameSettings() {
 				_font = nullptr;
-				_CONFIG_SCREEN_SIZE = IVec2::Zero();
+				Screen_Size = IVec2::Zero();
 
-				_worldPixelData = new WorldDataHandler();
+				_paintManager = new PaintManager();
 		}
 };
 

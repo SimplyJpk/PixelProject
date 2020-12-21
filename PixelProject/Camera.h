@@ -8,10 +8,10 @@ public:
 		SDL_Rect viewPort;
 
 		Camera(GameSettings* settings) {
-				SetScreenSize(settings->_CONFIG_SCREEN_SIZE);
+				SetScreenSize(settings->Screen_Size);
 		}
 		Camera(IVec2 position, GameSettings* settings) {
-				SetScreenSize(settings->_CONFIG_SCREEN_SIZE);
+				SetScreenSize(settings->Screen_Size);
 				SetPosition(position);
 		}
 		
@@ -27,8 +27,8 @@ public:
 				viewPort.y = pos.y;
 		}
 
-		void SubscribeInputs(InputHandler* inputHandler) override;
-		void UpdateInput(const int eventType, const SDL_Event* _event) override;
+		//x void SubscribeInputs(InputHandler* inputHandler) override;
+		//x void UpdateInput(const int eventType, const SDL_Event* _event) override;
 
 private:
 		Camera();

@@ -6,11 +6,20 @@
 class BasePixel
 {
 public:
-		virtual const char* Name() = 0;
-		short ColourCount = 0;
-		Uint32 TypeColours [MAX_PIXEL_COLOUR_COUNT]{ 0 };
+		virtual const char* Name() { return name; }
+		virtual bool isUpdateable() { return true; }
 
-		bool isUpdateable = true;
-		bool isMoveable = true;
+		const char* name = "UNKNOWN";
+
+		short PixelIndex = -1;
+		short ColourCount = 0;
+		Uint32 TypeColours[MAX_PIXEL_COLOUR_COUNT]{ 0 };
+
+		virtual bool Update() {
+
+				return false;
+		};
 };
+
+
 

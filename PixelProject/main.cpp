@@ -8,10 +8,9 @@
 #include "Vec2.h"
 #include "WorldSimulator.h"
 #include "Camera.h"
-#include "InputHandler.h"
+#include "GUIManager.h"
 
-//TODO Make sure this doesn't stay here, debug headers?
-#include "MemoryUsage.h"
+#include "InputManager.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720 - 32;
@@ -26,7 +25,9 @@ const int DRAW_SIZE = 5;
 
 bool Shutdown = false;
 
+InputManager* inputManager;
 WorldSimulator* worldSim;
+GUIManager* guiManager;
 
 void ExitGame(int eventType, SDL_Event* _event) {
 		Shutdown = true;
@@ -34,14 +35,24 @@ void ExitGame(int eventType, SDL_Event* _event) {
 
 int main(int argc, char** argv)
 {
+		// In-Game Commands
+		printf("/--\t\tCommands\n");
+		printf("|- TAB\t\t- Change Pixel type\n");
+		printf("|- Mouse1\t- Draw Selected Pixel\n");
+		printf("|- Mouse2\t- Clear 5x5 Pixels\n");
+		printf("|- N\t\t- Increase Sand Spawn\n");
+		printf("|- M\t\t- Slow Sand Spawn\n");
+		printf("|- SPACE\t- Toggle Sand Spawn\n");
+		printf("|- ENTER\t- Restart World (Clears Everything)\n");
+		// End
+
 		srand(time(NULL));
 
-		MemoryUsage memUsage;
 		// Initalize our settings
 		//TODO Make a serializable settings file?
 		//TODO Wrap this?
 		GameSettings* settings = new GameSettings();
-		settings->_CONFIG_SCREEN_SIZE = IVec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+		settings->Screen_Size = IVec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		// Create a new Window to use
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
@@ -58,6 +69,8 @@ int main(int argc, char** argv)
 
 		SDL_Renderer* renderer = NULL;
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+		// Init ImGUI
+		guiManager = new GUIManager(renderer, settings);
 
 		// SDL_Texture* texture = SDL_CreateTexture(renderer,
 		// 		SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, CHUNK_DIMENSIONS.x, CHUNK_DIMENSIONS.y);
@@ -98,7 +111,7 @@ int main(int argc, char** argv)
 		lastUpdate = SDL_GetTicks();
 
 		// Initialize all our junk
-		InputHandler* inputHandler = new InputHandler();
+		inputManager = InputManager::Instance();
 		// Create our WorldSimulator
 		worldSim = new WorldSimulator(renderer, settings);
 		Camera* mainCam = new Camera(IVec2(0,0), settings);
@@ -114,9 +127,7 @@ int main(int argc, char** argv)
 
 		// Start
 		worldSim->Start();
-		worldSim->SubscribeInputs(inputHandler);
 		mainCam->Start();
-		mainCam->SubscribeInputs(inputHandler);
 		// Update
 		while (!Shutdown)
 		{
@@ -125,7 +136,7 @@ int main(int argc, char** argv)
 				frameStart = SDL_GetTicks();
 
 				// Check Inputs
-				inputHandler->HandleInput();
+				inputManager->Update();
 				if (Shutdown) break;
 
 				// Updates
@@ -145,8 +156,9 @@ int main(int argc, char** argv)
 				// Copy our texture
 				//x SDL_RenderCopy(renderer, texture, NULL, &textureRect);
 				FC_Draw(font, renderer, 10, 10, "Target FPS: %i \nFrames in Last Second: %i\nFPS: %i", TARGET_FPS, frameCounter, currentFPS);
-				FC_DrawColor(font, renderer, 10, SCREEN_HEIGHT - 40, (memUsage.isMemoryMore() ? SDL_Color{ 255, 0, 0, 255 } : SDL_Color{ 0, 255, 0, 255 }), "Memory Used: %i\n", memUsage.ReturnMemoryUsed() / 1024);
-				
+
+				// Draw GUI
+				guiManager->DrawGUI();
 				// Render
 				SDL_RenderPresent(renderer);
 
@@ -157,8 +169,9 @@ int main(int argc, char** argv)
 				}
 
 		}
+		// Free all our resources
 		FC_FreeFont(font);
-
+		ImGuiSDL::Deinitialize();
 		// delete[] pixels;
 		// SDL_DestroyTexture(texture);
 		SDL_DestroyRenderer(renderer);
