@@ -39,6 +39,8 @@ int main(int argc, char** argv)
 		printf("|- TAB\t\t- Change Pixel type\n");
 		printf("|- Mouse1\t- Draw Selected Pixel\n");
 		printf("|- Mouse2\t- Clear 5x5 Pixels\n");
+		printf("|- J\t\t- +1 PenSize\n");
+		printf("|- K\t\t- -1 PenSize\n");
 		printf("|- N\t\t- Increase Sand Spawn\n");
 		printf("|- M\t\t- Slow Sand Spawn\n");
 		printf("|- SPACE\t- Toggle Sand Spawn\n");
@@ -63,41 +65,14 @@ int main(int argc, char** argv)
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
 		SDL_Window* window = SDL_CreateWindow("Pixel Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
-		//TODO make this better, maybe create an object for terrains
-		Uint32 red = 0xFF000000;
-		Uint32 green = 0x00FF0000;
-		Uint32 blue = 0x0000FF00;
-		Uint32 brown = 0x964b0000;
-		Uint32 white = 0xFFFFFF00;
-
-		SDL_Event event;
-
 		SDL_Renderer* renderer = NULL;
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 		// Init ImGUI
 		guiManager = new GUIManager(renderer, settings);
 
-		// SDL_Texture* texture = SDL_CreateTexture(renderer,
-		// 		SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, CHUNK_DIMENSIONS.x, CHUNK_DIMENSIONS.y);
-		// SDL_Rect textureRect;
-		// textureRect.x = 0;
-		// textureRect.y = 0;
-		// textureRect.w = CHUNK_DIMENSIONS.x * 2;
-		// textureRect.h = CHUNK_DIMENSIONS.y * 2;
-		// 
-		// Uint32* pixels = new Uint32[CHUNK_DIMENSIONS.x * CHUNK_DIMENSIONS.y];
-		// bool* isProcessed = new bool[CHUNK_DIMENSIONS.x * CHUNK_DIMENSIONS.y];
-		// 
-		// // Set all pixels black
-		// memset(pixels, 0, CHUNK_DIMENSIONS.x * CHUNK_DIMENSIONS.y * sizeof(Uint32));
-		// // Clear bools
-		// memset(isProcessed, false, CHUNK_DIMENSIONS.x * CHUNK_DIMENSIONS.y * sizeof(bool));
-
 		FC_Font* font = FC_CreateFont();
 		FC_LoadFont(font, renderer, "fonts/FreeSans.ttf", 20, FC_MakeColor(255, 255, 255, 255), TTF_STYLE_NORMAL);
 		settings->_font = font;
-
-		Uint32 activeColour = blue;
 
 		Uint32 frameStart;
 		int frameTime;
@@ -107,11 +82,6 @@ int main(int argc, char** argv)
 		Uint32 frameCounter = 0;
 		Uint32 totalFrames = 0;
 		Uint32 currentFPS = 0;
-
-		int mouseX, mouseY;
-
-		// Event
-		bool leftMouseButtonDown = false;
 
 		lastUpdate = SDL_GetTicks();
 
@@ -124,17 +94,11 @@ int main(int argc, char** argv)
 		// Pass world simulator an instance of Camera
 		worldSim->cam = mainCam;
 
-		// Attach Events
-		// inputHandler->Subscribe((InputEventMsg)ExitGame, InputEvent::USER_QUIT);
-
-		//? Now in WorldSimulator
-		//xinputHandler->Subscribe((InputEventMsg)PenDraw, InputEvent::USER_CLICK_DOWN);
-
 		// Start
 		worldSim->Start();
 		mainCam->Start();
 		// Update
-		while (!Shutdown)
+		while (!inputManager->IsShuttingDown())
 		{
 				totalFrames++;
 				frameCounter++;
@@ -142,7 +106,7 @@ int main(int argc, char** argv)
 
 				// Check Inputs
 				inputManager->Update();
-				if (Shutdown) break;
+				if (inputManager->IsShuttingDown()) break;
 
 				// Updates
 				worldSim->Update();
