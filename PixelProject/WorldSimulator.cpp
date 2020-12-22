@@ -516,10 +516,20 @@ void WorldSimulator::UpdateInput()
 		IVec2 mousePos = input->MousePosition();
 
 		if (input->GetMouseButton(MouseLeft)) {
-				Pen(mousePos, gameSettings->_paintManager->SelectedPixel, 5);
+				Pen(mousePos, gameSettings->_paintManager->SelectedPixel, DEBUG_PenSize);
 		}
 		if (input->GetMouseButton(MouseRight)) {
-				Pen(mousePos, worldDataHandler->GetPixelFromIndex(0), 5);
+				Pen(mousePos, worldDataHandler->GetPixelFromIndex(0), DEBUG_PenSize);
+		}
+
+		if (input->GetKeyDown(KeyCode::J)) {
+				DEBUG_PenSize++;
+		}
+		if (input->GetKeyDown(KeyCode::K)) {
+				DEBUG_PenSize--;
+				if (DEBUG_PenSize <= 0) {
+						DEBUG_PenSize = 1;
+				}
 		}
 
 		if (input->GetKeyDown(KeyCode::D)) {

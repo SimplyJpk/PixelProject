@@ -56,6 +56,8 @@ public:
 		bool DEBUG_DropSand = true;
 		int DEBUG_SandDropRate = 20;
 
+		int DEBUG_PenSize = 5;
+
 		//std::vector<SDL_Texture*> activeTextures;
 
 		WorldSimulator(SDL_Renderer* renderer, GameSettings* settings) {
