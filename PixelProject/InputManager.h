@@ -37,6 +37,8 @@ public:
 
 		InputManager(InputManager const&) {};
 		void operator=(InputManager const&) {};
+
+		bool IsShuttingDown() { return GetKeyDown(KeyCode::Escape); };
 private:
 		static InputManager* instance;
 
@@ -52,5 +54,4 @@ private:
 
 		bool isMouseDown[MouseClickTypeCount]{ false };
 		bool isMouseUp[MouseClickTypeCount]{ false };
-
 };
