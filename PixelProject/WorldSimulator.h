@@ -17,21 +17,14 @@
 
 #include "SDL_FontCache/SDL_FontCache.h"
 
+#include "WorldRules.h"
+
 class WorldSimulator : public GameObject
 {
 		//TODO Need to make an update config for each type of terrain
-
-		//TODO make this better, maybe create an object for terrains
-		Uint32 red = 0xFF000000;
-		Uint32 green = 0x00FF0000;
-		Uint32 blue = 0x0000FF00;
-		Uint32 brown = 0x964b0000;
-		Uint32 white = 0xFFFFFF00;
 public:
 		//TODO Add to settings of some sort?
-		const IVec2 WORLD_DIMENSIONS = IVec2(8, 5);
-		#define CHUNK_SIZE_X 128
-		#define CHUNK_SIZE_Y 128
+		const IVec2 WORLD_DIMENSIONS = IVec2(WORLD_SIZE_X, WORLD_SIZE_Y);
 
 		std::atomic<int> threadPoolTasks = 0;
 		boost::asio::thread_pool threadPool{32};

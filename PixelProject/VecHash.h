@@ -17,5 +17,4 @@ namespace std {
 						return res;
 				}
 		};
-
 }

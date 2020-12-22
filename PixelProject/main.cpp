@@ -12,6 +12,8 @@
 
 #include "InputManager.h"
 
+#include "PixelTypeIncludes.h"
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720 - 32;
 
@@ -19,9 +21,6 @@ const int TARGET_FPS = 60;
 const float frameDelay = (float)1000 / TARGET_FPS;
 
 const int DRAW_SIZE = 5;
-
-// const IVec2 WORLD_DIMENSIONS = IVec2(4, 4);
-// const IVec2 CHUNK_DIMENSIONS = IVec2(128, 128);
 
 bool Shutdown = false;
 
@@ -47,6 +46,12 @@ int main(int argc, char** argv)
 		// End
 
 		srand(time(NULL));
+
+		//TODO Init WorldData, need to improve this, pretty awkward having it here.
+		WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
+		WorldDataHandler::Instance()->AddPixelData(new GroundPixel());
+		WorldDataHandler::Instance()->AddPixelData(new SandPixel());
+		WorldDataHandler::Instance()->AddPixelData(new WaterPixel());
 
 		// Initalize our settings
 		//TODO Make a serializable settings file?

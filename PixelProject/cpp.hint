@@ -2,6 +2,9 @@
 // such as names of functions and macros.
 // For more information see https://go.microsoft.com/fwlink/?linkid=865984
 
-
+// World Rules
 #define CHUNK_SIZE_X
 #define CHUNK_SIZE_Y
+
+#define WORLD_SIZE_X 8
+#define WORLD_SIZE_Y 5

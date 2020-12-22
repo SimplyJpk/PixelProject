@@ -4,12 +4,6 @@
 
 #include "BasePixel.h"
 
-//TODO Is this the best way? Couldn't I just json/xml something and read/load this all at runtime
-#include "GroundPixel.h"
-#include "WaterPixel.h"
-#include "SandPixel.h"
-#include "SpacePixel.h"
-
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
 class WorldDataHandler
 {
@@ -17,16 +11,41 @@ public:
 		static WorldDataHandler* Instance() {
 				if (!instance) {
 						instance = new WorldDataHandler();
-						instance->ConstructData();
 				}
 				return instance;
 		}
 
-		const char* GetPixelName(Uint32 index) { return PixelTypes[index]->Name(); }
-		BasePixel* GetPixelType(Uint32 index) { return PixelTypes[index]; }
+		// Information from Pixel Colours
+		// Returns the name of a PixelType from a Pixel Colour
+		const char* GetPixelName(Uint32 pixel) { return PixelColourMap[pixel]->Name(); }
+		// Returns the BasePixel based on the pixel colour passed in
+		BasePixel* GetPixelFromPixelColour(Uint32 pixel) { return PixelColourMap[pixel]; }
+
+		// Returns base pixel from the Index provided, only use when calling using Pixel->PixelIndex
 		BasePixel* GetPixelFromIndex(int index) { return PixelTypeList[index]; }
+
+		// Information from PixelType (Enum)
+		BasePixel* GetPixelFromType(E_PixelType type) { return PixelTypes[type]; }
+		// Returns the name of a PixelType from the PixelType passed in
+		const char* GetPixelName(E_PixelType type) { return PixelTypes[type]->Name(); }
+
 		// Returns the number of main pixel types that exist in the game
 		int PixelTypeCount() { return PixelTypeList.size(); }
+
+		void AddPixelData(BasePixel* pixel) {
+				// Add pixels to an array we can access, and we set the pixels Index value
+				pixel->PixelIndex = PixelTypeList.size();
+				PixelTypeList.push_back(pixel);
+				PixelTypes.insert(std::make_pair(pixel->GetType(), pixel));
+				// Add our colours to our Lookup table
+				for (short i = 0; i < pixel->ColourCount; i++)
+				{
+						if (PixelColourMap.find(pixel->TypeColours[i]) != PixelColourMap.end()) {
+								printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixel->Name(), i);
+						}
+						PixelColourMap.insert(std::make_pair(pixel->TypeColours[i], pixel));
+				}
+		}
 
 		WorldDataHandler() {};
 		WorldDataHandler(WorldDataHandler const&) {};
@@ -35,25 +54,7 @@ private:
 		static WorldDataHandler* instance;
 
 		std::vector<BasePixel*> PixelTypeList;
-		std::unordered_map<Uint32, BasePixel*> PixelTypes;
-
-		void ConstructData() {
-				instance = this;
-				BasePixel* pixels[] = { new SpacePixel(), new GroundPixel(), new WaterPixel(), new SandPixel() };
-				for (short index = 0; index < std::size(pixels); index++)
-				{
-						// Add pixels to an array we can access, and we set the pixels Index value
-						PixelTypeList.push_back(pixels[index]);
-						pixels[index]->PixelIndex = index;
-						// Add our colours to our Lookup table
-						for (short i = 0; i < pixels[index]->ColourCount; i++)
-						{
-								if (PixelTypes.find(pixels[index]->TypeColours[i]) != PixelTypes.end()) {
-										printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixels[index]->Name(), i);
-								}
-								PixelTypes.insert(std::make_pair(pixels[index]->TypeColours[i], pixels[index]));
-						}
-				}
-		}
+		std::unordered_map<Uint32, BasePixel*> PixelColourMap;
+		std::unordered_map<E_PixelType, BasePixel*> PixelTypes;
 };
 #endif

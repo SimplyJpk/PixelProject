@@ -1,9 +1,12 @@
 #pragma once
 #include "BasePixel.h"
+#include "WorldDataHandler.h"
 
 class GroundPixel : public BasePixel
 {
 public:
+		virtual E_PixelType GetType() override { return E_PixelType::Ground; }
+
 		GroundPixel() {
 				name = "Ground";
 				ColourCount = 3;
@@ -14,6 +17,5 @@ public:
 		}
 
 		bool isUpdateable() { return false; }
-
 private:
 };

@@ -179,7 +179,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkDirection.h" />
     <ClInclude Include="ChunkUtility.h" />
-    <ClInclude Include="Debug_StopWatch.h" />
     <ClInclude Include="GUIManager.h" />
     <ClInclude Include="InputKeyCodes.h" />
     <ClInclude Include="InputManager.h" />
@@ -190,6 +189,7 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MemoryUsage.h" />
     <ClInclude Include="BasePixel.h" />
+    <ClInclude Include="PixelTypeIncludes.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
@@ -199,6 +199,7 @@
     <ClInclude Include="WaterPixel.h" />
     <ClInclude Include="WorldChunk.h" />
     <ClInclude Include="WorldDataHandler.h" />
+    <ClInclude Include="WorldRules.h" />
     <ClInclude Include="WorldSimulator.h" />
   </ItemGroup>
   <ItemGroup>
