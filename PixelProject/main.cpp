@@ -4,6 +4,8 @@
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "GameSettings.h"
 
+#include "./lib/XoshiroCpp.hpp"
+
 // My stuff
 #include "Vec2.h"
 #include "WorldSimulator.h"
@@ -13,6 +15,8 @@
 #include "InputManager.h"
 
 #include "PixelTypeIncludes.h"
+#include "DebugStopWatch.h"
+
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720 - 32;
@@ -34,6 +38,16 @@ void ExitGame(int eventType, SDL_Event* _event) {
 
 int main(int argc, char** argv)
 {
+		DebugStopWatch StopWatch;
+		StopWatch.SetTimerState("Update", true);
+		//! General Initialization
+		StopWatch.AddTimer("Init", false);
+		StopWatch.AddTimer("Start", false);
+		StopWatch.AddTimer("Update", true);
+		StopWatch.AddTimer("Draw", true);
+		StopWatch.AddTimer("FrameTime", true);
+		StopWatch.AddTimer("Input", false);
+
 		// In-Game Commands
 		printf("/--\t\tCommands\n");
 		printf("|- TAB\t\t- Change Pixel type\n");
@@ -45,9 +59,14 @@ int main(int argc, char** argv)
 		printf("|- M\t\t- Slow Sand Spawn\n");
 		printf("|- SPACE\t- Toggle Sand Spawn\n");
 		printf("|- ENTER\t- Restart World (Clears Everything)\n");
+		printf("|- Esc\t- Close Game\n");
 		// End
 
-		srand(time(NULL));
+		XoshiroCpp::Xoshiro256PlusPlus rng(time(NULL));
+
+		// srand(time(NULL));
+
+		
 
 		//TODO Init WorldData, need to improve this, pretty awkward having it here.
 		WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
@@ -60,6 +79,7 @@ int main(int argc, char** argv)
 		//TODO Wrap this?
 		GameSettings* settings = new GameSettings();
 		settings->Screen_Size = IVec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+		settings->_stopWatch = &StopWatch;
 
 		// Create a new Window to use
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
@@ -94,23 +114,38 @@ int main(int argc, char** argv)
 		// Pass world simulator an instance of Camera
 		worldSim->cam = mainCam;
 
-		// Start
+		StopWatch.StoreTime("Init");
+		//! General Initialization of Engine Complete
+
+		//! Start
+		StopWatch.UpdateTime("Start");
+
 		worldSim->Start();
 		mainCam->Start();
+
+		StopWatch.StoreTime("Start");
+		//! Start Finished
 		// Update
 		while (!inputManager->IsShuttingDown())
 		{
+				StopWatch.UpdateTime("FrameTime");
+				StopWatch.UpdateTime("Update");
+
 				totalFrames++;
 				frameCounter++;
 				frameStart = SDL_GetTicks();
 
+				StopWatch.UpdateTime("Input");
 				// Check Inputs
 				inputManager->Update();
 				if (inputManager->IsShuttingDown()) break;
+				StopWatch.StoreTime("Input");
 
 				// Updates
 				worldSim->Update();
 				mainCam->Update();
+
+				StopWatch.StoreTime("Update");
 
 				if (SDL_GetTicks() - lastUpdate > 1000) {
 						currentFPS = frameCounter;
@@ -118,6 +153,7 @@ int main(int argc, char** argv)
 						lastUpdate = SDL_GetTicks();
 				}
 
+				StopWatch.UpdateTime("Draw");
 				// Clear Screen
 				SDL_RenderClear(renderer);
 
@@ -131,6 +167,9 @@ int main(int argc, char** argv)
 				// Render
 				SDL_RenderPresent(renderer);
 
+				StopWatch.StoreTime("Draw");
+
+				StopWatch.StoreTime("FrameTime");
 				// Wait a bit
 				frameTime = SDL_GetTicks() - frameStart;
 				if (frameDelay > frameTime) {
