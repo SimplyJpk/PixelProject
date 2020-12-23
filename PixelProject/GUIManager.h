@@ -20,8 +20,17 @@ public:
 				ImGuiSDL::Initialize(renderer, _settings->Screen_Size.x, _settings->Screen_Size.y);
 		}
 
+		void DrawFrameData() {
+				ImGui::Begin("Frame Data");
+				ImGui::SetWindowSize(ImVec2(240, 240));
+				ImGui::SetWindowPos(ImVec2(settings->Screen_Size.x - 245, 275));
+				ImGui::Text(settings->_stopWatch->GetData().c_str());
+				ImGui::End();
+		}
+
 		void DrawGUI() {
 				ImGui::NewFrame();
+				DrawFrameData();
 				ImGui::Begin("Debug Window");
 				ImGui::SetWindowSize(ImVec2(240, 240));
 				ImGui::SetWindowPos(ImVec2(settings->Screen_Size.x - 245, 15));
