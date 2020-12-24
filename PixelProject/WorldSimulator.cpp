@@ -114,7 +114,7 @@ void WorldSimulator::Pen(IVec2 point, BasePixel* pixelType, int size)
 
 										chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[
 												((y - (yFloor * CHUNK_SIZE_Y) - cameraWorldOffset.y) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X) - cameraWorldOffset.x)
-										] = pixelType->TypeColours[(rand() % max)];
+										] = pixelType->TypeColours[(rng() % max)];
 								}
 						}
 				}
@@ -134,8 +134,8 @@ void WorldSimulator::Update() {
 				{
 						for (int xDim = 0; xDim < CHUNK_SIZE_X; xDim++)
 						{
-								if (rand() % DEBUG_SandDropRate == 0) {
-										chunks[IVec2(x, 0)]->pixels[(xDim * 0) + xDim] = sandPixel->TypeColours[0, (rand() % maxSandColours)];
+								if (rng() % DEBUG_SandDropRate == 0) {
+										chunks[IVec2(x, 0)]->pixels[(xDim * 0) + xDim] = sandPixel->TypeColours[0, (rng() % maxSandColours)];
 								}
 						}
 				}
@@ -186,10 +186,10 @@ void WorldSimulator::Update() {
 
 												//TODO this looks ugly, also rand is expensive, use a different rand imp
 												// A value of either -1 or 1
-												IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
-
-												int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
-												int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
+												//? IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
+												//? 
+												//? int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
+												//? int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
 
 												std::vector<int> neighbourIndexes(8);
 												std::vector<bool> neighbourQualifiers(8);
@@ -199,14 +199,22 @@ void WorldSimulator::Update() {
 												E_PixelType neighbourType;
 												E_PixelType returnPixels[2]{ E_PixelType::Space };
 
-												while ((LoopDir.y == -1) ? y > 0 : y < (CHUNK_SIZE_Y - 1))
-												{
-														y += LoopDir.y;
-														x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
-														while ((LoopDir.x == -1) ? x > 0 : x < (CHUNK_SIZE_X - 1))
-														{
-																x += LoopDir.x;
+												const short* ChunkDirectionOrder = ChunkDirectionOrderContainers[chunkUpdates];
+												// ChunkDirectionOrderconst short* ChunkDirectionOrders[static_cast<short>(E_PixelType::COUNT)];
+												worldDataHandler->FillWithPixelUpdateOrders(&ChunkDirectionOrder);
 
+												for (int y = 0; y < CHUNK_SIZE_Y - 1; y++)
+												{
+														//! We don't use this anymore since our PixelOrdering in the pixel should be able to solve this without additional conditionals!
+														//? while ((LoopDir.y == -1) ? y > 0 : y < (CHUNK_SIZE_Y - 1))
+														//? {
+														//? 		y += LoopDir.y;
+														//? 		x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
+														//? 		while ((LoopDir.x == -1) ? x > 0 : x < (CHUNK_SIZE_X - 1))
+														//? 		{
+														//? 				x += LoopDir.x;
+
+														for (int x = 0; x < CHUNK_SIZE_X - 1; x++) {
 																int _localIndex = (y * CHUNK_SIZE_X) + x;
 																int _adjustedIndex;
 
@@ -214,9 +222,9 @@ void WorldSimulator::Update() {
 
 																		BasePixel* pixel = worldDataHandler->GetPixelFromPixelColour(localPixels[_localIndex]);
 																		E_PixelType pixelType = pixel->GetType();
-																		
-																		// TODO Can we make a conditional array?
-																		neighbourQualifiers = 
+
+																		// TODO Can we make some sort of conditional array?
+																		neighbourQualifiers =
 																		{
 																				(y > 0), // N
 																				(y > 0) && (x < CHUNK_SIZE_X - 1), // NE
@@ -228,8 +236,8 @@ void WorldSimulator::Update() {
 																				(y > 0) && (x > 0), // NW
 																		};
 																		// TODO Can we store this logic and only do it while doing the loop in order of preference?
-																		neighbourIndexes = 
-																		{ 
+																		neighbourIndexes =
+																		{
 																				_localIndex - CHUNK_SIZE_X, // N
 																				_localIndex - CHUNK_SIZE_X + 1, // NE
 																				_localIndex + 1, // E
@@ -241,10 +249,10 @@ void WorldSimulator::Update() {
 																		};
 
 																		//TODO This could be slow? Can we pull one of these each frame instead of every time a pixel updates?
-																		auto ChunkDirectionOrder = pixel->GetSingleChunkOrder();
+																		// auto ChunkDirectionOrder = pixel->GetSingleChunkOrder();
 
-																		for (int i = 0; i < ChunkDirectionOrder.size(); i++) {
-																				int DirIndex = ChunkDirectionOrder[i];
+																		for (int i = 0; i < static_cast<short>(ChunkDirection::DIR_COUNT); i++) {
+																				int DirIndex = ChunkDirectionOrder[pixel->PixelIndex][i];
 																				if (!neighbourQualifiers[DirIndex])
 																						continue;
 																				neighbourIndex = neighbourIndexes[DirIndex];
@@ -253,7 +261,35 @@ void WorldSimulator::Update() {
 
 																				// Now we ask the Pixel what it wants to do with its neighbour
 																				// this can return true/false and if the pixel needs to convert the neighbour to something returnPixels will have different values
-																				if (pixel->UpdateLogic(DirIndex, neighbourType, returnPixels)) {
+																				bool result;
+																				switch (DirIndex)
+																				{
+																				case ChunkDirection::North:
+																						result = pixel->N_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::NorthEast:
+																						result = pixel->NE_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::East:
+																						result = pixel->E_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::SouthEast:
+																						result = pixel->SE_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::South:
+																						result = pixel->S_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::SouthWest:
+																						result = pixel->SW_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::West:
+																						result = pixel->W_Logic(neighbourType, returnPixels);
+																						break;
+																				case ChunkDirection::NorthWest:
+																						result = pixel->NW_Logic(neighbourType, returnPixels);
+																						break;
+																				}
+																				if (result) {
 																						if (returnPixels[0] != returnPixels[1]) {
 																								if (pixelType != returnPixels[0]) {
 																										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();

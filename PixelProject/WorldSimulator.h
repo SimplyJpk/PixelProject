@@ -19,6 +19,9 @@
 
 #include "WorldRules.h"
 
+#include <time.h>
+#include "./lib/XoshiroCpp.hpp"
+
 class WorldSimulator : public GameObject
 {
 		//TODO Need to make an update config for each type of terrain
@@ -31,7 +34,10 @@ public:
 		const static int MaxProcessCount = 100;
 		bool isProcessedQueue[MaxProcessCount][CHUNK_SIZE_X * CHUNK_SIZE_Y];
 
+		// Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
+		short* ChunkDirectionOrderContainers[MaxProcessCount][static_cast<short>(E_PixelType::COUNT)];
 
+		XoshiroCpp::Xoshiro256PlusPlus rng{ (time(NULL)) };
 		// Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
 		IVec2 MaxVisibleChunksOnScreen = IVec2::Zero();
 		

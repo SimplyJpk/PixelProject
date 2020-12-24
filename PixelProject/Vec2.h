@@ -59,6 +59,11 @@ public:
 				return (this->x == other.x && this->y == other.y);
 		}
 
+		IVec2(const IVec2& rhs) {
+				this->x = rhs.x;
+				this->y = rhs.y;
+		}
+
 		static IVec2 Zero() { return IVec2(0, 0); };
 		static IVec2 Left() { return IVec2(-1, 0); };
 		static IVec2 Right() { return IVec2(1, 0); };

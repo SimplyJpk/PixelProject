@@ -212,6 +212,12 @@
     <ClInclude Include="PixelTypeIncludes.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
+    <ClInclude Include="DebugStopWatch.h">
+      <Filter>Header Files\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\XoshiroCpp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

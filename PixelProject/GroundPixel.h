@@ -14,6 +14,8 @@ public:
 				TypeColours[0] = 0x964b0000;
 				TypeColours[1] = 0x96710000;
 				TypeColours[2] = 0x96260000;
+
+				// ChunkDirectionOrder[0] = { };
 		}
 
 		bool isUpdateable() { return false; }

@@ -4,6 +4,7 @@
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "Vec2.h"
 #include "PaintManager.h"
+#include "DebugStopWatch.h"
 
 //TODO Should probably wrap this up into an object
 
@@ -13,6 +14,7 @@ struct GameSettings
 		FC_Font* _font;
 
 		PaintManager* _paintManager;
+		DebugStopWatch* _stopWatch;
 
 		GameSettings() {
 				_font = nullptr;

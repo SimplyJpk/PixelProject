@@ -17,11 +17,11 @@ public:
 		}
 		
 protected:
-		virtual bool SE_Logic(E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
-		virtual bool S_Logic(E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
-		virtual bool SW_Logic(E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
+		bool SE_Logic(E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
+		bool S_Logic(E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
+		bool SW_Logic(E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
 private:
-		bool Logic(E_PixelType type) {
+		static bool Logic(E_PixelType type) {
 				switch (type)
 				{
 				case E_PixelType::Space:
