@@ -4,8 +4,6 @@
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "GameSettings.h"
 
-#include "./lib/XoshiroCpp.hpp"
-
 // My stuff
 #include "Vec2.h"
 #include "WorldSimulator.h"
@@ -31,10 +29,6 @@ bool Shutdown = false;
 InputManager* inputManager;
 WorldSimulator* worldSim;
 GUIManager* guiManager;
-
-void ExitGame(int eventType, SDL_Event* _event) {
-		Shutdown = true;
-}
 
 int main(int argc, char** argv)
 {
@@ -65,12 +59,6 @@ int main(int argc, char** argv)
 		printf("|--> Up Arrow\t- Toggle Pixel Data Print\n");
 		printf("|- Esc\t\t- Close Game\n\n");
 		// End
-
-		XoshiroCpp::Xoshiro256PlusPlus rng(time(NULL));
-
-		// srand(time(NULL));
-
-		
 
 		//TODO Init WorldData, need to improve this, pretty awkward having it here.
 		WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
