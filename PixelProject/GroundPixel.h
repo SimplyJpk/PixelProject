@@ -5,7 +5,7 @@
 class GroundPixel : public BasePixel
 {
 public:
-		virtual E_PixelType GetType() override { return E_PixelType::Ground; }
+		virtual const E_PixelType GetType() override { return E_PixelType::Ground; }
 
 		GroundPixel() {
 				name = "Ground";
@@ -15,7 +15,8 @@ public:
 				TypeColours[1] = 0x96710000;
 				TypeColours[2] = 0x96260000;
 
-				// ChunkDirectionOrder[0] = { };
+				PixelUpdateOrderCount = 0;
+				InsertPixelUpdateOrder(0, std::vector<short>() = {});
 		}
 
 		bool isUpdateable() { return false; }
