@@ -70,6 +70,9 @@
     <Filter Include="Source Files\ImGUI\ImGUISDL">
       <UniqueIdentifier>{f66781e2-75b0-484d-97cb-b0a206837fe7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\World\Pixels">
+      <UniqueIdentifier>{d0b6723a-5eb3-4970-b2f7-21682291fc99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

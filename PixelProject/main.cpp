@@ -57,9 +57,13 @@ int main(int argc, char** argv)
 		printf("|- K\t\t- -1 PenSize\n");
 		printf("|- N\t\t- Increase Sand Spawn\n");
 		printf("|- M\t\t- Slow Sand Spawn\n");
+		printf("|- D\t\t- Hide Chunk Borders\n");
 		printf("|- SPACE\t- Toggle Sand Spawn\n");
-		printf("|- ENTER\t- Restart World (Clears Everything)\n");
-		printf("|- Esc\t- Close Game\n");
+		printf("|- ENTER\t- Restart World (Clears Everything)\n\n");
+		printf("|- 0\t\t- Toggle FrameByFrame Update\n");
+		printf("|--> Down Arrow\t- Progress by 1 Frame\n");
+		printf("|--> Up Arrow\t- Toggle Pixel Data Print\n");
+		printf("|- Esc\t\t- Close Game\n\n");
 		// End
 
 		XoshiroCpp::Xoshiro256PlusPlus rng(time(NULL));
@@ -123,6 +127,9 @@ int main(int argc, char** argv)
 		worldSim->Start();
 		mainCam->Start();
 
+		//TODO REMOVE THIS
+		bool DEBUG_framebyframeUpdate = true;
+
 		StopWatch.StoreTime("Start");
 		//! Start Finished
 		// Update
@@ -141,8 +148,16 @@ int main(int argc, char** argv)
 				if (inputManager->IsShuttingDown()) break;
 				StopWatch.StoreTime("Input");
 
+				//TODO Move this somewhere better?
+				settings->_paintManager->UpdateInput();
+				worldSim->UpdateInput();
+
+				if (inputManager->GetKeyButton(KeyCode::_0))
+						DEBUG_framebyframeUpdate = !DEBUG_framebyframeUpdate;
 				// Updates
-				worldSim->Update();
+				if (!DEBUG_framebyframeUpdate || inputManager->GetKeyDown(KeyCode::Down)) {
+						worldSim->Update();
+				}
 				mainCam->Update();
 
 				StopWatch.StoreTime("Update");
@@ -158,6 +173,9 @@ int main(int argc, char** argv)
 				SDL_RenderClear(renderer);
 
 				worldSim->Draw(mainCam);
+
+				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+				SDL_RenderDrawLine(renderer, settings->VirtualMouse.x, settings->VirtualMouse.y, settings->VirtualMouse.x, settings->VirtualMouse.y);
 				// Copy our texture
 				//x SDL_RenderCopy(renderer, texture, NULL, &textureRect);
 				FC_Draw(font, renderer, 10, 10, "Target FPS: %i \nFrames in Last Second: %i\nFPS: %i", TARGET_FPS, frameCounter, currentFPS);

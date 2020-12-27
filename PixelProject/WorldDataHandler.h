@@ -31,7 +31,7 @@ public:
 
 		// Returns the number of main pixel types that exist in the game
 		int PixelTypeCount() { return PixelTypeList.size(); }
-		void FillWithPixelUpdateOrders(const short* output[]) {
+		void FillWithPixelUpdateOrders(short* output[]) {
 				for (int i = 0; i < PixelTypeList.size(); i++) {
 						output[i] = PixelTypeList[i]->GetSingleChunkOrder();
 				}

@@ -16,6 +16,9 @@ struct GameSettings
 		PaintManager* _paintManager;
 		DebugStopWatch* _stopWatch;
 
+		// Temp for Debug
+		IVec2 VirtualMouse = IVec2::Zero();
+
 		GameSettings() {
 				_font = nullptr;
 				Screen_Size = IVec2::Zero();

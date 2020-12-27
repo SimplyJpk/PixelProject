@@ -115,6 +115,8 @@ void WorldSimulator::Pen(IVec2 point, BasePixel* pixelType, int size)
 										chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[
 												((y - (yFloor * CHUNK_SIZE_Y) - cameraWorldOffset.y) * CHUNK_SIZE_X) + (x - (xFloor * CHUNK_SIZE_X) - cameraWorldOffset.x)
 										] = pixelType->TypeColours[(rng() % max)];
+
+												if (size == 1) return;
 								}
 						}
 				}
@@ -122,11 +124,8 @@ void WorldSimulator::Pen(IVec2 point, BasePixel* pixelType, int size)
 }
 
 void WorldSimulator::Update() {
-		//TODO Put this somewhere more expected and not stupid
-		gameSettings->_paintManager->UpdateInput();
-		// Update our Input First
-		UpdateInput();
 		//TODO Remvoe this
+		DEBUG_FrameCounter++;
 		if (DEBUG_DropSand) {
 				BasePixel* sandPixel = worldDataHandler->GetPixelFromIndex(3);
 				short maxSandColours = sandPixel->ColourCount;
@@ -148,6 +147,18 @@ void WorldSimulator::Update() {
 
 		int xStage, yStage;
 		int chunkUpdates = 0;
+
+		//? // TODO Clean this up somehow, we need to have some way to add some additional noise to pixel movement?
+		//? // if (rng() % 150 == 0)
+		//? // {
+		//? // 		xDir = (rng() % 2 == 0 ? 1 : -1);
+		//? // 		yDir = (rng() % 2 == 0 ? 1 : -1);
+		//? // }
+		//? // ^
+
+		xDir = (xDir == -1 ? 1 : -1);
+		yDir = (yDir == -1 ? 1 : -1);
+
 		for (int i = 0; i < 4; i++)
 		{
 				switch (i)
@@ -184,79 +195,315 @@ void WorldSimulator::Update() {
 												Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
 												bool* isProcessed = isProcessedQueue[chunkUpdates];
 
-												//TODO this looks ugly, also rand is expensive, use a different rand imp
-												// A value of either -1 or 1
-												//? IVec2 LoopDir = IVec2(rand() % 2 == 0 ? -1 : 1, rand() % 2 == 0 ? -1 : 1);
-												//? 
-												//? int x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
-												//? int y = (LoopDir.y == -1 ? CHUNK_SIZE_Y : -1);
-
-												std::vector<int> neighbourIndexes(8);
-												std::vector<bool> neighbourQualifiers(8);
-
 												BasePixel* neighbour;
 												int neighbourIndex;
 												E_PixelType neighbourType;
 												E_PixelType returnPixels[2]{ E_PixelType::Space };
 
-												const short* ChunkDirectionOrder = ChunkDirectionOrderContainers[chunkUpdates];
+												short** ChunkDirectionOrder = ChunkDirectionOrderContainers[chunkUpdates];
 												// ChunkDirectionOrderconst short* ChunkDirectionOrders[static_cast<short>(E_PixelType::COUNT)];
-												worldDataHandler->FillWithPixelUpdateOrders(&ChunkDirectionOrder);
+												worldDataHandler->FillWithPixelUpdateOrders(ChunkDirectionOrder);
 
-												for (int y = 0; y < CHUNK_SIZE_Y - 1; y++)
+												// Counter
+												short xStart = 1;
+												short yStart = 1;
+												// End
+												short xTo = CHUNK_SIZE_X - 2;
+												short yTo = CHUNK_SIZE_Y - 2;
+
+												// Initialize
+												if (xDir == -1) {
+														xStart = CHUNK_SIZE_X - 2;
+														xTo = 1;
+												}
+												if (yDir == -1) {
+														yStart = CHUNK_SIZE_Y - 2;
+														yTo = 1;
+												}
+
+
+												for (short y = yStart; y != yTo; y+= yDir)
 												{
-														//! We don't use this anymore since our PixelOrdering in the pixel should be able to solve this without additional conditionals!
-														//? while ((LoopDir.y == -1) ? y > 0 : y < (CHUNK_SIZE_Y - 1))
-														//? {
-														//? 		y += LoopDir.y;
-														//? 		x = (LoopDir.x == -1 ? CHUNK_SIZE_X : -1);
-														//? 		while ((LoopDir.x == -1) ? x > 0 : x < (CHUNK_SIZE_X - 1))
-														//? 		{
-														//? 				x += LoopDir.x;
+														for (short x = xStart; x != xTo; x += xDir) {
+																const short _localIndex = (y * CHUNK_SIZE_X) + x;
 
-														for (int x = 0; x < CHUNK_SIZE_X - 1; x++) {
-																int _localIndex = (y * CHUNK_SIZE_X) + x;
-																int _adjustedIndex;
+																if (!(localPixels[_localIndex] != 0 && !isProcessed[_localIndex])) continue;
 
-																if (localPixels[_localIndex] != 0 && !isProcessed[_localIndex]) {
+																BasePixel* pixel = worldDataHandler->GetPixelFromPixelColour(localPixels[_localIndex]);
+																E_PixelType pixelType = pixel->GetType();
+
+																//? // TODO Can we make some sort of conditional array?
+																//? neighbourQualifiers =
+																//? {
+																//? 		(y > 0), // N
+																//? 		(y > 0) && (x < CHUNK_SIZE_X - 1), // NE
+																//? 		(x < CHUNK_SIZE_X - 1), // E
+																//? 		(y < CHUNK_SIZE_Y - 1) && (x < CHUNK_SIZE_X - 1), // SE
+																//? 		(y < CHUNK_SIZE_Y - 1), // S
+																//? 		(y < CHUNK_SIZE_Y - 1) && (x > 0), // SW
+																//? 		(x > 0), // W
+																//? 		(y > 0) && (x > 0), // NW
+																//? };
+
+																//TODO This could be slow? Can we pull one of these each frame instead of every time a pixel updates?
+																// auto ChunkDirectionOrder = pixel->GetSingleChunkOrder();
+
+																const short* PixelDirOrder = ChunkDirectionOrder[pixel->PixelIndex];
+																for (int i = 0; i < static_cast<short>(ChunkDirection::DIR_COUNT); i++) {
+																		const int DirIndex = PixelDirOrder[i];
+																		if (DirIndex == ChunkDirection::DIR_COUNT) continue;
+
+																		switch (DirIndex)
+																		{
+																		case ChunkDirection::North:
+																				neighbourIndex = _localIndex - CHUNK_SIZE_X;
+																				break;
+																		case ChunkDirection::NorthEast:
+																				neighbourIndex = _localIndex - CHUNK_SIZE_X + 1;
+																				break;
+																		case ChunkDirection::East:
+																				neighbourIndex = _localIndex + 1;
+																				break;
+																		case ChunkDirection::SouthEast:
+																				neighbourIndex = _localIndex + CHUNK_SIZE_X + 1;
+																				break;
+																		case ChunkDirection::South:
+																				neighbourIndex = _localIndex + CHUNK_SIZE_X;
+																				break;
+																		case ChunkDirection::SouthWest:
+																				neighbourIndex = _localIndex + CHUNK_SIZE_X - 1;
+																				break;
+																		case ChunkDirection::West:
+																				neighbourIndex = _localIndex - 1;
+																				break;
+																		case ChunkDirection::NorthWest:
+																				neighbourIndex = _localIndex - CHUNK_SIZE_X - 1;
+																				break;
+																		}
+
+																		neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
+																		neighbourType = neighbour->GetType();
+
+																		// Now we ask the Pixel what it wants to do with its neighbour
+																		// this can return true/false and if the pixel needs to convert the neighbour to something returnPixels will have different values
+																		bool result;
+																		switch (DirIndex)
+																		{
+																		case ChunkDirection::North:
+																				result = pixel->N_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::NorthEast:
+																				result = pixel->NE_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::East:
+																				result = pixel->E_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::SouthEast:
+																				result = pixel->SE_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::South:
+																				result = pixel->S_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::SouthWest:
+																				result = pixel->SW_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::West:
+																				result = pixel->W_Logic(neighbourType, returnPixels);
+																				break;
+																		case ChunkDirection::NorthWest:
+																				result = pixel->NW_Logic(neighbourType, returnPixels);
+																				break;
+																		}
+																		if (result) {
+																				if (DEBUG_PrintPixelData) { printf("X: %i\tY:%i\tUPDATE:%i\t(IN)\n", x, y, DEBUG_FrameCounter); }
+																				if (returnPixels[0] != returnPixels[1]) {
+																						if (pixelType != returnPixels[0]) {
+																								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
+																						}
+																						if (neighbourType != returnPixels[1]) {
+																								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
+																						}
+																				}
+																				else {
+																						std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
+																				}
+																				isProcessed[neighbourIndex] = true;
+																				break;
+																		}
+																}
+
+																//TODO Replace this
+																//! // Check if we're not on the bottom
+																//! if (y < CHUNK_SIZE_Y - 1) {
+																//! 		// Down
+																//!  		_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + x;
+																//! 		if (isProcessed[_adjustedIndex]) continue;
+																//! 
+																//! 		if (isProcessed[_adjustedIndex] = ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex)) continue;
+																//! 		else {
+																//! 				// Down Diagonal
+																//! 				if (LoopDir.x == 1) {
+																//! 						// Same Chunk
+																//! 						if (x < (CHUNK_SIZE_X - 2)) {
+																//! 								if (isProcessed[_adjustedIndex] = ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex + 1)) continue;
+																//! 						}
+																//! 						else if (chunkIndex.x < WORLD_DIMENSIONS.x - 1) {
+																//! 								if (isProcessed[_adjustedIndex] = 
+																//! 										ChunkUtility::MovePixel(localPixels, _localIndex, ((y + 2) * CHUNK_SIZE_X) , chunks[chunkIndex]->neighbourChunks//[ChunkDirection::East]->p ixels)) ?o!ntinue;
+																//! 						}
+																//! 				}
+																//! 				else if (LoopDir.x == -1) {
+																//! 						// Same Chunk
+																//! 						if (x > 0) {
+																//! 								if (isProcessed[_adjustedIndex] = ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex - 1)) continue;
+																//! 						}
+																//! 						else if (chunkIndex.x > 0) {
+																//! 								if (isProcessed[_adjustedIndex] =
+																//! 										ChunkUtility::MovePixel(localPixels, _localIndex, ((y + 2) * CHUNK_SIZE_X) - 1, chunks[chunkIndex]->neighbourChunks//[ChunkDirection::West]->?pi x! s)) continue;
+																//! 						}
+																//! 				}
+																//! 		}
+																//! }
+																//! else {
+																//! 		// Down into new Chunk
+																//! 		if (chunkIndex.y < WORLD_DIMENSIONS.y - 1) {
+																//! 				ChunkUtility::MovePixel(chunks[chunkIndex]->pixels, _localIndex, x, chunks[chunkIndex]->neighbourChunks[ChunkDirection::South]->pixels);
+																//! 		}
+																//! }
+														}
+												}
+
+												//? We could hold onto our 8 neighbouring chunks pixels here, and almost brute force this with switch statements? WOuld be super ugly..
+												//? Not sure how else to do all this..
+											
+												WorldChunk** neighbourChunks = chunks[chunkIndex]->neighbourChunks;
+												for (short ShellUpdate = 0; ShellUpdate < 4; ShellUpdate++)
+												{
+														GetStartAndToForLoop(ShellUpdate, xStart, xTo, yStart, yTo);
+														for (short y = yStart; y != yTo; y += yDir)
+														{
+																for (short x = xStart; x != xTo; x += xDir) {
+																		const short _localIndex = (y * CHUNK_SIZE_X) + x;
+																		if (!(localPixels[_localIndex] != 0 && !isProcessed[_localIndex])) continue;
 
 																		BasePixel* pixel = worldDataHandler->GetPixelFromPixelColour(localPixels[_localIndex]);
 																		E_PixelType pixelType = pixel->GetType();
 
-																		// TODO Can we make some sort of conditional array?
-																		neighbourQualifiers =
-																		{
-																				(y > 0), // N
-																				(y > 0) && (x < CHUNK_SIZE_X - 1), // NE
-																				(x < CHUNK_SIZE_X - 1), // E
-																				(y < CHUNK_SIZE_Y - 1) && (x < CHUNK_SIZE_X - 1), // SE
-																				(y < CHUNK_SIZE_Y - 1), // S
-																				(y < CHUNK_SIZE_Y - 1) && (x > 0), // SW
-																				(x > 0), // W
-																				(y > 0) && (x > 0), // NW
-																		};
-																		// TODO Can we store this logic and only do it while doing the loop in order of preference?
-																		neighbourIndexes =
-																		{
-																				_localIndex - CHUNK_SIZE_X, // N
-																				_localIndex - CHUNK_SIZE_X + 1, // NE
-																				_localIndex + 1, // E
-																				_localIndex + CHUNK_SIZE_X + 1, // SE
-																				_localIndex + CHUNK_SIZE_X, // S
-																				_localIndex + CHUNK_SIZE_X - 1, // SW
-																				_localIndex - 1, // W
-																				_localIndex - CHUNK_SIZE_X - 1, // NW
-																		};
-
-																		//TODO This could be slow? Can we pull one of these each frame instead of every time a pixel updates?
-																		// auto ChunkDirectionOrder = pixel->GetSingleChunkOrder();
-
+																		const short* PixelDirOrder = ChunkDirectionOrder[pixel->PixelIndex];
 																		for (int i = 0; i < static_cast<short>(ChunkDirection::DIR_COUNT); i++) {
-																				int DirIndex = ChunkDirectionOrder[pixel->PixelIndex][i];
-																				if (!neighbourQualifiers[DirIndex])
+																				int DirIndex = PixelDirOrder[i];
+																				if (DirIndex == ChunkDirection::DIR_COUNT) continue;
+
+																				bool isSameChunk = true;
+
+																				neighbour = nullptr;
+																				switch (DirIndex)
+																				{
+																				// case ChunkDirection::NorthEast:
+																				// 		if (x == CHUNK_SIZE_X - 1) {
+																				// 				if (neighbourChunks[ChunkDirection::East] != nullptr) {
+																				// 						neighbourIndex = (CHUNK_SIZE_X * (y)) - 1;
+																				// 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::East]->pixels[neighbourIndex]);
+																				// 						newChunkDir = ChunkDirection::East;
+																				// 						isSameChunk = false;
+																				// 						break;
+																				// 				}
+																				// 		}
+																				// 		continue;
+																				// case ChunkDirection::NorthWest:
+																				// 		if (x == 0) {
+																				// 				if (neighbourChunks[ChunkDirection::West] != nullptr) {
+																				// 						neighbourIndex = (CHUNK_SIZE_X * (y)) - 1;
+																				// 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::West]->pixels[neighbourIndex]);
+																				// 						newChunkDir = ChunkDirection::West;
+																				// 						isSameChunk = false;
+																				// 						break;
+																				// 				}
+																				// 		}
+																				// 		continue;
+																				// case ChunkDirection::North:
+																				// 		if (y == 0) {
+																				// 				if (neighbourChunks[ChunkDirection::North] == nullptr) continue;
+																				// 				neighbourIndex = ChunkTotalSize - x;
+																				// 				neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::North]->pixels[neighbourIndex]);
+																				// 				newChunkDir = ChunkDirection::North;
+																				// 				isSameChunk = false;
+																				// 		}
+																				// 		else {
+																				// 				neighbourIndex = _localIndex - CHUNK_SIZE_X;
+																				// 		}
+																				// 		break;
+																				// case ChunkDirection::SouthEast:
+																				// 		if (x == CHUNK_SIZE_X - 1) {
+																				// 				if (neighbourChunks[ChunkDirection::East] != nullptr) {
+																				// 						neighbourIndex = (CHUNK_SIZE_X * (y)) + 1;
+																				// 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::East]->pixels[neighbourIndex]);
+																				// 						newChunkDir = ChunkDirection::East;
+																				// 						isSameChunk = false;
+																				// 						break;
+																				// 				}
+																				// 		}
+																				// case ChunkDirection::SouthWest:
+																				// 		if (x == 0) {
+																				// 				if (neighbourChunks[ChunkDirection::West] != nullptr) {
+																				// 						neighbourIndex = (CHUNK_SIZE_X * (y)) - 1;
+																				// 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::West]->pixels[neighbourIndex]);
+																				// 						newChunkDir = ChunkDirection::West;
+																				// 						isSameChunk = false;
+																				// 						break;
+																				// 				}
+																				// 		}
+																				case ChunkDirection::South: {
+																						if (y == CHUNK_SIZE_Y - 1) {
+																								if (neighbourChunks[ChunkDirection::South] == nullptr) { continue; }
+																								neighbourIndex = x;
+																								DirIndex = ChunkDirection::South;
+																								neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[DirIndex]->pixels[neighbourIndex]);
+																						}
+																						else { neighbourIndex = _localIndex + CHUNK_SIZE_X; }
+																						break;
+																				}
+																				case ChunkDirection::West: {
+																						if (x == 0) {
+																								if (neighbourChunks[ChunkDirection::West] == nullptr) { continue; }
+																								neighbourIndex = (CHUNK_SIZE_X * (y + 1)) - 1;
+																								DirIndex = ChunkDirection::West;
+																								neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[DirIndex]->pixels[neighbourIndex]);
+																						}
+																						else { neighbourIndex = _localIndex - 1; }
+																						break;
+																				}
+																				case ChunkDirection::East: {
+																						if (x == CHUNK_SIZE_X - 1) {
+																								if (neighbourChunks[ChunkDirection::East] == nullptr) { continue; }
+																								neighbourIndex = (CHUNK_SIZE_X * (y)) + 1;
+																								DirIndex = ChunkDirection::East;
+																								neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[DirIndex]->pixels[neighbourIndex]);
+																						}
+																						else { neighbourIndex = _localIndex + 1; }
+																						break;
+																				}
+																				// case ChunkDirection::East:
+																				// 		if (x == CHUNK_SIZE_X - 1) {
+																				// 				if (neighbourChunks[ChunkDirection::East] != nullptr) {
+																				// 						neighbourIndex = (CHUNK_SIZE_X * (y)) - 1;
+																				// 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::East]->pixels[neighbourIndex]);
+																				// 						newChunkDir = ChunkDirection::East;
+																				// 						isSameChunk = false;
+																				// 						break;
+																				// 				}
+																				// 		}
+																				// 		continue;
+																				default: 
 																						continue;
-																				neighbourIndex = neighbourIndexes[DirIndex];
-																				neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
+																				}
+
+
+																				if (neighbour == nullptr)
+																						neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
+																				else
+																						isSameChunk = false;
+
 																				neighbourType = neighbour->GetType();
 
 																				// Now we ask the Pixel what it wants to do with its neighbour
@@ -290,241 +537,29 @@ void WorldSimulator::Update() {
 																						break;
 																				}
 																				if (result) {
+																						if (DEBUG_PrintPixelData) { printf("X: %i\tY:%i\tUPDATE:%i\t(OUT)\n", x, y, DEBUG_FrameCounter); }
 																						if (returnPixels[0] != returnPixels[1]) {
 																								if (pixelType != returnPixels[0]) {
 																										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
 																								}
 																								if (neighbourType != returnPixels[1]) {
-																										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
+																										if (isSameChunk)
+																												chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
+																										else
+																												neighbourChunks[DirIndex]->pixels[neighbourIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
 																								}
 																						}
 																						else {
-																								std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
+																								if (isSameChunk)
+																										std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
+																								else
+																										std::swap(chunks[chunkIndex]->pixels[_localIndex], neighbourChunks[DirIndex]->pixels[neighbourIndex]);
 																						}
-																						isProcessed[neighbourIndex] = true;
-																						continue;
+																						if (isSameChunk)
+																								isProcessed[neighbourIndex] = true;
+																						break;
 																				}
 																		}
-
-																		// Update in SAME chunk
-																		//! We update south first since most interactions involve moving down (less checks)
-																		// SOUTH
-																		//? if (y < CHUNK_SIZE_Y - 1) {
-																		//? 		//TODO Can we make this into a method without overhead? A lot of repeated code
-																		//? 		neighbourIndex = _localIndex + CHUNK_SIZE_X;
-																		//? 		neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 		neighbourType = neighbour->GetType();
-																		//? 		if (pixel->S_Logic(neighbourType, returnPixels)) {
-																		//? 				if (returnPixels[0] != returnPixels[1]) {
-																		//? 						if (pixelType != returnPixels[0]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 						}
-																		//? 						if (neighbourType != returnPixels[1]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 						}
-																		//? 				}
-																		//? 				else {
-																		//? 						std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 				}
-																		//? 				isProcessed[neighbourIndex] = true;
-																		//? 				continue;
-																		//? 		}
-																		//? 		// SOUTH_EAST
-																		//? 		if (x < CHUNK_SIZE_X - 1)
-																		//? 		{
-																		//? 				neighbourIndex++;
-																		//? 				neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 				neighbourType = neighbour->GetType();
-																		//? 				if (pixel->SE_Logic(neighbourType, returnPixels)) {
-																		//? 						if (returnPixels[0] != returnPixels[1]) {
-																		//? 								if (pixelType != returnPixels[0]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 								}
-																		//? 								if (neighbourType != returnPixels[1]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 								}
-																		//? 						}
-																		//? 						else {
-																		//? 								std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 						}
-																		//? 						isProcessed[neighbourIndex] = true;
-																		//? 						continue;
-																		//? 				}
-																		//? 		}
-																		//? 		// SOUTH_WEST
-																		//? 		if (x > 0) {
-																		//? 				neighbourIndex--;
-																		//? 				neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 				neighbourType = neighbour->GetType();
-																		//? 				if (pixel->SW_Logic(neighbourType, returnPixels)) {
-																		//? 						if (returnPixels[0] != returnPixels[1]) {
-																		//? 								if (pixelType != returnPixels[0]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 								}
-																		//? 								if (neighbourType != returnPixels[1]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 								}
-																		//? 						}
-																		//? 						else {
-																		//? 								std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 						}
-																		//? 						isProcessed[neighbourIndex] = true;
-																		//? 						continue;
-																		//? 				}
-																		//? 		}
-																		//? }
-																		//? // NORTH
-																		//? if (y > 0) {
-																		//? 		neighbourIndex = _localIndex - CHUNK_SIZE_X;
-																		//? 		neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 		neighbourType = neighbour->GetType();
-																		//? 		if (pixel->N_Logic(neighbourType, returnPixels)) {
-																		//? 				if (returnPixels[0] != returnPixels[1]) {
-																		//? 						if (pixelType != returnPixels[0]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 						}
-																		//? 						if (neighbourType != returnPixels[1]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 						}
-																		//? 				}
-																		//? 				else {
-																		//? 						std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 				}
-																		//? 				isProcessed[neighbourIndex] = true;
-																		//? 				continue;
-																		//? 		}
-																		//? 		// NORTH_EAST
-																		//? 		if (x < CHUNK_SIZE_X - 1)
-																		//? 		{
-																		//? 				neighbourIndex++;
-																		//? 				neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 				neighbourType = neighbour->GetType();
-																		//? 				if (pixel->NE_Logic(neighbourType, returnPixels)) {
-																		//? 						if (returnPixels[0] != returnPixels[1]) {
-																		//? 								if (pixelType != returnPixels[0]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 								}
-																		//? 								if (neighbourType != returnPixels[1]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 								}
-																		//? 						}
-																		//? 						else {
-																		//? 								std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 						}
-																		//? 						isProcessed[neighbourIndex] = true;
-																		//? 						continue;
-																		//? 				}
-																		//? 		}
-																		//? 		// NORTH_WEST
-																		//? 		if (x > 0) {
-																		//? 				neighbourIndex--;
-																		//? 				neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 				neighbourType = neighbour->GetType();
-																		//? 				if (pixel->NW_Logic(neighbourType, returnPixels)) {
-																		//? 						if (returnPixels[0] != returnPixels[1]) {
-																		//? 								if (pixelType != returnPixels[0]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 								}
-																		//? 								if (neighbourType != returnPixels[1]) {
-																		//? 										chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 								}
-																		//? 						}
-																		//? 						else {
-																		//? 								std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 						}
-																		//? 						isProcessed[neighbourIndex] = true;
-																		//? 						continue;
-																		//? 				}
-																		//? 		}
-																		//? }
-																		//? // EAST
-																		//? if (x < CHUNK_SIZE_X - 1) {
-																		//? 		neighbourIndex = _localIndex + 1;
-																		//? 		neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 		neighbourType = neighbour->GetType();
-																		//? 		if (pixel->E_Logic(neighbourType, returnPixels)) {
-																		//? 				if (returnPixels[0] != returnPixels[1]) {
-																		//? 						if (pixelType != returnPixels[0]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 						}
-																		//? 						if (neighbourType != returnPixels[1]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 						}
-																		//? 				}
-																		//? 				else {
-																		//? 						std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 				}
-																		//? 				isProcessed[neighbourIndex] = true;
-																		//? 				continue;
-																		//? 		}
-																		//? }
-																		//? if (x > 0) {
-																		//? 		neighbourIndex = _localIndex - 1;
-																		//? 		neighbour = worldDataHandler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-																		//? 		neighbourType = neighbour->GetType();
-																		//? 		if (pixel->W_Logic(neighbourType, returnPixels)) {
-																		//? 				if (returnPixels[0] != returnPixels[1]) {
-																		//? 						if (pixelType != returnPixels[0]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[0])->GetRandomColour();
-																		//? 						}
-																		//? 						if (neighbourType != returnPixels[1]) {
-																		//? 								chunks[chunkIndex]->pixels[_localIndex] = worldDataHandler->GetPixelFromType(returnPixels[1])->GetRandomColour();
-																		//? 						}
-																		//? 				}
-																		//? 				else {
-																		//? 						std::swap(chunks[chunkIndex]->pixels[_localIndex], chunks[chunkIndex]->pixels[neighbourIndex]);
-																		//? 				}
-																		//? 				isProcessed[neighbourIndex] = true;
-																		//? 				continue;
-																		//? 		}
-																		//? }
-
-
-
-
-																		//x if (_adjustedIndex = pixel->Update(chunkIndex, x, y, _localIndex, chunks)) {
-																		//x 		isProcessed[_adjustedIndex] = true;
-																		//x 		ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex);
-																		//x }
-
-																		//TODO Replace this
-																		//! // Check if we're not on the bottom
-																		//! if (y < CHUNK_SIZE_Y - 1) {
-																		//! 		// Down
-																		//!  		_adjustedIndex = ((y + 1) * CHUNK_SIZE_X) + x;
-																		//! 		if (isProcessed[_adjustedIndex]) continue;
-																		//! 
-																		//! 		if (isProcessed[_adjustedIndex] = ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex)) continue;
-																		//! 		else {
-																		//! 				// Down Diagonal
-																		//! 				if (LoopDir.x == 1) {
-																		//! 						// Same Chunk
-																		//! 						if (x < (CHUNK_SIZE_X - 2)) {
-																		//! 								if (isProcessed[_adjustedIndex] = ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex + 1)) continue;
-																		//! 						}
-																		//! 						else if (chunkIndex.x < WORLD_DIMENSIONS.x - 1) {
-																		//! 								if (isProcessed[_adjustedIndex] = 
-																		//! 										ChunkUtility::MovePixel(localPixels, _localIndex, ((y + 2) * CHUNK_SIZE_X) , chunks[chunkIndex]->neighbourChunks//[ChunkDirection::East]->p ixels)) ?o!ntinue;
-																		//! 						}
-																		//! 				}
-																		//! 				else if (LoopDir.x == -1) {
-																		//! 						// Same Chunk
-																		//! 						if (x > 0) {
-																		//! 								if (isProcessed[_adjustedIndex] = ChunkUtility::MovePixelSameChunk(localPixels, _localIndex, _adjustedIndex - 1)) continue;
-																		//! 						}
-																		//! 						else if (chunkIndex.x > 0) {
-																		//! 								if (isProcessed[_adjustedIndex] =
-																		//! 										ChunkUtility::MovePixel(localPixels, _localIndex, ((y + 2) * CHUNK_SIZE_X) - 1, chunks[chunkIndex]->neighbourChunks//[ChunkDirection::West]->?pi x! s)) continue;
-																		//! 						}
-																		//! 				}
-																		//! 		}
-																		//! }
-																		//! else {
-																		//! 		// Down into new Chunk
-																		//! 		if (chunkIndex.y < WORLD_DIMENSIONS.y - 1) {
-																		//! 				ChunkUtility::MovePixel(chunks[chunkIndex]->pixels, _localIndex, x, chunks[chunkIndex]->neighbourChunks[ChunkDirection::South]->pixels);
-																		//! 		}
-																		//! }
 																}
 														}
 												}
@@ -543,6 +578,44 @@ void WorldSimulator::Update() {
 		for (int i = 0; i < chunkUpdates; i++)
 		{
 				memset(isProcessedQueue[i], false, (CHUNK_SIZE_X * CHUNK_SIZE_Y));
+		}
+}
+
+// Is this really helpful? or just in the way..
+//TODO Clean this up a bit?
+void WorldSimulator::GetStartAndToForLoop(const short& side, short& xStart, short& xTo, short& yStart, short& yTo) {
+		switch (side)
+		{
+		// case ChunkDirection::North:
+		case 0:
+				yStart = 0;
+				yTo = (yDir == 1 ? 1 : -1);
+				goto jumpToSetX;
+				// case ChunkDirection::South:
+		case 1:
+				yStart = CHUNK_SIZE_Y - 1;
+				yTo = (yDir == 1 ? CHUNK_SIZE_Y : CHUNK_SIZE_Y - 2);
+				// Set Common X
+				jumpToSetX:
+				xStart = (xDir == 1 ? 0 : CHUNK_SIZE_X - 1);
+				xTo = (xDir == 1 ? CHUNK_SIZE_X - 1: 0);
+				break;
+
+		// case ChunkDirection::East:
+		case 2:
+				xStart = 0;
+				xTo = (xDir == 1 ? 1 : -1);
+				goto jumpToSetY;
+				break;
+		// case ChunkDirection::West:
+		case 3:
+				xStart = CHUNK_SIZE_X - 1;
+				xTo = (xDir == 1 ? CHUNK_SIZE_X : CHUNK_SIZE_X - 2);
+				// Set Common Y
+		jumpToSetY:
+				yStart = (yDir == 1 ? 0 : CHUNK_SIZE_Y - 1);
+				yTo = (yDir == 1 ? CHUNK_SIZE_Y - 1 : 0);
+				break;
 		}
 }
 
@@ -569,7 +642,7 @@ void WorldSimulator::UpdateInput()
 		}
 
 		if (input->GetKeyDown(KeyCode::D)) {
-				DEBUG_DrawChunkLines != DEBUG_DrawChunkLines;
+				DEBUG_DrawChunkLines = !DEBUG_DrawChunkLines;
 		}
 		if (input->GetKeyDown(KeyCode::Space)) {
 				DEBUG_DropSand = !DEBUG_DropSand;
@@ -582,6 +655,36 @@ void WorldSimulator::UpdateInput()
 						DEBUG_SandDropRate--;
 				}
 		}
+		if (input->GetKeyDown(KeyCode::Up)) {
+				DEBUG_PrintPixelData = !DEBUG_PrintPixelData;
+		}
+		if (input->GetKeyDown(KeyCode::Period)) {
+				Pen(mousePos, worldDataHandler->GetPixelFromType(E_PixelType::Water), 1);
+		}
+		if (input->GetKeyDown(KeyCode::Comma)) {
+				Pen(gameSettings->VirtualMouse, worldDataHandler->GetPixelFromType(E_PixelType::Water), 1);
+		}
+		//TODO Editing Settings, bad
+		if (input->GetKeyDown(KeyCode::F)) {
+				gameSettings->VirtualMouse.x -= 1 * (input->GetKeyButton(KeyCode::L_Shift) ? 5 : 1);
+		}
+		if (input->GetKeyDown(KeyCode::H)) {
+				gameSettings->VirtualMouse.x += 1 * (input->GetKeyButton(KeyCode::L_Shift) ? 5 : 1);
+		}
+		if (input->GetKeyDown(KeyCode::T)) {
+				gameSettings->VirtualMouse.y-= 1 * (input->GetKeyButton(KeyCode::L_Shift) ? 5 : 1);
+		}
+		if (input->GetKeyDown(KeyCode::G)) {
+				gameSettings->VirtualMouse.y += 1 * (input->GetKeyButton(KeyCode::L_Shift) ? 5 : 1);
+		}
+
+		if (input->GetKeyDown(KeyCode::E)) {
+				DEBUG_ZOOM += 0.01f;
+		}
+		else if (input->GetKeyDown(KeyCode::R)) {
+				DEBUG_ZOOM += -0.01f;
+		}
+
 		//TODO Move this into its own method?
 		//? Only debug, a more complete solution that only deletes pixels of type would be cool
 		if (input->GetKeyDown(KeyCode::Return)) {
@@ -643,7 +746,12 @@ bool WorldSimulator::Draw(Camera* camera) {
 				}
 		}
 
-		if (SDL_RenderCopy(gameRenderer, worldTexture, &WorldRenderRect, NULL) != 0) {
+		//TODO Replace this with a better zoom
+		SDL_Rect zoomrect = WorldRenderRect;
+		zoomrect.w *= DEBUG_ZOOM;
+		zoomrect.h *= DEBUG_ZOOM;
+
+		if (SDL_RenderCopy(gameRenderer, worldTexture, &zoomrect, NULL) != 0) {
 				printf("WorldRender Failed!\nError:%s\n", SDL_GetError());
 				SDL_ClearError();
 		}
@@ -651,17 +759,14 @@ bool WorldSimulator::Draw(Camera* camera) {
 		//TODO Move or remove this
 		SDL_SetRenderDrawColor(gameRenderer, 50, 50, 50, 50);
 		if (DEBUG_DrawChunkLines) {
-				SDL_RenderDrawLine(gameRenderer, 0, CHUNK_SIZE_Y, MaxRenderBox.x, CHUNK_SIZE_Y);
-				SDL_RenderDrawLine(gameRenderer, CHUNK_SIZE_X, 0, CHUNK_SIZE_X, MaxRenderBox.y);
-
 				IVec2 MaxGridSize((ScreenSize.x + (CHUNK_SIZE_X * 2)) / CHUNK_SIZE_X, (ScreenSize.y + (CHUNK_SIZE_Y * 2)) / CHUNK_SIZE_Y);
-				for (int x = 0; x < MaxGridSize.x; x++)
+				for (int x = 1; x < MaxGridSize.x; x++)
 				{
-						for (int y = 0; y < MaxGridSize.y; y++)
-						{
-								SDL_RenderDrawLine(gameRenderer, 0, (y * CHUNK_SIZE_Y) + cameraWorldOffset.y, (CHUNK_SIZE_X * MaxGridSize.x), (y * CHUNK_SIZE_Y) + cameraWorldOffset.y);
-								SDL_RenderDrawLine(gameRenderer, (x * CHUNK_SIZE_X) + cameraWorldOffset.x, 0, (x * CHUNK_SIZE_X) + cameraWorldOffset.x, (CHUNK_SIZE_Y * MaxGridSize.y));
-						}
+						SDL_RenderDrawLine(gameRenderer, (x * CHUNK_SIZE_X) / DEBUG_ZOOM, 0, (x * CHUNK_SIZE_X) / DEBUG_ZOOM, (CHUNK_SIZE_Y * MaxGridSize.y - 1));
+				}
+				for (int y = 1; y < MaxGridSize.y; y++)
+				{
+						SDL_RenderDrawLine(gameRenderer, 0, (y * CHUNK_SIZE_Y) / DEBUG_ZOOM,  (CHUNK_SIZE_X * MaxGridSize.x) - 1, (y * CHUNK_SIZE_Y) / DEBUG_ZOOM);
 				}
 		}
 		return true;

@@ -59,10 +59,14 @@ public:
 		SDL_Texture* worldTexture = nullptr;
 
 		bool DEBUG_DrawChunkLines = true;
-		bool DEBUG_DropSand = true;
+		bool DEBUG_DropSand = false;
 		int DEBUG_SandDropRate = 20;
 
-		int DEBUG_PenSize = 5;
+		int DEBUG_PenSize = 1;
+		bool DEBUG_PrintPixelData = true;
+
+		u_long DEBUG_FrameCounter = 0;
+		float DEBUG_ZOOM = 1.0f;
 
 		//std::vector<SDL_Texture*> activeTextures;
 
@@ -91,14 +95,18 @@ public:
 
 		void Start() override;
 		void Update() override;
-
 		void UpdateInput();
+
 		//x void SubscribeInputs(InputHandler* inputHandler) override;
 		//x void UpdateInput(const int eventType, const SDL_Event* _event) override;
 
 		bool Draw(Camera* camera) override;
 
 protected:
+		void GetStartAndToForLoop(const short& side, short& xStart, short& xTo, short& yStart, short& yTo);
+		// Ugly, can we improve this?
+		short xDir = -1, yDir = 1;
+
 		// Attempts to update the entire chunk using the game logic.
 		//? void UpdateChunk(int x, int y, int isProcessedIndex);
 		// Returns the index to the chunk array, should be used for neighbouring calls to save repeat calls.

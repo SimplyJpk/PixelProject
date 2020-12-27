@@ -81,6 +81,9 @@ enum class KeyCode
 		Left = SDL_SCANCODE_LEFT,
 		Down = SDL_SCANCODE_DOWN,
 		Up = SDL_SCANCODE_UP,
+
+		L_Shift = SDL_SCANCODE_LSHIFT,
+		R_Shift = SDL_SCANCODE_RSHIFT,
 };
 
 enum MouseCode {

@@ -37,6 +37,7 @@ public:
 				ImGui::Text("Screen Size: W-%i\tH-%i", settings->Screen_Size.x, settings->Screen_Size.y);
 				ImGui::TextColored(memUsage.isMemoryMore() ? red : green, "Memory Used: %ikb", memUsage.ReturnMemoryUsed() / 1024);
 				ImGui::Text("Selected Pixel Type: %s", settings->_paintManager->SelectedPixelName());
+				ImGui::Text("Virtual Mouse: X-%i Y-%i", settings->VirtualMouse.x, settings->VirtualMouse.y);
 				ImGui::End();
 				ImGui::Render();
 				ImGuiSDL::Render(ImGui::GetDrawData());
