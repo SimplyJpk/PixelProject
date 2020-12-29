@@ -9,44 +9,44 @@ class DebugStopWatch
 public:
 		char out_string[50] = "\0";
 
-		void AddTimer(const char* timerName, bool enabled) {
-				StopWatchEnabled[timerName] = enabled;
-				StopWatchTime[timerName] = SDL_GetTicks();
-				keys.push_back(timerName);
+		void AddTimer(const char* timer_name, const bool enabled) {
+				stop_watch_enabled_[timer_name] = enabled;
+				stop_watch_time_[timer_name] = SDL_GetTicks();
+				keys_.push_back(timer_name);
 		}
 
-		void SetTimerState(const char* timerName, bool enabled) {
-				StopWatchEnabled[timerName] = enabled;
+		void SetTimerState(const char* timer_name, const bool enabled) {
+				stop_watch_enabled_[timer_name] = enabled;
 		}
 
 		std::string GetData() {
 				std::string result;
 				// Early abort since this can fire before all times are filled.
 				// TODO Fix? Do I care? eh
-				if (keys.size() != times.size())
+				if (keys_.size() != times_.size())
 						return result;
-				for (short i = 0; i < keys.size(); i++)
+				for (short i = 0; i < keys_.size(); i++)
 				{
-						if (StopWatchEnabled[keys[i]]) {
-								snprintf(out_string, 50, "%i\tms\t%s\n", times[keys[i]], keys[i]);
+						if (stop_watch_enabled_[keys_[i]]) {
+								snprintf(out_string, 50, "%i\tms\t%s\n", times_[keys_[i]], keys_[i]);
 								result += out_string;
 						}
 				}
 				return result;
 		}
 
-		void StoreTime(const char* timerName) {
-				times[timerName] = (SDL_GetTicks() - StopWatchTime[timerName]);
+		void StoreTime(const char* timer_name) {
+				times_[timer_name] = (SDL_GetTicks() - stop_watch_time_[timer_name]);
 		};
-		void UpdateTime(const char* timerName) {
-				StopWatchTime[timerName] = SDL_GetTicks();
+		void UpdateTime(const char* timer_name) {
+				stop_watch_time_[timer_name] = SDL_GetTicks();
 		}
 		DebugStopWatch() {};
 		~DebugStopWatch() {};
 
 private:
-		std::vector<const char*> keys;
-		std::unordered_map<const char*, Uint32> times;
-		std::unordered_map<const char*, bool> StopWatchEnabled;
-		std::unordered_map<const char*, Uint32> StopWatchTime;
+		std::vector<const char*> keys_;
+		std::unordered_map<const char*, Uint32> times_;
+		std::unordered_map<const char*, bool> stop_watch_enabled_;
+		std::unordered_map<const char*, Uint32> stop_watch_time_;
 };

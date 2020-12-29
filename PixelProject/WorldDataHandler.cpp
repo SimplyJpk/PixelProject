@@ -1,3 +1,3 @@
 #include "WorldDataHandler.h"
 
-WorldDataHandler* WorldDataHandler::instance = nullptr;
+WorldDataHandler* WorldDataHandler::instance_ = nullptr;

@@ -1,23 +1,23 @@
 #include "InputManager.h"
 
-InputManager* InputManager::instance = nullptr;
+InputManager* InputManager::instance_ = nullptr;
 
-InputManager::InputManager() {}
+InputManager::InputManager() = default;
 
 InputManager* InputManager::Instance() {
-		if (!instance)
-				instance = new InputManager();
-		return instance;
+		if (!instance_)
+				instance_ = new InputManager();
+		return instance_;
 }
 
 void InputManager::Update() {
 		// We clear all our states
 		// Keyboard
-		SDL_memset(isKeyDown, false, SCANCODE_MAXSIZE * sizeof(bool));
-		SDL_memset(isKeyUp, false, SCANCODE_MAXSIZE * sizeof(bool));
+		SDL_memset(is_key_down_, false, SCANCODE_MAXSIZE * sizeof(bool));
+		SDL_memset(is_key_up_, false, SCANCODE_MAXSIZE * sizeof(bool));
 		// Mouse
-		SDL_memset(isMouseDown, false, MouseClickTypeCount * sizeof(bool));
-		SDL_memset(isMouseUp, false, MouseClickTypeCount * sizeof(bool));
+		SDL_memset(is_mouse_down_, false, MouseClickTypeCount * sizeof(bool));
+		SDL_memset(is_mouse_up_, false, MouseClickTypeCount * sizeof(bool));
 
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
@@ -25,41 +25,41 @@ void InputManager::Update() {
 				switch (event.type)
 				{
 				case SDL_KEYDOWN:
-						keyboard = SDL_GetKeyboardState(nullptr);
-						isKeyDown[event.key.keysym.scancode] = true;
+						keyboard_ = SDL_GetKeyboardState(nullptr);
+						is_key_down_[event.key.keysym.scancode] = true;
 						break;
 				case SDL_KEYUP:
-						keyboard = SDL_GetKeyboardState(nullptr);
-						isKeyUp[event.key.keysym.scancode] = true;
+						keyboard_ = SDL_GetKeyboardState(nullptr);
+						is_key_up_[event.key.keysym.scancode] = true;
 				case SDL_MOUSEMOTION:
-						mouseX = event.motion.x;
-						mouseY = event.motion.y;
-						mousePos = IVec2(mouseX, mouseY);
+						mouse_x_ = event.motion.x;
+						mouse_y_ = event.motion.y;
+						mouse_pos_ = IVec2(mouse_x_, mouse_y_);
 						break;
 				case SDL_MOUSEBUTTONDOWN:
-						mouse = SDL_GetMouseState(&(mouseX), &(this->mouseY));
+						mouse_ = SDL_GetMouseState(&(mouse_x_), &(this->mouse_y_));
 						if (event.button.button == SDL_BUTTON_LEFT)
-								isMouseDown[MouseLeft] = true;
+								is_mouse_down_[MouseLeft] = true;
 						else if (event.button.button == SDL_BUTTON_RIGHT)
-								isMouseDown[MouseRight] = true;
+								is_mouse_down_[MouseRight] = true;
 						else if (event.button.button == SDL_BUTTON_MIDDLE)
-								isMouseDown[MouseMiddle] = true;
+								is_mouse_down_[MouseMiddle] = true;
 						break;
 
 				case SDL_MOUSEBUTTONUP:
-						mouse = SDL_GetMouseState(&(mouseX), &(this->mouseY));
+						mouse_ = SDL_GetMouseState(&(mouse_x_), &(this->mouse_y_));
 						if (event.button.button == SDL_BUTTON_LEFT)
-								isMouseUp[MouseLeft] = true;
+								is_mouse_up_[MouseLeft] = true;
 						else if (event.button.button == SDL_BUTTON_RIGHT)
-								isMouseUp[MouseRight] = true;
+								is_mouse_up_[MouseRight] = true;
 						else if (event.button.button == SDL_BUTTON_MIDDLE)
-								isMouseUp[MouseMiddle] = true;
+								is_mouse_up_[MouseMiddle] = true;
 						break;
 
 				case SDL_MOUSEWHEEL:
 						//TODO Does this work?
-						mouseScroll.x = event.wheel.x;
-						mouseScroll.y = event.wheel.y;
+						mouse_scroll_.x = event.wheel.x;
+						mouse_scroll_.y = event.wheel.y;
 						break;
 				case SDL_QUIT:
 						// TODO Should do something for this
@@ -70,34 +70,34 @@ void InputManager::Update() {
 		}
 }
 
-bool InputManager::GetMouseDown(short button)
+auto InputManager::GetMouseDown(const short button) -> bool
 {
 		if (button < 0 || button >= MouseClickTypeCount)
 				return false;
-		return (isMouseDown[button]);
+		return (is_mouse_down_[button]);
 }
 
-bool InputManager::GetMouseUp(short button)
+bool InputManager::GetMouseUp(const short button)
 {
 		if (button < 0 || button >= MouseClickTypeCount)
 				return false;
-		return (isMouseUp[button]);
+		return (is_mouse_up_[button]);
 }
 
-bool InputManager::GetMouseButton(short button)
+bool InputManager::GetMouseButton(const short button) const
 {
 		switch (button)
 		{
 		case MouseLeft:
-				if (mouse & SDL_BUTTON(1))
+				if (mouse_ & SDL_BUTTON(1))
 						return true;
 				break;
 		case MouseMiddle:
-				if (mouse & SDL_BUTTON(2))
+				if (mouse_ & SDL_BUTTON(2))
 						return true;
 				break;
 		case MouseRight:
-				if (mouse & SDL_BUTTON(3))
+				if (mouse_ & SDL_BUTTON(3))
 						return true;
 				break;
 		default:
@@ -106,27 +106,27 @@ bool InputManager::GetMouseButton(short button)
 		return false;
 }
 
-bool InputManager::GetKeyDown(KeyCode keyCode)
+bool InputManager::GetKeyDown(KeyCode key_code)
 {
-		int key = static_cast<int>(keyCode);
+		const int key = static_cast<int>(key_code);
 		if (key < 0 || key >= SCANCODE_MAXSIZE)
 				return false;
-		return (isKeyDown[key]);
+		return (is_key_down_[key]);
 }
 
-bool InputManager::GetKeyUp(KeyCode keyCode)
+bool InputManager::GetKeyUp(KeyCode key_code)
 {
-		int key = static_cast<int>(keyCode);
+		const int key = static_cast<int>(key_code);
 		if (key < 0 || key >= SCANCODE_MAXSIZE)
 				return false;
-		return (isKeyUp[key]);
+		return (is_key_up_[key]);
 }
 
-bool InputManager::GetKeyButton(KeyCode keyCode)
+bool InputManager::GetKeyButton(KeyCode key_code) const
 {
-		if (!(keyboard))
+		if (!(keyboard_))
 				return false;
-		if (keyboard[static_cast<int>(keyCode)])
+		if (keyboard_[static_cast<int>(key_code)])
 				return true;
 		return false;
 }

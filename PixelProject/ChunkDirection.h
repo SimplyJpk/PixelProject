@@ -1,6 +1,6 @@
 #pragma once
 
-const enum ChunkDirection : int
+enum E_ChunkDirection : int
 {
 		North = 0,
 		NorthEast = 1,

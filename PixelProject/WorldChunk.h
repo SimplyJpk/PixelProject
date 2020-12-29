@@ -9,16 +9,17 @@ class WorldChunk
 {
 public:
 		IVec2 position;
-		WorldChunk* neighbourChunks[ChunkDirection::DIR_COUNT];
+		WorldChunk* neighbour_chunks[DIR_COUNT];
 
 		Uint32* pixels = nullptr;
 
-		WorldChunk(IVec2 pos) {
-				position = pos;
+		WorldChunk(const IVec2& pos)
+		{
+			position = pos;
 		}
 
 		/// <summary> Sets the chunks neighbour with zero error checking.</summary>
-		void SetNeighbour(ChunkDirection dir, WorldChunk* neighbour) {
-				neighbourChunks[dir] = neighbour;
+		void SetNeighbour(const E_ChunkDirection dir, WorldChunk* neighbour) {
+				neighbour_chunks[dir] = neighbour;
 		}
 };

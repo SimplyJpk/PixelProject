@@ -1,8 +1,10 @@
 #include <SDL.h>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "GameSettings.h"
+
+#include "ConfigFile.h"
 
 // My stuff
 #include "Vec2.h"
@@ -10,37 +12,38 @@
 #include "Camera.h"
 #include "GUIManager.h"
 
+#include "IO.h"
+
 #include "InputManager.h"
 
 #include "PixelTypeIncludes.h"
 #include "DebugStopWatch.h"
 
+//TODO Fix the really bad chunk tearing
+//TODO Maybe fix up file paths, start using folders for sanity. https://stackoverflow.com/questions/3242897/can-i-configure-visual-studio-to-use-real-folders-instead-of-filters-in-c-proj
+//TODO - > Check common standards for folders
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 720 - 32;
+using namespace PixelProject;
 
-const int TARGET_FPS = 60;
-const float frameDelay = (float)1000 / TARGET_FPS;
-
-const int DRAW_SIZE = 5;
-
-bool Shutdown = false;
-
-InputManager* inputManager;
-WorldSimulator* worldSim;
-GUIManager* guiManager;
+InputManager* input_manager;
+WorldSimulator* world_sim;
+GuiManager* gui_manager;
 
 int main(int argc, char** argv)
 {
-		DebugStopWatch StopWatch;
-		StopWatch.SetTimerState("Update", true);
+		printf("Loading config file..\n");
+		ConfigFile config;
+		config.StartLoad(config.FilePath().c_str(), true);
+
+		DebugStopWatch stopWatch;
+		stopWatch.SetTimerState("Update", true);
 		//! General Initialization
-		StopWatch.AddTimer("Init", false);
-		StopWatch.AddTimer("Start", false);
-		StopWatch.AddTimer("Update", true);
-		StopWatch.AddTimer("Draw", true);
-		StopWatch.AddTimer("FrameTime", true);
-		StopWatch.AddTimer("Input", false);
+		stopWatch.AddTimer("Init", false);
+		stopWatch.AddTimer("Start", false);
+		stopWatch.AddTimer("Update", true);
+		stopWatch.AddTimer("Draw", true);
+		stopWatch.AddTimer("FrameTime", true);
+		stopWatch.AddTimer("Input", false);
 
 		// In-Game Commands
 		printf("/--\t\tCommands\n");
@@ -60,6 +63,10 @@ int main(int argc, char** argv)
 		printf("|- Esc\t\t- Close Game\n\n");
 		// End
 
+
+		auto settings = std::make_unique<GameSettings>();
+		settings->LoadSettings(config);
+
 		//TODO Init WorldData, need to improve this, pretty awkward having it here.
 		WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
 		WorldDataHandler::Instance()->AddPixelData(new GroundPixel());
@@ -67,119 +74,114 @@ int main(int argc, char** argv)
 		WorldDataHandler::Instance()->AddPixelData(new WaterPixel());
 
 		// Initalize our settings
-		//TODO Make a serializable settings file?
-		//TODO Wrap this?
-		GameSettings* settings = new GameSettings();
-		settings->Screen_Size = IVec2(SCREEN_WIDTH, SCREEN_HEIGHT);
-		settings->_stopWatch = &StopWatch;
+		settings->paint_manager = new	PaintManager();
+		settings->screen_size = IVec2(settings->screen_size.x, settings->screen_size.y);
+		settings->stop_watch = &stopWatch;
 
 		// Create a new Window to use
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-		SDL_Window* window = SDL_CreateWindow("Pixel Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+		SDL_Window* window = SDL_CreateWindow("Pixel Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, settings->screen_size.x, settings->screen_size.y, 0);
 
-		SDL_Renderer* renderer = NULL;
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+		SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 		// Init ImGUI
-		guiManager = new GUIManager(renderer, settings);
+		gui_manager = new GuiManager(renderer, settings.get());
 
 		FC_Font* font = FC_CreateFont();
 		FC_LoadFont(font, renderer, "fonts/FreeSans.ttf", 20, FC_MakeColor(255, 255, 255, 255), TTF_STYLE_NORMAL);
-		settings->_font = font;
-
-		Uint32 frameStart;
-		int frameTime;
+		settings->font = font;
 
 		Uint32 lastUpdate = 0;
 
 		Uint32 frameCounter = 0;
 		Uint32 totalFrames = 0;
-		Uint32 currentFPS = 0;
+		Uint32 currentFps = 0;
 
 		lastUpdate = SDL_GetTicks();
 
 		// Initialize all our junk
-		inputManager = InputManager::Instance();
+		input_manager = InputManager::Instance();
 		// Create our WorldSimulator
-		worldSim = new WorldSimulator(renderer, settings);
-		Camera* mainCam = new Camera(IVec2(0,0), settings);
+		world_sim = new WorldSimulator(renderer, settings.get());
+		Camera* mainCam = new Camera(IVec2(0, 0), settings.get());
 
 		// Pass world simulator an instance of Camera
-		worldSim->cam = mainCam;
+		world_sim->cam = mainCam;
 
-		StopWatch.StoreTime("Init");
+		stopWatch.StoreTime("Init");
 		//! General Initialization of Engine Complete
 
 		//! Start
-		StopWatch.UpdateTime("Start");
+		stopWatch.UpdateTime("Start");
 
-		worldSim->Start();
+		world_sim->Start();
 		mainCam->Start();
 
 		//TODO REMOVE THIS
-		bool DEBUG_framebyframeUpdate = true;
+		bool debugFramebyframeUpdate = true;
 
-		StopWatch.StoreTime("Start");
+		stopWatch.StoreTime("Start");
 		//! Start Finished
 		// Update
-		while (!inputManager->IsShuttingDown())
+		while (!input_manager->IsShuttingDown())
 		{
-				StopWatch.UpdateTime("FrameTime");
-				StopWatch.UpdateTime("Update");
+				stopWatch.UpdateTime("FrameTime");
+				stopWatch.UpdateTime("Update");
 
 				totalFrames++;
 				frameCounter++;
-				frameStart = SDL_GetTicks();
+				const Uint32 frameStart = SDL_GetTicks();
 
-				StopWatch.UpdateTime("Input");
+				stopWatch.UpdateTime("Input");
 				// Check Inputs
-				inputManager->Update();
-				if (inputManager->IsShuttingDown()) break;
-				StopWatch.StoreTime("Input");
+				input_manager->Update();
+				if (input_manager->IsShuttingDown()) break;
+				stopWatch.StoreTime("Input");
 
 				//TODO Move this somewhere better?
-				settings->_paintManager->UpdateInput();
-				worldSim->UpdateInput();
+				settings->paint_manager->UpdateInput();
+				world_sim->UpdateInput();
 
-				if (inputManager->GetKeyButton(KeyCode::_0))
-						DEBUG_framebyframeUpdate = !DEBUG_framebyframeUpdate;
+				if (input_manager->GetKeyButton(KeyCode::_0))
+						debugFramebyframeUpdate = !debugFramebyframeUpdate;
 				// Updates
-				if (!DEBUG_framebyframeUpdate || inputManager->GetKeyDown(KeyCode::Down)) {
-						worldSim->Update();
+				if (!debugFramebyframeUpdate || input_manager->GetKeyDown(KeyCode::Down)) {
+						world_sim->Update();
 				}
 				mainCam->Update();
 
-				StopWatch.StoreTime("Update");
+				stopWatch.StoreTime("Update");
 
 				if (SDL_GetTicks() - lastUpdate > 1000) {
-						currentFPS = frameCounter;
+						currentFps = frameCounter;
 						frameCounter = 0;
 						lastUpdate = SDL_GetTicks();
 				}
 
-				StopWatch.UpdateTime("Draw");
+				stopWatch.UpdateTime("Draw");
 				// Clear Screen
 				SDL_RenderClear(renderer);
 
-				worldSim->Draw(mainCam);
+				world_sim->Draw(mainCam);
 
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-				SDL_RenderDrawLine(renderer, settings->VirtualMouse.x, settings->VirtualMouse.y, settings->VirtualMouse.x, settings->VirtualMouse.y);
+				SDL_RenderDrawLine(renderer, settings->virtual_mouse.x, settings->virtual_mouse.y, settings->virtual_mouse.x, settings->virtual_mouse.y);
 				// Copy our texture
 				//x SDL_RenderCopy(renderer, texture, NULL, &textureRect);
-				FC_Draw(font, renderer, 10, 10, "Target FPS: %i \nFrames in Last Second: %i\nFPS: %i", TARGET_FPS, frameCounter, currentFPS);
+				FC_Draw(font, renderer, 10, 10, "Target FPS: %i \nFrames in Last Second: %i\nFPS: %i",
+				        settings->target_frames_per_second, frameCounter, currentFps);
 
 				// Draw GUI
-				guiManager->DrawGUI();
+				gui_manager->DrawGui();
 				// Render
 				SDL_RenderPresent(renderer);
 
-				StopWatch.StoreTime("Draw");
+				stopWatch.StoreTime("Draw");
 
-				StopWatch.StoreTime("FrameTime");
+				stopWatch.StoreTime("FrameTime");
 				// Wait a bit
-				frameTime = SDL_GetTicks() - frameStart;
-				if (frameDelay > frameTime) {
-						SDL_Delay(frameDelay - frameTime);
+				const int frameTime = SDL_GetTicks() - frameStart;
+				if (settings->calculated_frame_delay > frameTime) {
+						SDL_Delay(settings->calculated_frame_delay - frameTime);
 				}
 
 		}

@@ -2,35 +2,30 @@
 #include "GameSettings.h"
 #include "GameObject.h"
 
-class Camera : public GameObject
+class Camera final : public GameObject
 {
 public:
-		SDL_Rect viewPort;
+		SDL_Rect view_port{};
 
-		Camera(GameSettings* settings) {
-				SetScreenSize(settings->Screen_Size);
+		explicit Camera(GameSettings* settings) {
+				SetScreenSize(settings->screen_size);
 		}
-		Camera(IVec2 position, GameSettings* settings) {
-				SetScreenSize(settings->Screen_Size);
+		Camera(const IVec2& position, GameSettings* settings) {
+				SetScreenSize(settings->screen_size);
 				SetPosition(position);
 		}
 		
 		void Start() override;
 		void Update() override;
 
-		void SetScreenSize(IVec2 size) {
-				viewPort.h = size.y;
-				viewPort.w = size.x;
+		void SetScreenSize(const IVec2& size) {
+				view_port.h = size.y;
+				view_port.w = size.x;
 		}
-		void SetPosition(IVec2 pos) {
-				viewPort.x = pos.x;
-				viewPort.y = pos.y;
+		void SetPosition(const IVec2& pos) {
+				view_port.x = pos.x;
+				view_port.y = pos.y;
 		}
-
-		//x void SubscribeInputs(InputHandler* inputHandler) override;
-		//x void UpdateInput(const int eventType, const SDL_Event* _event) override;
-
 private:
-		Camera();
 };
 

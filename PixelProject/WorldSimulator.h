@@ -13,50 +13,50 @@
 
 #include <boost/asio/post.hpp>
 #include <boost/asio/thread_pool.hpp>
-#include <boost\thread\win32\mutex.hpp>
+#include <boost/thread/win32/mutex.hpp>
 
 #include "SDL_FontCache/SDL_FontCache.h"
 
 #include "WorldRules.h"
 
-#include <time.h>
+#include <ctime>
 #include "./lib/XoshiroCpp.hpp"
 
-class WorldSimulator : public GameObject
+class WorldSimulator final : public GameObject
 {
 		//TODO Need to make an update config for each type of terrain
 public:
 		//TODO Add to settings of some sort?
-		const IVec2 WORLD_DIMENSIONS = IVec2(WORLD_SIZE_X, WORLD_SIZE_Y);
+		const IVec2 world_dimensions = IVec2(WORLD_SIZE_X, WORLD_SIZE_Y);
 
-		std::atomic<int> threadPoolTasks = 0;
-		boost::asio::thread_pool threadPool{32};
-		const static int MaxProcessCount = 100;
-		bool isProcessedQueue[MaxProcessCount][CHUNK_SIZE_X * CHUNK_SIZE_Y];
+		std::atomic<int> thread_pool_tasks = 0;
+		boost::asio::thread_pool thread_pool{32};
+		const static int max_process_count = 100;
+		bool is_processed_queue[max_process_count][CHUNK_SIZE_X * CHUNK_SIZE_Y];
 
 		// Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
-		short* ChunkDirectionOrderContainers[MaxProcessCount][static_cast<short>(E_PixelType::COUNT)];
+		short* chunk_direction_order_containers[max_process_count][static_cast<short>(E_PixelType::COUNT)];
 
-		XoshiroCpp::Xoshiro256PlusPlus rng{ (time(NULL)) };
+		XoshiroCpp::Xoshiro256PlusPlus rng{ (time(nullptr)) };
 		// Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
-		IVec2 MaxVisibleChunksOnScreen = IVec2::Zero();
+		IVec2 max_visible_chunks_on_screen = IVec2::Zero();
 		
 		Camera* cam;
 
-		SDL_Rect WorldRenderRect;
-		IVec2 MaxRenderBox = IVec2::Zero();
+		SDL_Rect world_render_rect;
+		IVec2 max_render_box = IVec2::Zero();
 
-		Uint32 ChunkTotalSize = 0;
+		Uint32 chunk_total_size = 0;
 
-		IVec2 Pixel_World_Dimensions;
+		IVec2 pixel_world_dimensions;
 
-		SDL_Renderer* gameRenderer;
-		const int MAX_ACTIVE_CHUNKS = 12;
+		SDL_Renderer* game_renderer;
+		const int max_active_chunks = 12;
 
-		GameSettings* gameSettings;
-		WorldDataHandler* worldDataHandler;
+		GameSettings* game_settings;
+		WorldDataHandler* world_data_handler;
 
-		SDL_Texture* worldTexture = nullptr;
+		SDL_Texture* world_texture = nullptr;
 
 		bool DEBUG_DrawChunkLines = true;
 		bool DEBUG_DropSand = false;
@@ -66,22 +66,22 @@ public:
 		bool DEBUG_PrintPixelData = true;
 
 		u_long DEBUG_FrameCounter = 0;
-		float DEBUG_ZOOM = 1.0f;
+		float DEBUG_ZoomLevel = 1.0f;
 
 		//std::vector<SDL_Texture*> activeTextures;
 
 		WorldSimulator(SDL_Renderer* renderer, GameSettings* settings) {
-				//TODO SHould have this be an offset from the camera?
-				WorldRenderRect = { CHUNK_SIZE_X, CHUNK_SIZE_Y, settings->Screen_Size.x, settings->Screen_Size.y };
-				gameRenderer = renderer;
-				gameSettings = settings;
+				//TODO Should have this be an offset from the camera?
+				world_render_rect = { CHUNK_SIZE_X, CHUNK_SIZE_Y, settings->screen_size.x, settings->screen_size.y };
+				game_renderer = renderer;
+				game_settings = settings;
 				// We calculate the max number of visible chunks on screen
 				//? Do we need to add 2? Is this enough? Is it to much?
-				MaxVisibleChunksOnScreen = IVec2((gameSettings->Screen_Size.x / CHUNK_SIZE_X) + 2, (gameSettings->Screen_Size.y / CHUNK_SIZE_Y) + 2);
+				max_visible_chunks_on_screen = IVec2((game_settings->screen_size.x / CHUNK_SIZE_X) + 2, (game_settings->screen_size.y / CHUNK_SIZE_Y) + 2);
 				// Max pixel width/height allowed for the texture
-				MaxRenderBox = IVec2(gameSettings->Screen_Size.x + (CHUNK_SIZE_X * 2), gameSettings->Screen_Size.y + (CHUNK_SIZE_Y * 2));
+				max_render_box = IVec2(game_settings->screen_size.x + (CHUNK_SIZE_X * 2), game_settings->screen_size.y + (CHUNK_SIZE_Y * 2));
 
-				worldDataHandler = WorldDataHandler::Instance();
+				world_data_handler = WorldDataHandler::Instance();
 		}
 
 		//TODO Chunk object?
@@ -91,7 +91,7 @@ public:
 		// std::vector<Uint32*> pixels;
 		// std::vector<bool*> isProcessed;
 
-		void Pen(IVec2 point, BasePixel* pixelType, int size = 5);
+		void Pen(const IVec2& point, BasePixel* pixel_type, int size = 5);
 
 		void Start() override;
 		void Update() override;
@@ -103,12 +103,7 @@ public:
 		bool Draw(Camera* camera) override;
 
 protected:
-		void GetStartAndToForLoop(const short& side, short& xStart, short& xTo, short& yStart, short& yTo);
+		void GetStartAndToForLoop(const short& side, short& x_start, short& x_to, short& y_start, short& y_to) const;
 		// Ugly, can we improve this?
-		short xDir = -1, yDir = 1;
-
-		// Attempts to update the entire chunk using the game logic.
-		//? void UpdateChunk(int x, int y, int isProcessedIndex);
-		// Returns the index to the chunk array, should be used for neighbouring calls to save repeat calls.
-		Uint32* returnChunk(int chunkIndex);
+		short x_dir_ = -1, y_dir_ = 1;
 };

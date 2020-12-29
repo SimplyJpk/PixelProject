@@ -8,7 +8,7 @@
 #include "WorldChunk.h"
 #include "WorldRules.h"
 #include "./lib/XoshiroCpp.hpp"
-#include <time.h>
+#include <ctime>
 
 #define MAX_PIXEL_COLOUR_COUNT 10
 #define MAX_PIXELUPDATE_ORDER_COUNT 4
@@ -24,54 +24,55 @@ enum class E_PixelType {
 class BasePixel
 {
 public:
-		virtual const E_PixelType GetType() { return E_PixelType::Space; }
+		virtual E_PixelType GetType() { return E_PixelType::Space; }
 		virtual const char* Name() { return name; }
-		virtual bool isUpdateable() { return true; }
+		virtual bool IsUpdateable() { return true; }
 
 		const char* name = "UNKNOWN";
 
 		short* GetSingleChunkOrder() {
-				if (PixelUpdateOrderCount != 1) {
-						_chunkOrderCounter++;
-						if (_chunkOrderCounter >= PixelUpdateOrderCount) {
-								_chunkOrderCounter = 0;
+				if (pixel_update_order_count_ != 1) {
+						chunk_order_counter_++;
+						if (chunk_order_counter_ >= pixel_update_order_count_) {
+								chunk_order_counter_ = 0;
 						}
 				}
-				return PixelUpdateOrder[_chunkOrderCounter];
+				return pixel_update_order_[chunk_order_counter_];
 		}
 
-		short PixelIndex = -1;
-		short ColourCount = 0;
+		short pixel_index = -1;
+		short colour_count = 0;
 
-		Uint32 GetRandomColour() { return TypeColours[(ColourCount <= 1 ? 0 : PixelRNG() % (ColourCount - 1))]; }
-		Uint32 TypeColours[MAX_PIXEL_COLOUR_COUNT]{ 0 };
+		Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : pixel_rng_() % (colour_count - 1))]; }
+		Uint32 type_colours[MAX_PIXEL_COLOUR_COUNT]{ 0 };
 
-		virtual bool N_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool NE_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool E_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool SE_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool S_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool SW_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool W_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
-		virtual bool NW_Logic(const E_PixelType type, E_PixelType returnPixels[2]) { return false; };
+		virtual bool NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+		virtual bool NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
 protected:
-		short _chunkOrderCounter = 0;
+		~BasePixel() = default;
+		short chunk_order_counter_ = 0;
 		// A very messy solution to help with pixel order processing
-		short PixelUpdateOrderCount = 1;
-		short PixelUpdateOrder[MAX_PIXELUPDATE_ORDER_COUNT][ChunkDirection::DIR_COUNT] = { { ChunkDirection::South, ChunkDirection::SouthWest, ChunkDirection::SouthEast, ChunkDirection::East, ChunkDirection::West, ChunkDirection::NorthWest, ChunkDirection::NorthEast, ChunkDirection::North } };
+		short pixel_update_order_count_ = 1;
+		short pixel_update_order_[MAX_PIXELUPDATE_ORDER_COUNT][E_ChunkDirection::DIR_COUNT] = { { E_ChunkDirection::South, E_ChunkDirection::SouthWest, E_ChunkDirection::SouthEast, E_ChunkDirection::East, E_ChunkDirection::West, E_ChunkDirection::NorthWest, E_ChunkDirection::NorthEast, E_ChunkDirection::North } };
 
-		void InsertPixelUpdateOrder(int index, std::vector<short> directions) {
+		void InsertPixelUpdateOrder(const int index, std::vector<short> directions) {
 				if (index < MAX_PIXELUPDATE_ORDER_COUNT) {
-						for (int i = 0; i < ChunkDirection::DIR_COUNT; i++) {
+						for (int i = 0; i < E_ChunkDirection::DIR_COUNT; i++) {
 								if (i < directions.size())
-										PixelUpdateOrder[index][i] = directions[i];
+										pixel_update_order_[index][i] = directions[i];
 								else
-										PixelUpdateOrder[index][i] = ChunkDirection::DIR_COUNT;
+										pixel_update_order_[index][i] = E_ChunkDirection::DIR_COUNT;
 						}
 				}
 		}
 
-		BasePixel() {};
+		BasePixel() = default;;
 private:
-		XoshiroCpp::SplitMix64 PixelRNG{ time(NULL) };
+		XoshiroCpp::SplitMix64 pixel_rng_{ time(nullptr) };
 };

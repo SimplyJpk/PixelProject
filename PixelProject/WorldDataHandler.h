@@ -1,5 +1,4 @@
-#ifndef _WORLD_DATA_HANDLER_
-#define _WORLD_DATA_HANDLER_
+#pragma once
 #include <unordered_map>
 
 #include "BasePixel.h"
@@ -9,58 +8,57 @@ class WorldDataHandler
 {
 public:
 		static WorldDataHandler* Instance() {
-				if (!instance) {
-						instance = new WorldDataHandler();
+				if (!instance_) {
+						instance_ = new WorldDataHandler();
 				}
-				return instance;
+				return instance_;
 		}
 
 		// Information from Pixel Colours
 		// Returns the name of a PixelType from a Pixel Colour
-		const char* GetPixelName(Uint32 pixel) { return PixelColourMap[pixel]->Name(); }
+		const char* GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
 		// Returns the BasePixel based on the pixel colour passed in
-		BasePixel* GetPixelFromPixelColour(Uint32 pixel) { return PixelColourMap[pixel]; }
+		BasePixel* GetPixelFromPixelColour(const Uint32 pixel) { return pixel_colour_map_[pixel]; }
 
 		// Returns base pixel from the Index provided, only use when calling using Pixel->PixelIndex
-		BasePixel* GetPixelFromIndex(int index) { return PixelTypeList[index]; }
+		BasePixel* GetPixelFromIndex(const int index) { return pixel_type_list_[index]; }
 
 		// Information from PixelType (Enum)
-		BasePixel* GetPixelFromType(E_PixelType type) { return PixelTypes[type]; }
+		BasePixel* GetPixelFromType(const E_PixelType type) { return pixel_types_[type]; }
 		// Returns the name of a PixelType from the PixelType passed in
-		const char* GetPixelName(E_PixelType type) { return PixelTypes[type]->Name(); }
+		const char* GetPixelName(const E_PixelType type) { return pixel_types_[type]->Name(); }
 
 		// Returns the number of main pixel types that exist in the game
-		int PixelTypeCount() { return PixelTypeList.size(); }
+		int PixelTypeCount() const { return pixel_type_list_.size(); }
 		void FillWithPixelUpdateOrders(short* output[]) {
-				for (int i = 0; i < PixelTypeList.size(); i++) {
-						output[i] = PixelTypeList[i]->GetSingleChunkOrder();
+				for (int i = 0; i < pixel_type_list_.size(); i++) {
+						output[i] = pixel_type_list_[i]->GetSingleChunkOrder();
 				}
 		}
 
 
 		void AddPixelData(BasePixel* pixel) {
 				// Add pixels to an array we can access, and we set the pixels Index value
-				pixel->PixelIndex = PixelTypeList.size();
-				PixelTypeList.push_back(pixel);
-				PixelTypes.insert(std::make_pair(pixel->GetType(), pixel));
+				pixel->pixel_index = pixel_type_list_.size();
+				pixel_type_list_.push_back(pixel);
+				pixel_types_.insert(std::make_pair(pixel->GetType(), pixel));
 				// Add our colours to our Lookup table
-				for (short i = 0; i < pixel->ColourCount; i++)
+				for (short i = 0; i < pixel->colour_count; i++)
 				{
-						if (PixelColourMap.find(pixel->TypeColours[i]) != PixelColourMap.end()) {
+						if (pixel_colour_map_.find(pixel->type_colours[i]) != pixel_colour_map_.end()) {
 								printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixel->Name(), i);
 						}
-						PixelColourMap.insert(std::make_pair(pixel->TypeColours[i], pixel));
+						pixel_colour_map_.insert(std::make_pair(pixel->type_colours[i], pixel));
 				}
 		}
 
-		WorldDataHandler() {};
+		WorldDataHandler() = default;;
 		WorldDataHandler(WorldDataHandler const&) {};
-		void operator=(WorldDataHandler const&) {};
+		void operator=(WorldDataHandler const&) const {};
 private:
-		static WorldDataHandler* instance;
+		static WorldDataHandler* instance_;
 
-		std::vector<BasePixel*> PixelTypeList;
-		std::unordered_map<Uint32, BasePixel*> PixelColourMap;
-		std::unordered_map<E_PixelType, BasePixel*> PixelTypes;
+		std::vector<BasePixel*> pixel_type_list_;
+		std::unordered_map<Uint32, BasePixel*> pixel_colour_map_;
+		std::unordered_map<E_PixelType, BasePixel*> pixel_types_;
 };
-#endif

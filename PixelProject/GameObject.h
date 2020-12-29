@@ -8,7 +8,8 @@ class GameObject
 {
 		//TODO Make a physics Object?
 public:
-		SDL_Rect transform;
+		virtual ~GameObject() = default;
+		SDL_Rect transform{};
 
 		virtual void Start() { };
 		virtual void Update() { };

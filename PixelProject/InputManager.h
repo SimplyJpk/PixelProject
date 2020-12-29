@@ -18,40 +18,40 @@ public:
 		// Released this frame
 		bool GetMouseUp(short button);
 		// State of mouse button (Down/Up)
-		bool GetMouseButton(short button);
+		bool GetMouseButton(short button) const;
 
 		// Keyboard
 		// Pressed this frame
-		bool GetKeyDown(KeyCode keyCode);
+		bool GetKeyDown(KeyCode key_code);
 		// Released this frame
-		bool GetKeyUp(KeyCode keyCode);
+		bool GetKeyUp(KeyCode key_code);
 		// State of key (Down/Up)
-		bool GetKeyButton(KeyCode keyCode);
+		bool GetKeyButton(KeyCode key_code) const;
 
 		// Helper Methods
-		int MouseX() { return mouseX; }
-		int MouseY() { return mouseY; }
-		IVec2 MousePosition() { return mousePos; }
+		int MouseX() const { return mouse_x_; }
+		int MouseY() const { return mouse_y_; }
+		IVec2 MousePosition() const { return mouse_pos_; }
 
 		InputManager();
 
-		InputManager(InputManager const&) {};
-		void operator=(InputManager const&) {};
+		InputManager(InputManager const&) {}
+		void operator=(InputManager const&) const {}
 
 		bool IsShuttingDown() { return GetKeyDown(KeyCode::Escape); };
 private:
-		static InputManager* instance;
+		static InputManager* instance_;
 
-		const Uint8* keyboard = nullptr;
-		uint32_t mouse = 0;
+		const Uint8* keyboard_ = nullptr;
+		uint32_t mouse_ = 0;
 
-		int mouseX = 0, mouseY = 0;
-		IVec2 mousePos = IVec2::Zero();
-		IVec2 mouseScroll = IVec2::Zero();
+		int mouse_x_ = 0, mouse_y_ = 0;
+		IVec2 mouse_pos_ = IVec2::Zero();
+		IVec2 mouse_scroll_ = IVec2::Zero();
 
-		bool isKeyDown[SCANCODE_MAXSIZE]{ false };
-		bool isKeyUp[SCANCODE_MAXSIZE]{ false };
+		bool is_key_down_[SCANCODE_MAXSIZE]{ false };
+		bool is_key_up_[SCANCODE_MAXSIZE]{ false };
 
-		bool isMouseDown[MouseClickTypeCount]{ false };
-		bool isMouseUp[MouseClickTypeCount]{ false };
+		bool is_mouse_down_[MouseClickTypeCount]{ false };
+		bool is_mouse_up_[MouseClickTypeCount]{ false };
 };

@@ -5,44 +5,45 @@
 #include "GameSettings.h"
 #include "MemoryUsage.h"
 
-class GUIManager
+class GuiManager
 {
 public:
-		MemoryUsage memUsage;
+		MemoryUsage mem_usage;
 		//Temp Colours
 		ImVec4 red = ImVec4(1, 0, 0, 1);
 		ImVec4 green = ImVec4(0, 1, 0, 1);
 
-		GUIManager(SDL_Renderer* renderer, GameSettings* _settings) {
-				settings = _settings;
+		GuiManager(SDL_Renderer* renderer, GameSettings* settings) {
+				settings_ = settings;
 
 				ImGui::CreateContext();
-				ImGuiSDL::Initialize(renderer, _settings->Screen_Size.x, _settings->Screen_Size.y);
+				ImGuiSDL::Initialize(renderer, settings->screen_size.x, settings->screen_size.y);
 		}
 
-		void DrawFrameData() {
+		void DrawFrameData() const
+		{
 				ImGui::Begin("Frame Data");
 				ImGui::SetWindowSize(ImVec2(240, 240));
-				ImGui::SetWindowPos(ImVec2(settings->Screen_Size.x - 245, 275));
-				ImGui::Text(settings->_stopWatch->GetData().c_str());
+				ImGui::SetWindowPos(ImVec2(settings_->screen_size.x - 245, 275));
+				ImGui::Text(settings_->stop_watch->GetData().c_str());
 				ImGui::End();
 		}
 
-		void DrawGUI() {
+		void DrawGui() {
 				ImGui::NewFrame();
 				DrawFrameData();
 				ImGui::Begin("Debug Window");
 				ImGui::SetWindowSize(ImVec2(240, 240));
-				ImGui::SetWindowPos(ImVec2(settings->Screen_Size.x - 245, 15));
-				ImGui::Text("Screen Size: W-%i\tH-%i", settings->Screen_Size.x, settings->Screen_Size.y);
-				ImGui::TextColored(memUsage.isMemoryMore() ? red : green, "Memory Used: %ikb", memUsage.ReturnMemoryUsed() / 1024);
-				ImGui::Text("Selected Pixel Type: %s", settings->_paintManager->SelectedPixelName());
-				ImGui::Text("Virtual Mouse: X-%i Y-%i", settings->VirtualMouse.x, settings->VirtualMouse.y);
+				ImGui::SetWindowPos(ImVec2(settings_->screen_size.x - 245, 15));
+				ImGui::Text("Screen Size: W-%i\tH-%i", settings_->screen_size.x, settings_->screen_size.y);
+				ImGui::TextColored(mem_usage.IsMemoryMore() ? red : green, "Memory Used: %ikb", mem_usage.ReturnMemoryUsed() / 1024);
+				ImGui::Text("Selected Pixel Type: %s", settings_->paint_manager->SelectedPixelName());
+				ImGui::Text("Virtual Mouse: X-%i Y-%i", settings_->virtual_mouse.x, settings_->virtual_mouse.y);
 				ImGui::End();
 				ImGui::Render();
 				ImGuiSDL::Render(ImGui::GetDrawData());
 		}
 private:
-		GameSettings* settings;
+		GameSettings* settings_;
 };
 

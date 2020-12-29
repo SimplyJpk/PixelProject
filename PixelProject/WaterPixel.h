@@ -5,31 +5,31 @@
 class WaterPixel : public BasePixel
 {
 public:
-		virtual const E_PixelType GetType() override { return E_PixelType::Water; }
+		virtual E_PixelType GetType() override { return E_PixelType::Water; }
 
 		WaterPixel() {
 				name = "Water";
-				ColourCount = 3;
+				colour_count = 3;
 				// Browns
-				TypeColours[0] = 0x0000FF00;
-				TypeColours[1] = 0x2e2ee600;
-				TypeColours[2] = 0x1818f300;
+				type_colours[0] = 0x0000FF00;
+				type_colours[1] = 0x2e2ee600;
+				type_colours[2] = 0x1818f300;
 
-				PixelUpdateOrderCount = 2;
+				pixel_update_order_count_ = 2;
 				InsertPixelUpdateOrder(0, std::vector<short>() =
-						{ ChunkDirection::South, ChunkDirection::SouthEast, ChunkDirection::SouthWest, ChunkDirection::East, ChunkDirection::West });
+						{ E_ChunkDirection::South, E_ChunkDirection::SouthEast, E_ChunkDirection::SouthWest, E_ChunkDirection::East, E_ChunkDirection::West });
 				InsertPixelUpdateOrder(1, std::vector<short>() =
-						{ ChunkDirection::South, ChunkDirection::SouthWest, ChunkDirection::SouthEast, ChunkDirection::West, ChunkDirection::East });
+						{ E_ChunkDirection::South, E_ChunkDirection::SouthWest, E_ChunkDirection::SouthEast, E_ChunkDirection::West, E_ChunkDirection::East });
 		}
 
-		bool SE_Logic(const E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
-		bool S_Logic(const E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
-		bool SW_Logic(const E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
-		bool W_Logic(const E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
-		bool E_Logic(const E_PixelType type, E_PixelType returnPixels[2]) override { return Logic(type); }
+		bool SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+		bool SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+		bool SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+		bool WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+		bool EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
 
 private:
-		const static bool Logic(E_PixelType type) {
+		static bool Logic(const E_PixelType type) {
 				switch (type)
 				{
 				case E_PixelType::Space:

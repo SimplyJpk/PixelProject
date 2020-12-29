@@ -1,13 +1,14 @@
 #pragma once
+#include <cstddef>
 
 template <class T>
 struct LinkedListNode {
-		LinkedListNode<T>* Next = NULL;
-		T* Data = NULL;
-		LinkedListNode<T>* Prev = NULL;
+		LinkedListNode<T>* next = nullptr;
+		T* data = nullptr;
+		LinkedListNode<T>* prev = nullptr;
 
 		LinkedListNode(T* data) {
-				Data = data;
+				data = data;
 		}
 };
 
@@ -19,8 +20,8 @@ public:
 		LinkedListNode<T>* tail;
 
 		LinkedList() {
-				head = NULL;
-				tail = NULL;
+				head = nullptr;
+				tail = nullptr;
 		};
 		~LinkedList() {
 				//TODO Should we delete the data? Probably not.
@@ -29,7 +30,7 @@ public:
 		void AddFrontNode(T* data) {
 				LinkedListNode<T>* node = new LinkedListNode<T>(data);
 				LinkedListNode<T>* tmp = head;
-				if (head == NULL) {
+				if (head == nullptr) {
 						head = node;
 						tail = node;
 				}
@@ -41,7 +42,7 @@ public:
 		}
 		void AddBackNode(T* data) {
 				LinkedListNode<T>* node = new LinkedListNode<T>(data);
-				if (tail == NULL) {
+				if (tail == nullptr) {
 						tail = node;
 						head = node;
 				}
@@ -51,26 +52,26 @@ public:
 				}
 		}
 		// Removes the node from the system, returning a pointer to the data, if deleteData is true, this will be NULL.
-		T* RemoveNode(LinkedListNode<T>* node, bool deleteData = false) {
+		T* RemoveNode(LinkedListNode<T>* node, const bool delete_data = false) {
 				// Removing Head
-				if (node->Prev == NULL) {
+				if (node->Prev == nullptr) {
 						head = node->Next;
-						head->Prev = NULL;
+						head->Prev = nullptr;
 				}
 				// Removing Tail
-				else if (node->Next == NULL) {
+				else if (node->Next == nullptr) {
 						tail = node->Prev;
-						tail->Next = NULL;
+						tail->Next = nullptr;
 				}
 				else {
 						node->Prev->Next = node->Next;
 						node->Next->Prev = node->Prev;
 				}
 				// We check if we want to delete data since some data types we don't really want to delete.
-				if (deleteData) {
+				if (delete_data) {
 						delete &node->Data;
 						delete node;
-						return NULL;
+						return nullptr;
 				}
 				// We delete the node, but return the pointer to the data
 				T* data = node->Data;

@@ -73,6 +73,9 @@
     <Filter Include="Source Files\World\Pixels">
       <UniqueIdentifier>{d0b6723a-5eb3-4970-b2f7-21682291fc99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Interfaces">
+      <UniqueIdentifier>{5967561a-fdea-4afa-8837-f3d0d3fee2aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -220,6 +223,15 @@
     </ClInclude>
     <ClInclude Include="lib\XoshiroCpp.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigFile.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="ISerializable.h">
+      <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

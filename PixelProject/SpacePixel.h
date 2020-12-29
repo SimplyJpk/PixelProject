@@ -9,15 +9,15 @@ public:
 
 		SpacePixel() {
 				name = "Space";
-				ColourCount = 1;
+				colour_count = 1;
 				// Browns
-				TypeColours[0] = 0x00000000;
+				type_colours[0] = 0x00000000;
 
-				PixelUpdateOrderCount = 0;
+				pixel_update_order_count_ = 0;
 				InsertPixelUpdateOrder(0, std::vector<short>() = {});
 		}
 
-		bool isUpdateable() { return false; }
+		bool IsUpdateable() { return false; }
 
 private:
 };

@@ -6,12 +6,12 @@ namespace std {
 		template <>
 		struct hash<IVec2>
 		{
-				size_t operator()(const IVec2& k)const
+				size_t operator()(const IVec2& k)const noexcept
 				{
 						return std::hash<int>()(k.x) ^ std::hash<int>()(k.y);
 				}
 
-				bool operator()(const IVec2& a, const IVec2& b)const
+				bool operator()(const IVec2& a, const IVec2& b)const noexcept
 				{
 						return a.x == b.x && a.y == b.y;
 				}

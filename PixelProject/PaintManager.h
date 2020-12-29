@@ -6,25 +6,26 @@
 class PaintManager
 {
 public:
-		short SelectedPixelType = 0;
-		BasePixel* SelectedPixel = nullptr;
+		short selected_pixel_type = 0;
+		BasePixel* selected_pixel = nullptr;
 
-		const char* SelectedPixelName() { return SelectedPixel->Name();  }
+		const char* SelectedPixelName() const { return selected_pixel->Name();  }
 
 		void UpdateInput() {
-				InputManager* input = InputManager::Instance();
+			auto* input = InputManager::Instance();
 				if (input->GetKeyDown(KeyCode::Tab)) {
-						if (SelectedPixel->PixelIndex == m_worldData->PixelTypeCount() - 1)
-								SelectedPixel = m_worldData->GetPixelFromIndex(1);
+						if (selected_pixel->pixel_index == world_data_->PixelTypeCount() - 1)
+								selected_pixel = world_data_->GetPixelFromIndex(1);
 						else
-								SelectedPixel = m_worldData->GetPixelFromIndex(SelectedPixel->PixelIndex + 1);
+								selected_pixel = world_data_->GetPixelFromIndex(selected_pixel->pixel_index + 1);
 				}
 		}
 
 		PaintManager() {
-				m_worldData = WorldDataHandler::Instance();
-				SelectedPixel = m_worldData->GetPixelFromIndex(1);
+				world_data_ = WorldDataHandler::Instance();
+				//TODO Init this somewhere else, this could force instant ordering problems.
+				selected_pixel = world_data_->GetPixelFromIndex(1);
 		}
 private:
-		WorldDataHandler* m_worldData = nullptr;
+		WorldDataHandler* world_data_ = nullptr;
 };
