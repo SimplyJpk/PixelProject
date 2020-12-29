@@ -1,6 +1,4 @@
 #pragma once
-#ifndef _GAME_SETTINGS_
-#define _GAME_SETTINGS_
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "Vec2.h"
 #include "PaintManager.h"
@@ -10,12 +8,11 @@
 
 //TODO Should probably wrap this up into an object
 
-struct GameSettings
-{
-		FC_Font* font;
+struct GameSettings {
+		FC_Font* font = nullptr;
 
-		PaintManager* paint_manager;
-		DebugStopWatch* stop_watch;
+		PaintManager* paint_manager = nullptr;
+		DebugStopWatch* stop_watch = nullptr;
 
 		// Temp for Debug
 		IVec2 virtual_mouse = IVec2::Zero();
@@ -33,15 +30,5 @@ struct GameSettings
 
 				// Apply changes
 				calculated_frame_delay = 1000.0f / target_frames_per_second;
-		}
-
-		GameSettings() {
-				paint_manager = nullptr;
-				stop_watch = nullptr;
-				font = nullptr;
-				screen_size = IVec2::Zero();
-		}
+		};
 };
-
-
-#endif

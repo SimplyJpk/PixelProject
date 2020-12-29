@@ -1,5 +1,5 @@
 #include "WorldSimulator.h"
-#include <math.h>
+#include <cmath>
 #include <map>
 #include "Camera.h"
 #include <thread>
@@ -72,9 +72,7 @@ void WorldSimulator::Start()
 		}
 
 		// Create our world texture, we use this to render the world chunks.
-		world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-				game_settings->screen_size.x + (CHUNK_SIZE_X * 2),
-				game_settings->screen_size.y + (CHUNK_SIZE_Y * 2));
+		world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, game_settings->screen_size.x + (CHUNK_SIZE_X * 2), game_settings->screen_size.y + (CHUNK_SIZE_Y * 2));
 		if (world_texture == nullptr)
 		{
 				printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());

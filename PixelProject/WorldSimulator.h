@@ -37,7 +37,7 @@ public:
 		// Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
 		short* chunk_direction_order_containers[max_process_count][static_cast<short>(E_PixelType::COUNT)];
 
-		XoshiroCpp::Xoshiro256PlusPlus rng{ (time(nullptr)) };
+		XoshiroCpp::Xoshiro256PlusPlus rng{ time(nullptr) };
 		// Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
 		IVec2 max_visible_chunks_on_screen = IVec2::Zero();
 		

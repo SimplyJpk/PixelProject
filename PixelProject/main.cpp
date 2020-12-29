@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 		// End
 
 
-		auto settings = std::make_unique<GameSettings>();
+		std::unique_ptr<GameSettings> settings = std::make_unique<GameSettings>();
 		settings->LoadSettings(config);
 
 		//TODO Init WorldData, need to improve this, pretty awkward having it here.
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 		mainCam->Start();
 
 		//TODO REMOVE THIS
-		bool debugFramebyframeUpdate = true;
+		bool debugFrameByFrameUpdate = true;
 
 		stopWatch.StoreTime("Start");
 		//! Start Finished
@@ -142,9 +142,9 @@ int main(int argc, char** argv)
 				world_sim->UpdateInput();
 
 				if (input_manager->GetKeyButton(KeyCode::_0))
-						debugFramebyframeUpdate = !debugFramebyframeUpdate;
+						debugFrameByFrameUpdate = !debugFrameByFrameUpdate;
 				// Updates
-				if (!debugFramebyframeUpdate || input_manager->GetKeyDown(KeyCode::Down)) {
+				if (!debugFrameByFrameUpdate || input_manager->GetKeyDown(KeyCode::Down)) {
 						world_sim->Update();
 				}
 				mainCam->Update();
@@ -167,8 +167,7 @@ int main(int argc, char** argv)
 				SDL_RenderDrawLine(renderer, settings->virtual_mouse.x, settings->virtual_mouse.y, settings->virtual_mouse.x, settings->virtual_mouse.y);
 				// Copy our texture
 				//x SDL_RenderCopy(renderer, texture, NULL, &textureRect);
-				FC_Draw(font, renderer, 10, 10, "Target FPS: %i \nFrames in Last Second: %i\nFPS: %i",
-				        settings->target_frames_per_second, frameCounter, currentFps);
+				FC_Draw(font, renderer, 10, 10, "Target FPS: %0.2f \nFrames in Last Second: %i\nFPS: %i", settings->target_frames_per_second, frameCounter, currentFps);
 
 				// Draw GUI
 				gui_manager->DrawGui();
