@@ -5,7 +5,7 @@
 class GroundPixel : public BasePixel
 {
 public:
-		virtual const E_PixelType GetType() override { return E_PixelType::Ground; }
+		virtual E_PixelType GetType() override { return E_PixelType::Ground; }
 
 		GroundPixel() {
 				name = "Ground";

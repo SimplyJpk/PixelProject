@@ -21,4 +21,4 @@ struct ConfigFile final : public ISerializable
 				in_archive(screen_y);
 				in_archive(target_frames_per_second);
 		}
-}
+};

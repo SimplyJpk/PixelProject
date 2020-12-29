@@ -5,7 +5,7 @@
 class SpacePixel : public BasePixel
 {
 public:
-		virtual const E_PixelType GetType() override { return E_PixelType::Space; }
+		virtual E_PixelType GetType() override { return E_PixelType::Space; }
 
 		SpacePixel() {
 				name = "Space";
