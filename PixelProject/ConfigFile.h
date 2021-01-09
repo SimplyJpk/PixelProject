@@ -8,7 +8,12 @@ struct ConfigFile final : public ISerializable
 
 		float target_frames_per_second = 60.0;
 
-		std::string FilePath() override { return std::string("config.json"); }
+		SaveTypes SaveType() override
+		{
+				return SaveTypes::Json;
+		}
+
+		std::string FilePath() override { return std::string("config"); }
 
 		// Inherited via ISerializable
 		virtual void Save(cereal::JSONOutputArchive out_archive) override {
