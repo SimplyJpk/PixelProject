@@ -26,6 +26,8 @@ public:
 				ImGui::SetWindowSize(ImVec2(240, 240));
 				ImGui::SetWindowPos(ImVec2(settings_->screen_size.x - 245, 275));
 				ImGui::Text(settings_->stop_watch->GetData().c_str());
+				ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
+				ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
 				ImGui::End();
 		}
 
