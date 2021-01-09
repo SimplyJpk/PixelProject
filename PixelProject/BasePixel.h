@@ -18,6 +18,7 @@ enum class E_PixelType {
 		Ground,
 		Sand,
 		Water,
+		Wood,
 		COUNT
 };
 
