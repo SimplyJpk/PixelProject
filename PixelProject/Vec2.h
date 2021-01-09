@@ -28,6 +28,12 @@ public:
 		static Vec2 Right() { return Vec2(1, 0); };
 		static Vec2 Up() { return Vec2(0, 1); };
 		static Vec2 Down() { return Vec2(0, -1); };
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+				archive(x, y);
+		}
 };
 
 /// <summary>
@@ -69,4 +75,10 @@ public:
 		static IVec2 Right() { return IVec2(1, 0); };
 		static IVec2 Up() { return IVec2(0, 1); };
 		static IVec2 Down() { return IVec2(0, -1); };
+
+		template<class Archive>
+		void serialize(Archive& archive)
+		{
+				archive(x, y);
+		}
 };
