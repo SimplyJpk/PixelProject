@@ -24,13 +24,14 @@ void WorldSimulator::Start()
 		{
 				for (int x = 0; x < world_dimensions.x; x++)
 				{
+						IVec2 chunkIndex = IVec2(x, y);
 						// Create and store our chunk
-						WorldChunk* newChunk = new WorldChunk(IVec2(x, y));
+						WorldChunk* newChunk = new WorldChunk(chunkIndex);
 						// Add chunk to map
-						chunks.insert(std::make_pair(IVec2(x, y), newChunk));
+						chunks.insert(std::make_pair(chunkIndex, newChunk));
 						//x worldChunks.push_back(newChunk);
-						// Allocate its pixels/data
-						newChunk->pixels = new Uint32[chunk_total_size]{ 0 };
+						// newChunk->pixels = new Uint32[chunk_total_size]{ 0 };
+						is_chunk_processed[chunkIndex] = nullptr;
 				}
 		}
 		// Loop through once more, but this time we build a list of neighbours for each chunk for quicker access
@@ -71,6 +72,11 @@ void WorldSimulator::Start()
 				}
 		}
 
+		for (size_t i = 0; i < 100; i++)
+		{
+				is_processed_queue.push(is_processed_array_[i]);
+		}
+
 		// Create our world texture, we use this to render the world chunks.
 		world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, game_settings->screen_size.x + (CHUNK_SIZE_X * 2), game_settings->screen_size.y + (CHUNK_SIZE_Y * 2));
 		if (world_texture == nullptr)
@@ -94,15 +100,16 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 				(cameraWorldPosition.y - cameraChunk.y) * CHUNK_SIZE_Y);
 
 		const short max = pixel_type->colour_count;
-		//TODO Fix this? Error based on drawing, likely on Line 111 when we're just passing our CameraChunk in without any additional checks
+
+		const IVec2 newPoint = IVec2(DEBUG_ZoomLevel * point.x, DEBUG_ZoomLevel * point.y);
 
 		//TODO A lot of math, we should be able to simplify this easily enough by storing within scope. 
 		//TODO IE: (WORLD_DIM * CHUNK_DIM) This'll likely never change?
-		if (point.x >= 0 && point.x < world_dimensions.x * CHUNK_SIZE_X)
+		if (newPoint.x >= 0 && newPoint.x < world_dimensions.x * CHUNK_SIZE_X)
 		{
-				if (point.y >= 0 && point.y <= world_dimensions.y * CHUNK_SIZE_Y)
+				if (newPoint.y >= 0 && newPoint.y <= world_dimensions.y * CHUNK_SIZE_Y)
 				{
-						for (int x = point.x - size; x < point.x + size; x++)
+						for (int x = newPoint.x - size; x < point.x + size; x++)
 						{
 								// We skip calculations if our position is outside the realm of our world.
 								if (x < 0 || x > world_dimensions.x * CHUNK_SIZE_X - 1) continue;
@@ -110,7 +117,7 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 								static int xFloor;
 								xFloor = floor(x / CHUNK_SIZE_X);
 								if (xFloor > world_dimensions.x) continue;
-								for (int y = point.y - size; y < point.y + size; y++)
+								for (int y = newPoint.y - size; y < newPoint.y + size; y++)
 								{
 										if (y < 0 || y > world_dimensions.y * CHUNK_SIZE_Y - 1) continue;
 										static int yFloor;
@@ -131,7 +138,7 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
 void WorldSimulator::Update()
 {
-		//TODO Remvoe this
+		//TODO Remove this
 		DEBUG_FrameCounter++;
 		if (DEBUG_DropSand)
 		{
@@ -165,8 +172,8 @@ void WorldSimulator::Update()
 		//? // }
 		//? // ^
 
-		x_dir_ = (x_dir_ == -1 ? 1 : -1);
-		y_dir_ = (y_dir_ == -1 ? 1 : -1);
+		x_dir_ = rng() % 1 == 0 ? -1 : 1;  // (x_dir_ == -1 ? 1 : -1);
+		y_dir_ = rng() % 1 == 0 ? -1 : 1; // (y_dir_ == -1 ? 1 : -1);
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -200,19 +207,27 @@ void WorldSimulator::Update()
 								// Submit a lambda object to the pool.
 								post(thread_pool, [this, xChunk, yChunk, chunkUpdates]()
 										mutable
-										{
-												// UpdateChunk(xChunk, yChunk, chunkUpdates);
-												// Start
-												const IVec2 chunkIndex = IVec2(xChunk, yChunk);
-												//? May need this later?
-												int localChunkIndex = (yChunk * world_dimensions.x) + xChunk;
-												//TODO We should pool these so when I chunk this properly we can use only a handful of arrays
-												//Now we know our chunk indexes we create a local group to simplify lookup
-												Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
-												bool* isProcessed = is_processed_queue[chunkUpdates];
+                    {
+                        // UpdateChunk(xChunk, yChunk, chunkUpdates);
+                        // Start
+                        const IVec2 chunkIndex = IVec2(xChunk, yChunk);
+                        //? May need this later?
+                        int localChunkIndex = (yChunk * world_dimensions.x) + xChunk;
+                        //TODO We should pool these so when I chunk this properly we can use only a handful of arrays
+                        //Now we know our chunk indexes we create a local group to simplify lookup
+                        Uint32* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
 
-												BasePixel* neighbour;
-												int neighbourIndex;
+                        //? bool* isProcessed = is_processed_array_[chunkUpdates];
+												bool* isProcessed;
+								        is_processed_queue.pop(isProcessed);
+
+										    if (is_chunk_processed[chunkIndex] == nullptr)
+                            is_chunk_processed[chunkIndex] = isProcessed;
+
+                        used_processed_queue.push(isProcessed);
+
+                        BasePixel* neighbour;
+                        int neighbourIndex;
 												E_PixelType neighbourType;
 												E_PixelType returnPixels[2]{ E_PixelType::Space };
 
@@ -239,10 +254,9 @@ void WorldSimulator::Update()
 														yTo = 1;
 												}
 
-
-												for (short y = yStart; y != yTo; y += y_dir_)
+												for (short y = yStart; y != (yTo + y_dir_); y += y_dir_)
 												{
-														for (short x = xStart; x != xTo; x += x_dir_)
+														for (short x = xStart; x != (xTo + x_dir_); x += x_dir_)
 														{
 																const short localIndex = (y * CHUNK_SIZE_X) + x;
 
@@ -412,7 +426,11 @@ void WorldSimulator::Update()
 																for (short x = xStart; x != xTo; x += x_dir_)
 																{
 																		const short localIndex = (y * CHUNK_SIZE_X) + x;
-																		if (!(localPixels[localIndex] != 0 && !isProcessed[localIndex])) continue;
+
+																		if (!(localPixels[localIndex] != 0 && !isProcessed[localIndex]))
+																		{
+																				continue;
+																		}
 
 																		BasePixel* pixel = world_data_handler->GetPixelFromPixelColour(localPixels[localIndex]);
 																		const E_PixelType pixelType = pixel->GetType();
@@ -536,7 +554,6 @@ void WorldSimulator::Update()
 																						continue;
 																				}
 
-
 																				if (neighbour == nullptr)
 																						neighbour = world_data_handler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
 																				else
@@ -546,7 +563,7 @@ void WorldSimulator::Update()
 
 																				// Now we ask the Pixel what it wants to do with its neighbour
 																				// this can return true/false and if the pixel needs to convert the neighbour to something returnPixels will have different values
-																				bool result;
+																				bool result = false;
 																				switch (dirIndex)
 																				{
 																				case North:
@@ -606,15 +623,26 @@ void WorldSimulator::Update()
 																										std::swap(chunks[chunkIndex]->pixels[localIndex],
 																												neighbourChunks[dirIndex]->pixels[neighbourIndex]);
 																						}
-																						if (isSameChunk)
+																						if (isSameChunk) {
 																								isProcessed[neighbourIndex] = true;
+																						} else {
+																								WorldChunk* accessedChunk = neighbourChunks[dirIndex];
+																								bool* processedBools = is_chunk_processed[accessedChunk->position];
+																								if (processedBools == nullptr)
+																								{
+																										is_processed_queue.pop(processedBools);
+																										is_chunk_processed[accessedChunk->position] = processedBools;
+																										used_processed_queue.push(processedBools);
+																								}
+																								processedBools[neighbourIndex] = true;
+																						}
 																						break;
 																				}
 																		}
 																}
 														}
 												}
-												// End
+												//End
 												--thread_pool_tasks;
 										});
 								chunkUpdates++;
@@ -626,11 +654,28 @@ void WorldSimulator::Update()
 				}
 		}
 
-		//TODO look into doing this in 1 chunk/update. 
-		for (int i = 0; i < chunkUpdates; i++)
+		while (!used_processed_queue.empty())
 		{
-				memset(is_processed_queue[i], false, (CHUNK_SIZE_X * CHUNK_SIZE_Y));
+				bool* data;
+				used_processed_queue.pop(data);
+				memset(data, false, CHUNK_SIZE_X* CHUNK_SIZE_Y);
+				is_processed_queue.push(data);
 		}
+		//TODO Improve this?
+		for (int y = 0; y < world_dimensions.y; y++)
+		{
+				for (int x = 0; x < world_dimensions.x; x++)
+				{
+						IVec2 chunkIndex = IVec2(x, y);
+						is_chunk_processed[chunkIndex] = nullptr;
+				}
+		}
+		//TODO Can probbaly be deleted V
+		//? //TODO look into doing this in 1 chunk/update. 
+		//? for (int i = 0; i < chunkUpdates; i++)
+		//? {
+		//? 		memset(is_processed_array_[i], false, (CHUNK_SIZE_X * CHUNK_SIZE_Y));
+		//? }
 }
 
 // Is this really helpful? or just in the way..
@@ -651,7 +696,7 @@ void WorldSimulator::GetStartAndToForLoop(const short& side, short& x_start, sho
 				// Set Common X
 		jumpToSetX:
 				x_start = (x_dir_ == 1 ? 0 : CHUNK_SIZE_X - 1);
-				x_to = (x_dir_ == 1 ? CHUNK_SIZE_X - 1 : 0);
+				x_to = (x_dir_ == 1 ? CHUNK_SIZE_X - 1 : -1);
 				break;
 
 				// case ChunkDirection::East:
@@ -755,6 +800,27 @@ void WorldSimulator::UpdateInput()
 		else if (input->GetKeyDown(KeyCode::R))
 		{
 				DEBUG_ZoomLevel += -0.01f;
+		}
+
+		if (input->GetKeyDown((KeyCode::S)))
+		{
+				for (int x = 0; x < world_dimensions.x; x++)
+				{
+						for (int y = 0; y < world_dimensions.y; y++)
+						{
+								chunks[IVec2(x, y)]->StartSave(chunks[IVec2(x, y)]->FilePath().c_str());
+						}
+				}
+		}
+		else if (input->GetKeyDown((KeyCode::L)))
+		{
+				for (int x = 0; x < world_dimensions.x; x++)
+				{
+						for (int y = 0; y < world_dimensions.y; y++)
+						{
+								chunks[IVec2(x, y)]->StartLoad(chunks[IVec2(x, y)]->FilePath().c_str());
+						}
+				}
 		}
 
 		//TODO Move this into its own method?

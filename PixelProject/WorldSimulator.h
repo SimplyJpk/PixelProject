@@ -22,6 +22,9 @@
 #include <ctime>
 #include "./lib/XoshiroCpp.hpp"
 
+#include <boost/lockfree/queue.hpp>
+#include <queue>
+
 class WorldSimulator final : public GameObject
 {
 		//TODO Need to make an update config for each type of terrain
@@ -32,7 +35,8 @@ public:
 		std::atomic<int> thread_pool_tasks = 0;
 		boost::asio::thread_pool thread_pool{32};
 		const static int max_process_count = 100;
-		bool is_processed_queue[max_process_count][CHUNK_SIZE_X * CHUNK_SIZE_Y];
+
+		boost::lockfree::queue<bool*>  is_processed_queue{ max_process_count };
 
 		// Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
 		short* chunk_direction_order_containers[max_process_count][static_cast<short>(E_PixelType::COUNT)];
@@ -62,8 +66,8 @@ public:
 		bool DEBUG_DropSand = false;
 		int DEBUG_SandDropRate = 20;
 
-		int DEBUG_PenSize = 1;
-		bool DEBUG_PrintPixelData = true;
+		int DEBUG_PenSize = 3;
+		bool DEBUG_PrintPixelData = false;
 
 		u_long DEBUG_FrameCounter = 0;
 		float DEBUG_ZoomLevel = 1.0f;
@@ -82,10 +86,12 @@ public:
 				max_render_box = IVec2(game_settings->screen_size.x + (CHUNK_SIZE_X * 2), game_settings->screen_size.y + (CHUNK_SIZE_Y * 2));
 
 				world_data_handler = WorldDataHandler::Instance();
-		}
+    }
 
 		//TODO Chunk object?
 		std::unordered_map<IVec2, WorldChunk*> chunks;
+
+    std::unordered_map<IVec2, bool*> is_chunk_processed;
 		// std::vector<WorldChunk*> worldChunks;
 
 		// std::vector<Uint32*> pixels;
@@ -106,4 +112,7 @@ protected:
 		void GetStartAndToForLoop(const short& side, short& x_start, short& x_to, short& y_start, short& y_to) const;
 		// Ugly, can we improve this?
 		short x_dir_ = -1, y_dir_ = 1;
+
+		bool is_processed_array_[max_process_count][CHUNK_SIZE_X * CHUNK_SIZE_Y];
+		boost::lockfree::queue<bool*> used_processed_queue{ max_process_count };
 };
