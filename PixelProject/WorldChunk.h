@@ -5,13 +5,16 @@
 #include <vector>
 #include <SDL.h>
 
-class WorldChunk
+#include "ISerializable.h"
+#include "WorldRules.h"
+
+class WorldChunk : public ISerializable
 {
 public:
 		IVec2 position;
 		WorldChunk* neighbour_chunks[DIR_COUNT];
 
-		Uint32* pixels = nullptr;
+		Uint32 pixels[CHUNK_SIZE_X * CHUNK_SIZE_Y]{0};
 
 		WorldChunk(const IVec2& pos)
 		{
@@ -21,5 +24,35 @@ public:
 		/// <summary> Sets the chunks neighbour with zero error checking.</summary>
 		void SetNeighbour(const E_ChunkDirection dir, WorldChunk* neighbour) {
 				neighbour_chunks[dir] = neighbour;
+		}
+
+		SaveTypes SaveType() override
+		{
+				return SaveTypes::Binary;
+		}
+
+		std::string FilePath() override
+		{
+				char path[100];
+				auto pathResult = sprintf_s(path, "worldData_x%i-y%i", position.x, position.y);
+				return path;
+		}
+
+		// Inherited via ISerializable
+		virtual void Save(cereal::BinaryOutputArchive out_archive) override {
+				out_archive(CEREAL_NVP(position));
+
+				std::vector<Uint32> pixelData(CHUNK_SIZE_X * CHUNK_SIZE_Y);
+				std::copy_n(pixels, CHUNK_SIZE_X * CHUNK_SIZE_Y, pixelData.begin());
+
+				out_archive(cereal::make_nvp("ChunkPixels", pixelData));
+		}
+
+		virtual void Load(cereal::BinaryInputArchive in_archive) override {
+				in_archive(position);
+				std::vector<Uint32> pixelData(CHUNK_SIZE_X * CHUNK_SIZE_Y);
+				in_archive(cereal::make_nvp("ChunkPixels", pixelData));
+
+				std::copy(pixelData.begin(), pixelData.end(), pixels);
 		}
 };
