@@ -233,6 +233,9 @@
     <ClInclude Include="ISerializable.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="WoodPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
