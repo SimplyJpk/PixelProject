@@ -205,6 +205,7 @@
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="VecHash.h" />
     <ClInclude Include="WaterPixel.h" />
+    <ClInclude Include="WoodPixel.h" />
     <ClInclude Include="WorldChunk.h" />
     <ClInclude Include="WorldDataHandler.h" />
     <ClInclude Include="WorldRules.h" />

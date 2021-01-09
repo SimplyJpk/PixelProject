@@ -1,6 +1,5 @@
 #pragma once
 #include "BasePixel.h"
-#include "WorldDataHandler.h"
 
 class SpacePixel : public BasePixel
 {
@@ -17,7 +16,7 @@ public:
 				InsertPixelUpdateOrder(0, std::vector<short>() = {});
 		}
 
-		bool IsUpdateable() { return false; }
+		bool IsUpdateable() override { return false; }
 
 private:
 };

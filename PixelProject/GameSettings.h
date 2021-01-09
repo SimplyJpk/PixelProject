@@ -6,8 +6,6 @@
 
 #include "ConfigFile.h"
 
-//TODO Should probably wrap this up into an object
-
 struct GameSettings {
 		FC_Font* font = nullptr;
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "BasePixel.h"
-#include "WorldDataHandler.h"
 
 class GroundPixel : public BasePixel
 {

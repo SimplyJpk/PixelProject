@@ -4,3 +4,4 @@
 #include "GroundPixel.h"
 #include "SandPixel.h"
 #include "WaterPixel.h"
+#include "WoodPixel.h"
