@@ -25,12 +25,14 @@
 #include <boost/lockfree/queue.hpp>
 #include <queue>
 
+using namespace PixelProject;
+
 class WorldSimulator final : public GameObject
 {
    //TODO Need to make an update config for each type of terrain
 public:
-   //TODO Add to settings of some sort?
-   const IVec2 world_dimensions = IVec2(WORLD_SIZE_X, WORLD_SIZE_Y);
+
+   const IVec2 world_dimensions = IVec2(Constant::world_size_x, Constant::world_size_y);
 
    std::atomic<int> thread_pool_tasks = 0;
    boost::asio::thread_pool thread_pool{ 32 };
@@ -76,14 +78,14 @@ public:
 
    WorldSimulator(SDL_Renderer* renderer, GameSettings* settings) {
       //TODO Should have this be an offset from the camera?
-      world_render_rect = { CHUNK_SIZE_X, CHUNK_SIZE_Y, settings->screen_size.x, settings->screen_size.y };
+      world_render_rect = { Constant::chunk_size_x, Constant::chunk_size_y, settings->screen_size.x, settings->screen_size.y };
       game_renderer = renderer;
       game_settings = settings;
       // We calculate the max number of visible chunks on screen
       //? Do we need to add 2? Is this enough? Is it to much?
-      max_visible_chunks_on_screen = IVec2((game_settings->screen_size.x / CHUNK_SIZE_X) + 2, (game_settings->screen_size.y / CHUNK_SIZE_Y) + 2);
+      max_visible_chunks_on_screen = IVec2((game_settings->screen_size.x / Constant::chunk_size_x) + 2, (game_settings->screen_size.y / Constant::chunk_size_y) + 2);
       // Max pixel width/height allowed for the texture
-      max_render_box = IVec2(game_settings->screen_size.x + (CHUNK_SIZE_X * 2), game_settings->screen_size.y + (CHUNK_SIZE_Y * 2));
+      max_render_box = IVec2(game_settings->screen_size.x + (Constant::chunk_size_x * 2), game_settings->screen_size.y + (Constant::chunk_size_y * 2));
 
       world_data_handler = WorldDataHandler::Instance();
    }
@@ -113,13 +115,13 @@ protected:
    // Ugly, can we improve this?
    short x_dir_ = -1, y_dir_ = 1;
 
-   bool is_processed_array_[max_process_count][CHUNK_SIZE_X * CHUNK_SIZE_Y];
+   bool is_processed_array_[max_process_count][Constant::chunk_total_size];
    boost::lockfree::queue<bool*> used_processed_queue{ max_process_count };
 
    // Allows us to loop with fewer conditionals as we can randomize between 0-1 and then access out Start-To indexes and Iterate through our 3rd value
-   short x_loop_start_to_[2][3] = { { 1, CHUNK_SIZE_X - 1, 1 }, { CHUNK_SIZE_X - 2, 0, -1 } };
+   const short x_loop_start_to_[2][3] = { { 1, Constant::chunk_size_x - 1, 1 }, { Constant::chunk_size_x - 2, 0, -1 } };
    // Allows us to loop with fewer conditionals as we can randomize between 0-1 and then access out Start-To indexes and Iterate through our 3rd value
-   short y_loop_start_to_[2][3] = { { 1, CHUNK_SIZE_Y - 1, 1 }, { CHUNK_SIZE_Y - 2, 0, -1 } };
+   const short y_loop_start_to_[2][3] = { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 2, 0, -1 } };
 
    enum LoopHint
    {
@@ -128,6 +130,13 @@ protected:
       Dir
    };
 
+   // Returns the index of the cell in the direction passed in.
    static short GetInnerNeighbourIndex(short local, int direction);
+   // Returns the index of the cell in the neighbouring chunk of the index/direction passed in.
+   static short GetOuterNeighbourIndex(const short local, const short y, const short x, const int direction);
+   // Returns true if the Pixel reacts to the neighbouring pixels type. Fills return_pixels with new pixel types for the two pixels if pixels need to be changed.
    static bool CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type, E_PixelType* return_pixels);
+
+   static bool DoesChunkHaveNeighbour(WorldChunk** neighbours, short direction);
+   static void ProcessLogicResults(WorldDataHandler* data_handler, const E_PixelType return_pixels[2], Uint32& from_pixel, Uint32& to_pixel);
 };
