@@ -1,7 +1,11 @@
 #pragma once
 
-#define CHUNK_SIZE_X 128
-#define CHUNK_SIZE_Y 128
+namespace PixelProject::Constant
+{
+   constexpr short chunk_size_x = 128;
+   constexpr short chunk_size_y = 128;
+   constexpr short chunk_total_size = chunk_size_x * chunk_size_y;
 
-#define WORLD_SIZE_X 8
-#define WORLD_SIZE_Y 5
+   constexpr short world_size_x = 8;
+   constexpr short world_size_y = 5;
+}
