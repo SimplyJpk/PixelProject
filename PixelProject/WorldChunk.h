@@ -8,13 +8,15 @@
 #include "ISerializable.h"
 #include "WorldRules.h"
 
-class WorldChunk : public ISerializable
+using namespace PixelProject;
+
+class WorldChunk final : public ISerializable
 {
 public:
 		IVec2 position;
-		WorldChunk* neighbour_chunks[DIR_COUNT];
+		WorldChunk* neighbour_chunks[DIR_COUNT] = {nullptr};
 
-		Uint32 pixels[CHUNK_SIZE_X * CHUNK_SIZE_Y]{0};
+		Uint32 pixels[Constant::chunk_total_size]{0};
 
 		WorldChunk(const IVec2& pos)
 		{
@@ -42,15 +44,15 @@ public:
 		virtual void Save(cereal::BinaryOutputArchive out_archive) override {
 				out_archive(CEREAL_NVP(position));
 
-				std::vector<Uint32> pixelData(CHUNK_SIZE_X * CHUNK_SIZE_Y);
-				std::copy_n(pixels, CHUNK_SIZE_X * CHUNK_SIZE_Y, pixelData.begin());
+				std::vector<Uint32> pixelData(Constant::chunk_total_size);
+				std::copy_n(pixels, Constant::chunk_total_size, pixelData.begin());
 
 				out_archive(cereal::make_nvp("ChunkPixels", pixelData));
 		}
 
 		virtual void Load(cereal::BinaryInputArchive in_archive) override {
 				in_archive(position);
-				std::vector<Uint32> pixelData(CHUNK_SIZE_X * CHUNK_SIZE_Y);
+				std::vector<Uint32> pixelData(Constant::chunk_total_size);
 				in_archive(cereal::make_nvp("ChunkPixels", pixelData));
 
 				std::copy(pixelData.begin(), pixelData.end(), pixels);
