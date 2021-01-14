@@ -14,18 +14,19 @@
 #define MAX_PIXELUPDATE_ORDER_COUNT 4
 
 enum class E_PixelType {
-		Space,
-		Ground,
-		Sand,
-		Water,
-		Wood,
-		COUNT
+	 UNDEFINED = -1,
+	 Space,
+	 Ground,
+	 Sand,
+	 Water,
+	 Wood,
+	 COUNT
 };
 
 class BasePixel
 {
 public:
-		virtual E_PixelType GetType() { return E_PixelType::Space; }
+		virtual E_PixelType GetType() { return E_PixelType::UNDEFINED; }
 		virtual const char* Name() { return name; }
 		virtual bool IsUpdateable() { return true; }
 
@@ -45,7 +46,7 @@ public:
 		short colour_count = 0;
 
 		Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : pixel_rng_() % (colour_count - 1))]; }
-		Uint32 type_colours[MAX_PIXEL_COLOUR_COUNT]{ 0 };
+		Uint32 type_colours[MAX_PIXEL_COLOUR_COUNT] = { 0 };
 
 		virtual bool NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
 		virtual bool NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
@@ -73,7 +74,7 @@ protected:
 				}
 		}
 
-		BasePixel() = default;;
+		BasePixel() = default;
 private:
 		XoshiroCpp::SplitMix64 pixel_rng_{ time(nullptr) };
 };
