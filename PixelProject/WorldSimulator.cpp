@@ -157,8 +157,21 @@ void WorldSimulator::Update()
    int xStage, yStage;
    int chunkUpdates = 0;
 
-   x_dir_ = rng() % 1;
-   y_dir_ = rng() % 1;
+   x_dir_ = (x_dir_ == 0 ? 1 : 0); // rng() % 2;
+   y_dir_ = 1;
+
+   for (int x = 0; x < world_dimensions.x; x++)
+   {
+      for (int y = 0; y < world_dimensions.y; y++)
+      {
+         WorldChunk* accessedChunk = chunks[IVec2(x, y)];
+         bool* processedBools;
+         is_processed_queue.pop(processedBools);
+         is_chunk_processed[accessedChunk->position] = processedBools;
+         used_processed_queue.push(processedBools);
+      }
+   }
+
    // Update the world in a checker pattern
    for (auto i = 0; i < 4; i++)
    {
@@ -197,296 +210,88 @@ void WorldSimulator::Update()
 
                //Now we know our chunk indexes we create a local group to simplify lookup
                auto* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
+               Uint32* neighbourPixels = localPixels; // [_localChunkIndex] ->pixels;
 
-               bool* isProcessed;
-               is_processed_queue.pop(isProcessed);
-               // Check if we've already 
-               if (is_chunk_processed[chunkIndex] == nullptr) is_chunk_processed[chunkIndex] = isProcessed;
-
-               used_processed_queue.push(isProcessed);
+               bool* isProcessed = is_chunk_processed[chunkIndex];
+               bool* neighbourIsProcessed = isProcessed;
 
                E_PixelType returnPixels[2] = { E_PixelType::UNDEFINED,E_PixelType::UNDEFINED };
                // We fetch an array that we can use without allocations
-               auto *const chunkDirectionOrder = chunk_direction_order_containers[chunkUpdates];
+               auto* const chunkDirectionOrder = chunk_direction_order_containers[chunkUpdates];
                // And fill it with Update Orders for each pixel type. This is only called once per chunk per frame.
                world_data_handler->FillWithPixelUpdateOrders(chunkDirectionOrder);
 
-               /// <summary>
-               /// Our Inner Chunk Update
-               /// </summary>
-               for (auto 
-                  y = y_loop_start_to_[y_dir_][From];
-                  y != y_loop_start_to_[y_dir_][To];
-                  y += y_loop_start_to_[y_dir_][Dir])
+               WorldChunk** neighbourChunks = chunks[chunkIndex]->neighbour_chunks;
+
+               for (auto piece = 0; piece < 5; piece++)
                {
-                  for (auto 
-                     x = x_loop_start_to_[x_dir_][From];
-                     x != x_loop_start_to_[x_dir_][To];
-                     x += x_loop_start_to_[x_dir_][Dir])
+                  if (piece == 4)
                   {
-                     const short localIndex = (y * Constant::chunk_size_x) + x;
-                     // If the pixel is empty, or something beat us to update it
-                     if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
-
-                     auto* pixel = world_data_handler->GetPixelFromPixelColour(localPixels[localIndex]);
-                     const auto type = pixel->GetType();
-
-                     const short* pixelDirOrder = chunkDirectionOrder[pixel->pixel_index];
-                     for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
+                     neighbourPixels = localPixels;
+                     neighbourIsProcessed = isProcessed;
+                  }
+                  // printf("Piece: %i, xStart: %i, xTo: %i, xDir:%i\tyStart: %i, yTo: %i, yDir:%i\n", piece, x_loop_attempt[piece][x_dir_][From], x_loop_attempt[piece][x_dir_][To], x_loop_attempt[piece][x_dir_][Dir], y_loop_attempt[piece][x_dir_][From], y_loop_attempt[piece][x_dir_][To], y_loop_attempt[piece][x_dir_][Dir]);
+                  /// <summary>
+                  /// Our Inner Chunk Update
+                  /// </summary>
+                  for (auto
+                     y = y_loop_from_to_dir_[piece][y_dir_][From];
+                     y != y_loop_from_to_dir_[piece][y_dir_][To];
+                     y += y_loop_from_to_dir_[piece][y_dir_][Dir])
+                  {
+                     for (auto
+                        x = x_loop_from_to_dir_[piece][x_dir_][From];
+                        x != x_loop_from_to_dir_[piece][x_dir_][To];
+                        x += x_loop_from_to_dir_[piece][x_dir_][Dir])
                      {
-                        const int direction = pixelDirOrder[directionIndex];
-                        if (direction == DIR_COUNT) continue;
+                        const short localIndex = (y * Constant::chunk_size_x) + x;
+                        // If the pixel is empty, or something beat us to update it
+                        if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
 
-                        const auto neighbourIndex = GetInnerNeighbourIndex(localIndex, direction);
+                        auto* pixel = world_data_handler->GetPixelFromPixelColour(localPixels[localIndex]);
 
-                        auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-                        const auto neighbourType = pixelNeighbour->GetType();
+                        const short* pixelDirOrder = chunkDirectionOrder[pixel->pixel_index];
+                        for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
+                        {
+                           int direction = pixelDirOrder[directionIndex];
+                           // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
+                           if (direction == DIR_COUNT) break;
 
-                        // Now we ask the Pixel what it wants to do with its neighbour
-                        const auto result = CheckLogic(direction, pixel, neighbourType, returnPixels);
-                        if (!result) continue;
+                           short neighbourIndex;
+                           if (piece == 4) {
+                              neighbourIndex = GetInnerNeighbourIndex(localIndex, direction);
+                           }
+                           else 
+                           {
+                              if (GetOuterNeighbourIndex(localIndex, y, x, direction, neighbourIndex)) {
+                                 //TODO Any way to work this out in advance? vv
+                                 if (neighbourChunks[direction] == nullptr)
+                                    continue;
+                                 neighbourPixels = neighbourChunks[direction]->pixels;
+                                 neighbourIsProcessed = is_chunk_processed[neighbourChunks[direction]->position];
+                              }
+                              else
+                              {
+                                 neighbourPixels = localPixels;
+                                 neighbourIsProcessed = isProcessed;
+                              }
+                           }
 
-                        if (DEBUG_PrintPixelData) { printf("X: %i\tY:%i\tUPDATE:%i\t(IN)\n", x, y, DEBUG_FrameCounter); }
+                           auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(neighbourPixels[neighbourIndex]);
+                           const auto neighbourType = pixelNeighbour->GetType();
 
-                        ProcessLogicResults(world_data_handler, returnPixels, localPixels[localIndex], localPixels[neighbourIndex]);
-                        isProcessed[neighbourIndex] = true;
+                           // Now we ask the Pixel what it wants to do with its neighbour
+                           if (!CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType, returnPixels)) continue;
+
+                           if (DEBUG_PrintPixelData) { printf("P-%i\t%i->%i\tX: %i\tY:%i\tUPDATE:%i\t%i\t->\t%i\n", piece, pixelDirOrder[directionIndex],direction, x, y, DEBUG_FrameCounter, localIndex, neighbourIndex); }
+
+                           ProcessLogicResults(world_data_handler, returnPixels, localPixels[localIndex], neighbourPixels[neighbourIndex]);
+                           neighbourIsProcessed[neighbourIndex] = true;
+                           break;
+                        }
                      }
                   }
                }
-
-               WorldChunk** neighbourChunks = chunks[chunkIndex]->neighbour_chunks;
-
-
-               //? We could hold onto our 8 neighbouring chunks pixels here, and almost brute force this with switch statements? WOuld be super ugly..
-               //? Not sure how else to do all this..
-
-               //! WorldChunk** neighbourChunks = chunks[chunkIndex]->neighbour_chunks;
-               //! for (short shellUpdate = 0; shellUpdate < 4; shellUpdate++)
-               //! {
-               //!    GetStartAndToForLoop(shellUpdate, xStart, xTo, yStart, yTo);
-               //!    for (short y = yStart; y != yTo; y += y_dir_)
-               //!    {
-               //!       for (short x = xStart; x != xTo; x += x_dir_)
-               //!       {
-               //!          const short localIndex = (y * Constant::chunk_size_x) + x;
-               //! 
-               //!          if (!(localPixels[localIndex] != 0 && !isProcessed[localIndex]))
-               //!          {
-               //!             continue;
-               //!          }
-               //! 
-               //!          BasePixel* pixel = world_data_handler->GetPixelFromPixelColour(localPixels[localIndex]);
-               //!          const E_PixelType pixelType = pixel->GetType();
-               //! 
-               //!          const short* pixelDirOrder = chunkDirectionOrder[pixel->pixel_index];
-               //!          for (int directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
-               //!          {
-               //!             int dirIndex = pixelDirOrder[directionIndex];
-               //!             if (dirIndex == DIR_COUNT) continue;
-               //! 
-               //!             bool isSameChunk = true;
-               //! 
-               //!             neighbour = nullptr;
-               //!             switch (dirIndex)
-               //!             {
-               //!                // case ChunkDirection::NorthEast:
-               //!                // 		if (x == Constant::chunk_size_x - 1) {
-               //!                // 				if (neighbourChunks[ChunkDirection::East] != nullptr) {
-               //!                // 						neighbourIndex = (Constant::chunk_size_x * (y)) - 1;
-               //!                // 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::East]->pixels[neighbourIndex]);
-               //!                // 						newChunkDir = ChunkDirection::East;
-               //!                // 						isSameChunk = false;
-               //!                // 						break;
-               //!                // 				}
-               //!                // 		}
-               //!                // 		continue;
-               //!                // case ChunkDirection::NorthWest:
-               //!                // 		if (x == 0) {
-               //!                // 				if (neighbourChunks[ChunkDirection::West] != nullptr) {
-               //!                // 						neighbourIndex = (Constant::chunk_size_x * (y)) - 1;
-               //!                // 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::West]->pixels[neighbourIndex]);
-               //!                // 						newChunkDir = ChunkDirection::West;
-               //!                // 						isSameChunk = false;
-               //!                // 						break;
-               //!                // 				}
-               //!                // 		}
-               //!                // 		continue;
-               //!                // case ChunkDirection::North:
-               //!                // 		if (y == 0) {
-               //!                // 				if (neighbourChunks[ChunkDirection::North] == nullptr) continue;
-               //!                // 				neighbourIndex = ChunkTotalSize - x;
-               //!                // 				neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::North]->pixels[neighbourIndex]);
-               //!                // 				newChunkDir = ChunkDirection::North;
-               //!                // 				isSameChunk = false;
-               //!                // 		}
-               //!                // 		else {
-               //!                // 				neighbourIndex = _localIndex - Constant::chunk_size_x;
-               //!                // 		}
-               //!                // 		break;
-               //!                // case ChunkDirection::SouthEast:
-               //!                // 		if (x == Constant::chunk_size_x - 1) {
-               //!                // 				if (neighbourChunks[ChunkDirection::East] != nullptr) {
-               //!                // 						neighbourIndex = (Constant::chunk_size_x * (y)) + 1;
-               //!                // 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::East]->pixels[neighbourIndex]);
-               //!                // 						newChunkDir = ChunkDirection::East;
-               //!                // 						isSameChunk = false;
-               //!                // 						break;
-               //!                // 				}
-               //!                // 		}
-               //!                // case ChunkDirection::SouthWest:
-               //!                // 		if (x == 0) {
-               //!                // 				if (neighbourChunks[ChunkDirection::West] != nullptr) {
-               //!                // 						neighbourIndex = (Constant::chunk_size_x * (y)) - 1;
-               //!                // 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::West]->pixels[neighbourIndex]);
-               //!                // 						newChunkDir = ChunkDirection::West;
-               //!                // 						isSameChunk = false;
-               //!                // 						break;
-               //!                // 				}
-               //!                // 		}
-               //!             case South:
-               //!             {
-               //!                if (y == Constant::chunk_size_y - 1)
-               //!                {
-               //!                   if (neighbourChunks[South] == nullptr) { continue; }
-               //!                   neighbourIndex = x;
-               //!                   dirIndex = South;
-               //!                   neighbour = world_data_handler->GetPixelFromPixelColour(
-               //!                      neighbourChunks[dirIndex]->pixels[neighbourIndex]);
-               //!                }
-               //!                else { neighbourIndex = localIndex + Constant::chunk_size_x; }
-               //!                break;
-               //!             }
-               //!             case West:
-               //!             {
-               //!                if (x == 0)
-               //!                {
-               //!                   if (neighbourChunks[West] == nullptr) { continue; }
-               //!                   neighbourIndex = (Constant::chunk_size_x * (y + 1)) - 1;
-               //!                   dirIndex = West;
-               //!                   neighbour = world_data_handler->GetPixelFromPixelColour(
-               //!                      neighbourChunks[dirIndex]->pixels[neighbourIndex]);
-               //!                }
-               //!                else { neighbourIndex = localIndex - 1; }
-               //!                break;
-               //!             }
-               //!             case East:
-               //!             {
-               //!                if (x == Constant::chunk_size_x - 1)
-               //!                {
-               //!                   if (neighbourChunks[East] == nullptr) { continue; }
-               //!                   neighbourIndex = (Constant::chunk_size_x * (y)) + 1;
-               //!                   dirIndex = East;
-               //!                   neighbour = world_data_handler->GetPixelFromPixelColour(
-               //!                      neighbourChunks[dirIndex]->pixels[neighbourIndex]);
-               //!                }
-               //!                else { neighbourIndex = localIndex + 1; }
-               //!                break;
-               //!             }
-               //!             // case ChunkDirection::East:
-               //!             // 		if (x == Constant::chunk_size_x - 1) {
-               //!             // 				if (neighbourChunks[ChunkDirection::East] != nullptr) {
-               //!             // 						neighbourIndex = (Constant::chunk_size_x * (y)) - 1;
-               //!             // 						neighbour = worldDataHandler->GetPixelFromPixelColour(neighbourChunks[ChunkDirection::East]->pixels[neighbourIndex]);
-               //!             // 						newChunkDir = ChunkDirection::East;
-               //!             // 						isSameChunk = false;
-               //!             // 						break;
-               //!             // 				}
-               //!             // 		}
-               //!             // 		continue;
-               //!             default:
-               //!                continue;
-               //!             }
-               //! 
-               //!             if (neighbour == nullptr)
-               //!                neighbour = world_data_handler->GetPixelFromPixelColour(localPixels[neighbourIndex]);
-               //!             else
-               //!                isSameChunk = false;
-               //! 
-               //!             neighbourType = neighbour->GetType();
-               //! 
-               //!             // Now we ask the Pixel what it wants to do with its neighbour
-               //!             // this can return true/false and if the pixel needs to convert the neighbour to something returnPixels will have different values
-               //!             bool result = false;
-               //!             switch (dirIndex)
-               //!             {
-               //!             case North:
-               //!                result = pixel->NorthLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case NorthEast:
-               //!                result = pixel->NorthEastLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case East:
-               //!                result = pixel->EastLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case SouthEast:
-               //!                result = pixel->SouthEastLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case South:
-               //!                result = pixel->SouthLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case SouthWest:
-               //!                result = pixel->SouthWestLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case West:
-               //!                result = pixel->WestLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             case NorthWest:
-               //!                result = pixel->NorthWestLogic(neighbourType, returnPixels);
-               //!                break;
-               //!             }
-               //!             if (result)
-               //!             {
-               //!                if (DEBUG_PrintPixelData)
-               //!                {
-               //!                   printf("X: %i\tY:%i\tUPDATE:%i\t(OUT)\n", x, y, DEBUG_FrameCounter);
-               //!                }
-               //!                if (returnPixels[0] != returnPixels[1])
-               //!                {
-               //!                   if (pixelType != returnPixels[0])
-               //!                   {
-               //!                      chunks[chunkIndex]->pixels[localIndex] = world_data_handler->GetPixelFromType(
-               //!                         returnPixels[0])->GetRandomColour();
-               //!                   }
-               //!                   if (neighbourType != returnPixels[1])
-               //!                   {
-               //!                      if (isSameChunk)
-               //!                         chunks[chunkIndex]->pixels[localIndex] = world_data_handler->GetPixelFromType(
-               //!                            returnPixels[1])->GetRandomColour();
-               //!                      else
-               //!                         neighbourChunks[dirIndex]->pixels[neighbourIndex] = world_data_handler->GetPixelFromType(
-               //!                            returnPixels[1])->GetRandomColour();
-               //!                   }
-               //!                }
-               //!                else
-               //!                {
-               //!                   if (isSameChunk)
-               //!                      std::swap(chunks[chunkIndex]->pixels[localIndex],
-               //!                         chunks[chunkIndex]->pixels[neighbourIndex]);
-               //!                   else
-               //!                      std::swap(chunks[chunkIndex]->pixels[localIndex],
-               //!                         neighbourChunks[dirIndex]->pixels[neighbourIndex]);
-               //!                }
-               //!                if (isSameChunk) {
-               //!                   isProcessed[neighbourIndex] = true;
-               //!                }
-               //!                else {
-               //!                   WorldChunk* accessedChunk = neighbourChunks[dirIndex];
-               //!                   bool* processedBools = is_chunk_processed[accessedChunk->position];
-               //!                   if (processedBools == nullptr)
-               //!                   {
-               //!                      is_processed_queue.pop(processedBools);
-               //!                      is_chunk_processed[accessedChunk->position] = processedBools;
-               //!                      used_processed_queue.push(processedBools);
-               //!                   }
-               //!                   processedBools[neighbourIndex] = true;
-               //!                }
-               //!                break;
-               //!             }
-               //!          }
-               //!       }
-               //!    }
-               //! }
-               //End
                --thread_pool_tasks;
                });
             chunkUpdates++;
@@ -513,45 +318,6 @@ void WorldSimulator::Update()
          auto const chunkIndex = IVec2(x, y);
          is_chunk_processed[chunkIndex] = nullptr;
       }
-   }
-}
-
-// Is this really helpful? or just in the way..
-//TODO Clean this up a bit?
-void WorldSimulator::GetStartAndToForLoop(const short& side, short& x_start, short& x_to, short& y_start, short& y_to) const
-{
-   switch (side)
-   {
-      // case ChunkDirection::North:
-   case 0:
-      y_start = 0;
-      y_to = (y_dir_ == 1 ? 1 : -1);
-      goto jumpToSetX;
-      // case ChunkDirection::South:
-   case 1:
-      y_start = Constant::chunk_size_y - 1;
-      y_to = (y_dir_ == 1 ? Constant::chunk_size_y : Constant::chunk_size_y - 2);
-      // Set Common X
-   jumpToSetX:
-      x_start = (x_dir_ == 1 ? 0 : Constant::chunk_size_x - 1);
-      x_to = (x_dir_ == 1 ? Constant::chunk_size_x - 1 : -1);
-      break;
-
-      // case ChunkDirection::East:
-   case 2:
-      x_start = 0;
-      x_to = (x_dir_ == 1 ? 1 : -1);
-      goto jumpToSetY;
-      break;
-      // case ChunkDirection::West:
-   case 3:
-      x_start = Constant::chunk_size_x - 1;
-      x_to = (x_dir_ == 1 ? Constant::chunk_size_x : Constant::chunk_size_x - 2);
-      // Set Common Y
-   jumpToSetY:
-      y_start = (y_dir_ == 1 ? 0 : Constant::chunk_size_y - 1);
-      y_to = (y_dir_ == 1 ? Constant::chunk_size_y - 1 : 0);
-      break;
    }
 }
 
@@ -585,43 +351,163 @@ inline bool WorldSimulator::DoesChunkHaveNeighbour(WorldChunk** neighbours, cons
    return neighbours[direction] != nullptr;
 }
 
-inline short WorldSimulator::GetOuterNeighbourIndex(const short local, const short y, const short x, const int direction)
+inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const short y, const short x, int &direction, short& neighbour_index)
 {
+   //TODO This could probably be made to target the more likely conditionals first to save some cpu time.
+
+   // Above each case will be the potential paths for a pixel to move that takes it outside the current chunk.
+   // If these states aren't met, we pass into the GetInnerNeighbourIndex as it is known safe.
    switch (direction)
    {
-   case North:
-      return local + (Constant::chunk_total_size - Constant::chunk_size_x);
+      // North
+   case North: 
+      if (y == 0) {
+         neighbour_index = Constant::chunk_total_size - Constant::chunk_size_x + x;
+         return true;
+      }
+      break;
+
+
+      // NorthEast, North, East
    case NorthEast:
-   {
-      // Bottom Left
-      if (x == Constant::chunk_size_x - 1 && y == 0)
-         return (Constant::chunk_total_size - Constant::chunk_size_x) + 1;
-      return local + (Constant::chunk_total_size - Constant::chunk_size_x) + 1;
-   }
+      if (y == 0)
+      {
+         // NorthEast
+         if (x == Constant::chunk_size_x - 1)
+         {
+            neighbour_index = Constant::chunk_total_size - Constant::chunk_size_x;
+            return true;
+         }
+         // North
+         if (x < Constant::chunk_size_x - 1)
+         {
+            neighbour_index = Constant::chunk_total_size - Constant::chunk_size_x + x + 1;
+            direction = E_ChunkDirection::North;
+            return true;
+         }
+      }
+      // East
+      if (x == Constant::chunk_size_x - 1 && y > 0)
+      {
+         neighbour_index = local - Constant::chunk_size_x - x;
+         direction = E_ChunkDirection::East;
+         return true;
+      }
+      break;
+
+
+      // East
    case East:
-      return (Constant::chunk_size_x * y) + 1;
+      // East
+      if (x == Constant::chunk_size_x - 1)
+      {
+         neighbour_index = local - x;
+         return true;
+      }
+      break;
+
+
+      // SouthEast, East, South
    case SouthEast:
-      // Top Left
-      if (x == Constant::chunk_size_x - 1 && y == Constant::chunk_size_y - 1)
-         return 0;
-      return local - (Constant::chunk_total_size - Constant::chunk_size_x) + 1;
+      if (y == Constant::chunk_size_y - 1) {
+         // South East (Corner)
+         if (x == Constant::chunk_size_x - 1 ) {
+            neighbour_index = 0;
+            return true;
+         }
+         // South
+         if (x < Constant::chunk_size_x - 1) {
+            neighbour_index = x + 1;
+            direction = E_ChunkDirection::South;
+            return true;
+         }
+      }
+      // East
+      if (x == Constant::chunk_size_x - 1 && y < Constant::chunk_size_y - 1)
+      {
+         neighbour_index = local + 1;
+         direction = E_ChunkDirection::East;
+         return true;
+      }
+      break;
+
+
+      // South
    case South:
-      return local - (Constant::chunk_total_size - Constant::chunk_size_x);
+      // South
+      if (y == Constant::chunk_size_y - 1) {
+         neighbour_index = x;
+         return true;
+      }
+      break;
+
+
+      // SouthWest, South, West
    case SouthWest:
-      // Top Right
-      if (x == 0 && y == Constant::chunk_size_y - 1)
-         return Constant::chunk_size_x;
-      return local - (Constant::chunk_total_size - Constant::chunk_size_x) - 1;
+      if (y == Constant::chunk_size_y - 1)
+      {
+         // South West
+         if (x == 0) {
+            neighbour_index = Constant::chunk_size_x - 1;
+            return true;
+         }
+         // South
+         if (x > 0) {
+            neighbour_index = x - 1;
+            direction = E_ChunkDirection::South;
+            return true;
+         }
+      }
+      // West
+      if (x == 0)
+      {
+         neighbour_index = local + (Constant::chunk_size_x * 2) - 1;
+         direction = E_ChunkDirection::West;
+         return true;
+      }
+      break;
+
+
+      // West
    case West:
-      return (Constant::chunk_size_x * (y + 1)) - 1;
+      // West
+      if (x == 0)
+      {
+         neighbour_index = local + Constant::chunk_size_x - 1;
+         return true;
+      }
+      break;
+
+
+      // NorthWest, North, West
    case NorthWest:
-      // Bottom Right
-      if (x == Constant::chunk_size_x - 1 && y == Constant::chunk_size_y - 1)
-         return Constant::chunk_total_size;
-      return local + (Constant::chunk_total_size - Constant::chunk_size_x) - 1;
-   default:
-      return -1;
+      if (x == 0)
+      {
+         // NorthWest
+         if (y == 0)
+         {
+            neighbour_index = Constant::chunk_total_size - 1;
+            return true;
+         }
+         // West
+         if (y > 0)
+         {
+            neighbour_index = local - 1;
+            direction = E_ChunkDirection::West;
+            return true;
+         }
+      }
+      // North
+      if (x > 0 && y == 0)
+      {
+         neighbour_index = Constant::chunk_total_size - 1 - Constant::chunk_size_x + x;
+         direction = E_ChunkDirection::North;
+         return true;
+      }
+      break;
    }
+   neighbour_index = GetInnerNeighbourIndex(local, direction);
+   return false;
 }
 
 inline void WorldSimulator::ProcessLogicResults(WorldDataHandler* data_handler, const E_PixelType return_pixels[2], Uint32& from_pixel, Uint32& to_pixel)
@@ -783,7 +669,7 @@ void WorldSimulator::UpdateInput()
       {
          for (int x = 0; x < world_dimensions.x; x++)
          {
-            memset(chunks[IVec2(x, y)]->pixels, 0, chunk_total_size * sizeof(Uint32));
+            memset(chunks[IVec2(x, y)]->pixels, 0, Constant::chunk_total_size *sizeof(Uint32));
          }
       }
    }

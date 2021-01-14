@@ -52,8 +52,6 @@ public:
    SDL_Rect world_render_rect;
    IVec2 max_render_box = IVec2::Zero();
 
-   Uint32 chunk_total_size = 0;
-
    IVec2 pixel_world_dimensions;
 
    SDL_Renderer* game_renderer;
@@ -68,7 +66,7 @@ public:
    bool DEBUG_DropSand = false;
    int DEBUG_SandDropRate = 20;
 
-   int DEBUG_PenSize = 3;
+   int DEBUG_PenSize = 1;
    bool DEBUG_PrintPixelData = false;
 
    u_long DEBUG_FrameCounter = 0;
@@ -111,17 +109,40 @@ public:
    bool Draw(Camera* camera) override;
 
 protected:
-   void GetStartAndToForLoop(const short& side, short& x_start, short& x_to, short& y_start, short& y_to) const;
    // Ugly, can we improve this?
    short x_dir_ = -1, y_dir_ = 1;
 
    bool is_processed_array_[max_process_count][Constant::chunk_total_size];
    boost::lockfree::queue<bool*> used_processed_queue{ max_process_count };
 
-   // Allows us to loop with fewer conditionals as we can randomize between 0-1 and then access out Start-To indexes and Iterate through our 3rd value
-   const short x_loop_start_to_[2][3] = { { 1, Constant::chunk_size_x - 1, 1 }, { Constant::chunk_size_x - 2, 0, -1 } };
-   // Allows us to loop with fewer conditionals as we can randomize between 0-1 and then access out Start-To indexes and Iterate through our 3rd value
-   const short y_loop_start_to_[2][3] = { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 2, 0, -1 } };
+   // TODO All seems to mostly work, now we need to work out how to organize these into Directional Bias preferences.. fun
+   // TODO All seems to mostly work, now we need to work out how to organize these into Directional Bias preferences.. fun
+
+   short x_loop_from_to_dir_[5][2][3] = {
+      // North
+      { { 0, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, 0, -1 } },
+      // East
+      { { Constant::chunk_size_x - 1, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, Constant::chunk_size_x - 2, -1 }},
+      // West
+      { { 0, 1, 1 }, { 0, -1, -1 }},
+      // South
+      { { 0, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, 0, -1 } },
+      // Inner Chunk
+      { { 1, Constant::chunk_size_x - 1, 1 }, { Constant::chunk_size_x - 2, 0, -1 } }
+   };
+
+   short y_loop_from_to_dir_[5][2][3] = {
+      // North
+      { { 0, 1, 1 }, { 0, -1, -1 } },
+      // East
+      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 1, 1, -1 } },
+      // West
+      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 1, 1, -1 } },
+      // South
+      { { Constant::chunk_size_y - 1, Constant::chunk_size_y, 1 }, {  Constant::chunk_size_y - 1, Constant::chunk_size_y - 2, -1 } },
+      // Inner Chunk
+      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 2, 0, -1 } }
+   };
 
    enum LoopHint
    {
@@ -133,7 +154,7 @@ protected:
    // Returns the index of the cell in the direction passed in.
    static short GetInnerNeighbourIndex(short local, int direction);
    // Returns the index of the cell in the neighbouring chunk of the index/direction passed in.
-   static short GetOuterNeighbourIndex(const short local, const short y, const short x, const int direction);
+   static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int &direction, short& neighbour_index);
    // Returns true if the Pixel reacts to the neighbouring pixels type. Fills return_pixels with new pixel types for the two pixels if pixels need to be changed.
    static bool CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type, E_PixelType* return_pixels);
 
