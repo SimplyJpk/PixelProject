@@ -146,15 +146,14 @@ int main(int argc, char** argv)
 		while (!input_manager->IsShuttingDown())
 		{
 				frameStart = std::chrono::steady_clock::now();
-				stopWatch.UpdateTime("FrameTime");
-				stopWatch.UpdateTime("Update");
-
-
-				stopWatch.UpdateTime("Input");
+				//x stopWatch.UpdateTime("FrameTime");
+				//x stopWatch.UpdateTime("Update");
+				//x stopWatch.UpdateTime("Input");
+				//
 				// Check Inputs
 				input_manager->Update();
 				if (input_manager->IsShuttingDown()) break;
-				stopWatch.StoreTime("Input");
+				stopWatch.StoreTime("Input", static_cast<duration>(clock::now() - frameStart).count());
 
 				//TODO Move this somewhere better?
 				settings->paint_manager->UpdateInput();
@@ -168,7 +167,7 @@ int main(int argc, char** argv)
 				}
 				mainCam->Update();
 
-				stopWatch.StoreTime("Update");
+				stopWatch.StoreTime("Update", static_cast<duration>(clock::now() - frameStart).count());
 
 				if (SDL_GetTicks() - lastUpdate > 1000) {
 						currentFps = frameCounter;
@@ -178,7 +177,10 @@ int main(int argc, char** argv)
 				totalFrames++;
 				frameCounter++;
 
-				stopWatch.UpdateTime("Draw");
+
+				auto drawStart = clock::now();
+				//x stopWatch.UpdateTime("Draw");
+				//
 				// Clear Screen
 				SDL_RenderClear(renderer);
 
@@ -197,16 +199,17 @@ int main(int argc, char** argv)
 				// Render
 				SDL_RenderPresent(renderer);
 
-				stopWatch.StoreTime("Draw");
+				stopWatch.StoreTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
 
-				stopWatch.StoreTime("FrameTime");
-				// Wait a bit
+        // Wait a bit
 
-		    frameEnd = clock::now();
-				duration time =  frameEnd - frameStart;
-				frameOverflow += time.count();
+        frameEnd = clock::now();
+        duration time =  frameEnd - frameStart;
+        frameOverflow += time.count();
 
-				// If our FPS is to high, we lose granular control over sleep, we move to a while loop wait, not ideal.
+        stopWatch.StoreTime("FrameTime", time.count());
+
+        // If our FPS is to high, we lose granular control over sleep, we move to a while loop wait, not ideal.
 				// TODO Look into a better means?
 				if (settings->calculated_frame_delay < 8.0f)
 				{
