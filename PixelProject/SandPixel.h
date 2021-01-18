@@ -26,14 +26,16 @@ protected:
 		bool SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
 		bool SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
 private:
-		static bool Logic(const E_PixelType type) {
-				switch (type)
-				{
-				case E_PixelType::Space:
-						return true;
-				case E_PixelType::Water:
-						return (rand() % 3 == 0);
-				}
-				return false;
-		}
+	 inline bool Logic(const E_PixelType type) {
+			switch (type)
+			{
+			case E_PixelType::Space:
+				 return true;
+			case E_PixelType::Water:
+				 return (pixel_rng_() % 3 == 0);
+			case E_PixelType::Oil:
+				 return (pixel_rng_() % 10 == 0);
+			}
+			return false;
+	 }
 };
