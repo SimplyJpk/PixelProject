@@ -62,7 +62,7 @@ public:
 
    SDL_Texture* world_texture = nullptr;
 
-   bool DEBUG_DrawChunkLines = true;
+   bool DEBUG_DrawChunkLines = false;
    bool DEBUG_DropSand = false;
    int DEBUG_SandDropRate = 20;
 
@@ -70,7 +70,7 @@ public:
    bool DEBUG_PrintPixelData = false;
 
    u_long DEBUG_FrameCounter = 0;
-   float DEBUG_ZoomLevel = 1.0f;
+   float DEBUG_ZoomLevel = 1;
 
    //std::vector<SDL_Texture*> activeTextures;
 
@@ -120,24 +120,25 @@ protected:
 
    short x_loop_from_to_dir_[5][2][3] = {
       // North
-      { { 0, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, 0, -1 } },
+      { { 0, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, -1, -1 } },
       // East
       { { Constant::chunk_size_x - 1, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, Constant::chunk_size_x - 2, -1 }},
       // West
       { { 0, 1, 1 }, { 0, -1, -1 }},
       // South
-      { { 0, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, 0, -1 } },
+      { { 0, Constant::chunk_size_x, 1 }, { Constant::chunk_size_x - 1, -1, -1 } },
       // Inner Chunk
       { { 1, Constant::chunk_size_x - 1, 1 }, { Constant::chunk_size_x - 2, 0, -1 } }
    };
 
+   // Only the Negatives are verified, need to make sure positives are accurate as well.
    short y_loop_from_to_dir_[5][2][3] = {
       // North
       { { 0, 1, 1 }, { 0, -1, -1 } },
       // East
-      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 1, 1, -1 } },
+      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 2, 0, -1 } },
       // West
-      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 1, 1, -1 } },
+      { { 1, Constant::chunk_size_y - 1, 1 }, { Constant::chunk_size_y - 2, 0, -1 } },
       // South
       { { Constant::chunk_size_y - 1, Constant::chunk_size_y, 1 }, {  Constant::chunk_size_y - 1, Constant::chunk_size_y - 2, -1 } },
       // Inner Chunk
@@ -160,4 +161,8 @@ protected:
 
    static bool DoesChunkHaveNeighbour(WorldChunk** neighbours, short direction);
    static void ProcessLogicResults(WorldDataHandler* data_handler, const E_PixelType return_pixels[2], Uint32& from_pixel, Uint32& to_pixel);
+
+private:
+   void ClearWorld();
+   void DebugShowChunkProcessPieces();
 };
