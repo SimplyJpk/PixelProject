@@ -20,6 +20,8 @@ enum class E_PixelType {
 	 Sand,
 	 Water,
 	 Wood,
+	 Oil,
+	 Fire,
 	 COUNT
 };
 
@@ -75,6 +77,7 @@ protected:
 		}
 
 		BasePixel() = default;
-private:
+
 		XoshiroCpp::SplitMix64 pixel_rng_{ time(nullptr) };
+private:
 };

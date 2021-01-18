@@ -5,3 +5,5 @@
 #include "SandPixel.h"
 #include "WaterPixel.h"
 #include "WoodPixel.h"
+#include "OilPixel.h"
+#include "FirePixel.h"
