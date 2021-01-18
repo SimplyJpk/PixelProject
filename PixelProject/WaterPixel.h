@@ -16,9 +16,9 @@ public:
 
 				pixel_update_order_count_ = 2;
 				InsertPixelUpdateOrder(0, std::vector<short>() =
-						{ E_ChunkDirection::South, E_ChunkDirection::SouthEast, E_ChunkDirection::SouthWest, E_ChunkDirection::East, E_ChunkDirection::West });
+						{ E_ChunkDirection::SouthEast, E_ChunkDirection::SouthWest, E_ChunkDirection::South,  E_ChunkDirection::East, E_ChunkDirection::West });
 				InsertPixelUpdateOrder(1, std::vector<short>() =
-						{ E_ChunkDirection::South, E_ChunkDirection::SouthWest, E_ChunkDirection::SouthEast, E_ChunkDirection::West, E_ChunkDirection::East });
+						{ E_ChunkDirection::SouthWest, E_ChunkDirection::SouthEast, E_ChunkDirection::South, E_ChunkDirection::West, E_ChunkDirection::East });
 		}
 
 		bool SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
