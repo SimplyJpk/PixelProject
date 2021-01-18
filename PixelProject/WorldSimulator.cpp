@@ -77,7 +77,9 @@ void WorldSimulator::Start()
    }
 
    // Create our world texture, we use this to render the world chunks.
-   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, game_settings->screen_size.x + (Constant::chunk_size_x * 2), game_settings->screen_size.y + (Constant::chunk_size_y * 2));
+   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+                                     game_settings->screen_size.x + (Constant::chunk_size_x * 2),
+                                     game_settings->screen_size.y + (Constant::chunk_size_y * 2));
    if (world_texture == nullptr)
    {
       printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
@@ -91,12 +93,12 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
    const SDL_Rect cameraPos = cam->view_port;
    // Calculate the Position of the Camera in the world in Chunks
    const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-      static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
+                                         static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
    // Same as above, but now we round to floor
    const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
    // Now we remove our position to get our offset
    const IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-      (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+                                         (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
 
    const short max = pixel_type->colour_count;
 
@@ -125,7 +127,8 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
          if (dist <= radius)
          {
             chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[
-               ((y - (yFloor * Constant::chunk_size_y) - cameraWorldOffset.y) * Constant::chunk_size_x) + (x - (xFloor * Constant::chunk_size_x) -
+               ((y - (yFloor * Constant::chunk_size_y) - cameraWorldOffset.y) * Constant::chunk_size_x) + (x - (xFloor *
+                     Constant::chunk_size_x) -
                   cameraWorldOffset.x)
             ] = pixel_type->type_colours[(rng() % max)];
          }
@@ -211,8 +214,8 @@ void WorldSimulator::Update()
             const auto chunkIndex = IVec2(xChunk, yChunk);
 
             // Submit a lambda object to the pool.
-            post(thread_pool, [this, chunkDirectionOrder, chunkIndex, chunkUpdates]() mutable {
-
+            post(thread_pool, [this, chunkDirectionOrder, chunkIndex, chunkUpdates]() mutable
+            {
                //Now we know our chunk indexes we create a local group to simplify lookup
                auto* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
                Uint32* neighbourPixels = localPixels; // [_localChunkIndex] ->pixels;
@@ -220,7 +223,7 @@ void WorldSimulator::Update()
                bool* isProcessed = is_chunk_processed[chunkIndex];
                bool* neighbourIsProcessed = isProcessed;
 
-               E_PixelType returnPixels[2] = { E_PixelType::UNDEFINED,E_PixelType::UNDEFINED };
+               E_PixelType returnPixels[2] = {E_PixelType::UNDEFINED, E_PixelType::UNDEFINED};
 
                WorldChunk** neighbourChunks = chunks[chunkIndex]->neighbour_chunks;
 
@@ -246,15 +249,15 @@ void WorldSimulator::Update()
                   /// Our Inner Chunk Update
                   /// </summary>
                   for (auto
-                     x = x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][From];
-                     x != x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][To];
-                     x += x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][Dir])
+                       x = x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][From];
+                       x != x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][To];
+                       x += x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][Dir])
                   {
-                  for (auto
-                     y = y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][From];
-                     y != y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][To];
-                     y += y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][Dir])
-                  {
+                     for (auto
+                          y = y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][From];
+                          y != y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][To];
+                          y += y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][Dir])
+                     {
                         const short localIndex = (y * Constant::chunk_size_x) + x;
                         // If the pixel is empty, or something beat us to update it
                         if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
@@ -269,12 +272,14 @@ void WorldSimulator::Update()
                            if (direction == DIR_COUNT) break;
 
                            short neighbourIndex;
-                           if (pieceOrder[piece] == 4) {
+                           if (pieceOrder[piece] == 4)
+                           {
                               neighbourIndex = GetInnerNeighbourIndex(localIndex, direction);
                            }
                            else
                            {
-                              if (GetOuterNeighbourIndex(localIndex, y, x, direction, neighbourIndex)) {
+                              if (GetOuterNeighbourIndex(localIndex, y, x, direction, neighbourIndex))
+                              {
                                  //TODO Any way to work this out in advance? vv
                                  if (neighbourChunks[direction] == nullptr)
                                     continue;
@@ -288,25 +293,33 @@ void WorldSimulator::Update()
                               }
                            }
 
-                           auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(neighbourPixels[neighbourIndex]);
+                           auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(
+                              neighbourPixels[neighbourIndex]);
                            const auto neighbourType = pixelNeighbour->GetType();
 
                            // Now we ask the Pixel what it wants to do with its neighbour
                            if (!CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType, returnPixels)) continue;
 
-                           if (DEBUG_PrintPixelData) { printf("P-%i\t%i->%i\tX: %i\tY:%i\tUPDATE:%i\t%i\t->\t%i\n", pieceOrder[piece], pixelDirOrder[directionIndex], direction, x, y, DEBUG_FrameCounter, localIndex, neighbourIndex); }
+                           if (DEBUG_PrintPixelData)
+                           {
+                              printf("P-%i\t%i->%i\tX: %i\tY:%i\tUPDATE:%i\t%i\t->\t%i\n", pieceOrder[piece],
+                                     pixelDirOrder[directionIndex], direction, x, y, DEBUG_FrameCounter, localIndex,
+                                     neighbourIndex);
+                           }
 
                            if (returnPixels[0] != E_PixelType::UNDEFINED)
                            {
                               if (returnPixels[0] != E_PixelType::UNDEFINED)
                               {
-                                 localPixels[localIndex] = world_data_handler->GetPixelFromType(returnPixels[0])->GetRandomColour();
+                                 localPixels[localIndex] = world_data_handler->GetPixelFromType(returnPixels[0])->
+                                                                               GetRandomColour();
                                  isProcessed[localIndex] = true;
                                  returnPixels[0] = E_PixelType::UNDEFINED;
                               }
                               if (returnPixels[1] != E_PixelType::UNDEFINED)
                               {
-                                 neighbourPixels[neighbourIndex] = world_data_handler->GetPixelFromType(returnPixels[1])->GetRandomColour();
+                                 neighbourPixels[neighbourIndex] = world_data_handler->GetPixelFromType(returnPixels[1])
+                                    ->GetRandomColour();
                                  neighbourIsProcessed[neighbourIndex] = true;
                                  returnPixels[1] = E_PixelType::UNDEFINED;
                               }
@@ -324,7 +337,7 @@ void WorldSimulator::Update()
                   }
                }
                --thread_pool_tasks;
-               });
+            });
             chunkUpdates++;
          }
       }
@@ -382,7 +395,8 @@ inline bool WorldSimulator::DoesChunkHaveNeighbour(WorldChunk** neighbours, cons
    return neighbours[direction] != nullptr;
 }
 
-inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const short y, const short x, int &direction, short& neighbour_index)
+inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction,
+                                                   short& neighbour_index)
 {
    //TODO This could probably be made to target the more likely conditionals first to save some cpu time.
 
@@ -391,8 +405,9 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
    switch (direction)
    {
       // North
-   case North: 
-      if (y == 0) {
+   case North:
+      if (y == 0)
+      {
          neighbour_index = Constant::chunk_total_size - Constant::chunk_size_x + x;
          return true;
       }
@@ -413,7 +428,7 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
          if (x < Constant::chunk_size_x - 1)
          {
             neighbour_index = Constant::chunk_total_size - Constant::chunk_size_x + x + 1;
-            direction = E_ChunkDirection::North;
+            direction = North;
             return true;
          }
       }
@@ -421,7 +436,7 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
       if (x == Constant::chunk_size_x - 1 && y > 0)
       {
          neighbour_index = local - Constant::chunk_size_x - x;
-         direction = E_ChunkDirection::East;
+         direction = East;
          return true;
       }
       break;
@@ -440,16 +455,19 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
 
       // SouthEast, East, South
    case SouthEast:
-      if (y == Constant::chunk_size_y - 1) {
+      if (y == Constant::chunk_size_y - 1)
+      {
          // South East (Corner)
-         if (x == Constant::chunk_size_x - 1 ) {
+         if (x == Constant::chunk_size_x - 1)
+         {
             neighbour_index = 0;
             return true;
          }
          // South
-         if (x < Constant::chunk_size_x - 1) {
+         if (x < Constant::chunk_size_x - 1)
+         {
             neighbour_index = x + 1;
-            direction = E_ChunkDirection::South;
+            direction = South;
             return true;
          }
       }
@@ -457,7 +475,7 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
       if (x == Constant::chunk_size_x - 1 && y < Constant::chunk_size_y - 1)
       {
          neighbour_index = local + 1;
-         direction = E_ChunkDirection::East;
+         direction = East;
          return true;
       }
       break;
@@ -466,7 +484,8 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
       // South
    case South:
       // South
-      if (y == Constant::chunk_size_y - 1) {
+      if (y == Constant::chunk_size_y - 1)
+      {
          neighbour_index = x;
          return true;
       }
@@ -478,14 +497,16 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
       if (y == Constant::chunk_size_y - 1)
       {
          // South West
-         if (x == 0) {
+         if (x == 0)
+         {
             neighbour_index = Constant::chunk_size_x - 1;
             return true;
          }
          // South
-         if (x > 0) {
+         if (x > 0)
+         {
             neighbour_index = x - 1;
-            direction = E_ChunkDirection::South;
+            direction = South;
             return true;
          }
       }
@@ -493,7 +514,7 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
       if (x == 0)
       {
          neighbour_index = local + (Constant::chunk_size_x * 2) - 1;
-         direction = E_ChunkDirection::West;
+         direction = West;
          return true;
       }
       break;
@@ -524,7 +545,7 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
          if (y > 0)
          {
             neighbour_index = local - 1;
-            direction = E_ChunkDirection::West;
+            direction = West;
             return true;
          }
       }
@@ -532,7 +553,7 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
       if (x > 0 && y == 0)
       {
          neighbour_index = Constant::chunk_total_size - 1 - Constant::chunk_size_x + x;
-         direction = E_ChunkDirection::North;
+         direction = North;
          return true;
       }
       break;
@@ -541,7 +562,8 @@ inline bool WorldSimulator::GetOuterNeighbourIndex(const short local, const shor
    return false;
 }
 
-inline bool WorldSimulator::CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type, E_PixelType* return_pixels)
+inline bool WorldSimulator::CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
+                                       E_PixelType* return_pixels)
 {
    switch (direction)
    {
@@ -703,12 +725,12 @@ bool WorldSimulator::Draw(Camera* camera)
    const SDL_Rect cameraPos = camera->view_port;
    // Calculate the Position of the Camera in the world in Chunks
    const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-      static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
+                                         static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
    // Same as above, but now we round to floor
    const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
    // Now we remove our position to get our offset
    IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-      (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+                                   (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
    //? printf("CameraWorld X: %f, Y: %f\n", cameraWorldPosition.x, cameraWorldPosition.y);
    //? printf("CameraPixelOffset X: %i, Y: %i\n", cameraWorldOffset.x, cameraWorldOffset.y);
 
@@ -748,7 +770,7 @@ bool WorldSimulator::Draw(Camera* camera)
          {
             // We update the texture using the entire chunk data
             if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixels,
-               Constant::chunk_size_x * sizeof(Uint32)))
+                                  Constant::chunk_size_x * sizeof(Uint32)))
             {
             }
          }
@@ -771,22 +793,25 @@ bool WorldSimulator::Draw(Camera* camera)
    if (DEBUG_DrawChunkLines)
    {
       const IVec2 maxGridSize((screenSize.x + (Constant::chunk_size_x * 2)) / Constant::chunk_size_x,
-         (screenSize.y + (Constant::chunk_size_y * 2)) / Constant::chunk_size_y);
+                              (screenSize.y + (Constant::chunk_size_y * 2)) / Constant::chunk_size_y);
       for (int x = 1; x < maxGridSize.x; x++)
       {
-         SDL_RenderDrawLine(game_renderer, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel, 0, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel,
-            (Constant::chunk_size_y * maxGridSize.y - 1));
+         SDL_RenderDrawLine(game_renderer, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel, 0,
+                            (x * Constant::chunk_size_x) / DEBUG_ZoomLevel,
+                            (Constant::chunk_size_y * maxGridSize.y - 1));
       }
       for (int y = 1; y < maxGridSize.y; y++)
       {
-         SDL_RenderDrawLine(game_renderer, 0, (y * Constant::chunk_size_y) / DEBUG_ZoomLevel, (Constant::chunk_size_x * maxGridSize.x) - 1,
-            (y * Constant::chunk_size_y) / DEBUG_ZoomLevel);
+         SDL_RenderDrawLine(game_renderer, 0, (y * Constant::chunk_size_y) / DEBUG_ZoomLevel,
+                            (Constant::chunk_size_x * maxGridSize.x) - 1,
+                            (y * Constant::chunk_size_y) / DEBUG_ZoomLevel);
       }
    }
    return true;
 }
 
-void WorldSimulator::DebugShowChunkProcessPieces() {
+void WorldSimulator::DebugShowChunkProcessPieces()
+{
    Uint32 pieceOrderTestColour[] = {
       0xff000000, // Red
       0x0000ff00, // Blue
@@ -798,7 +823,7 @@ void WorldSimulator::DebugShowChunkProcessPieces() {
 
    int pieceOrder[] =
    {
-            4,
+      4,
       0,
       1,
       2,
@@ -807,21 +832,22 @@ void WorldSimulator::DebugShowChunkProcessPieces() {
 
 
    ClearWorld();
-   for (auto piece = 0; piece < sizeof(pieceOrder) / sizeof(pieceOrder[0]); piece++) {
+   for (auto piece = 0; piece < sizeof(pieceOrder) / sizeof(pieceOrder[0]); piece++)
+   {
       for (auto xChunk = 0; xChunk < world_dimensions.x; xChunk++)
       {
          for (auto yChunk = 0; yChunk < world_dimensions.y; yChunk++)
          {
             const auto chunkIndex = IVec2(xChunk, yChunk);
             for (auto
-               y = y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][From];
-               y != y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][To];
-               y += y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][Dir])
+                 y = y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][From];
+                 y != y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][To];
+                 y += y_loop_from_to_dir_[pieceOrder[piece]][y_dir_][Dir])
             {
                for (auto
-                  x = x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][From];
-                  x != x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][To];
-                  x += x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][Dir])
+                    x = x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][From];
+                    x != x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][To];
+                    x += x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][Dir])
                {
                   auto* localPixels = chunks[chunkIndex]->pixels;
                   const short localIndex = (y * Constant::chunk_size_x) + x;

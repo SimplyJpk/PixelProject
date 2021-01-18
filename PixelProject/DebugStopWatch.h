@@ -9,17 +9,25 @@ class DebugStopWatch
 public:
    char out_string[50] = "\0";
 
-   void AddTimer(const char* timer_name, const bool enabled) {
+   void AddTimer(const char* timer_name, const bool enabled)
+   {
       stop_watch_enabled_[timer_name] = enabled;
       stop_watch_time_[timer_name] = SDL_GetTicks();
       keys_.push_back(timer_name);
    }
 
-   void SetTimerState(const char* timer_name, const bool enabled) {
+   void SetTimerState(const char* timer_name, const bool enabled)
+   {
       stop_watch_enabled_[timer_name] = enabled;
    }
 
-   std::string GetData() {
+   float GetTime(const char* timer_name)
+   {
+      return times_[timer_name];
+   }
+
+   std::string GetData()
+   {
       std::string result;
       // Early abort since this can fire before all times are filled.
       // TODO Fix? Do I care? eh
@@ -27,7 +35,8 @@ public:
          return result;
       for (short i = 0; i < keys_.size(); i++)
       {
-         if (stop_watch_enabled_[keys_[i]]) {
+         if (stop_watch_enabled_[keys_[i]])
+         {
             snprintf(out_string, 50, "%0.1f\tms\t%s\n", times_[keys_[i]], keys_[i]);
             result += out_string;
          }
@@ -35,18 +44,28 @@ public:
       return result;
    }
 
-   void StoreTime(const char* timer_name) {
+   void StoreTime(const char* timer_name)
+   {
       times_[timer_name] = (SDL_GetTicks() - stop_watch_time_[timer_name]);
    };
+
    void StoreTime(const char* timer_name, const float time)
    {
       times_[timer_name] = time;
    }
-   void UpdateTime(const char* timer_name) {
+
+   void UpdateTime(const char* timer_name)
+   {
       stop_watch_time_[timer_name] = SDL_GetTicks();
    }
-   DebugStopWatch() {};
-   ~DebugStopWatch() {};
+
+   DebugStopWatch()
+   {
+   };
+
+   ~DebugStopWatch()
+   {
+   };
 
 private:
    std::vector<const char*> keys_;

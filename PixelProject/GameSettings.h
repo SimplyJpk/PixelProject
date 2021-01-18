@@ -6,7 +6,8 @@
 
 #include "ConfigFile.h"
 
-struct GameSettings {
+struct GameSettings
+{
    FC_Font* font = nullptr;
 
    PaintManager* paint_manager = nullptr;
@@ -21,7 +22,8 @@ struct GameSettings {
    float target_frames_per_second = 60;
    float calculated_frame_delay = 1000.0f / 60.0f;
 
-   void LoadSettings(ConfigFile& config) {
+   void LoadSettings(ConfigFile& config)
+   {
       screen_size.x = config.screen_x;
       screen_size.y = config.screen_y;
       target_frames_per_second = config.target_frames_per_second;

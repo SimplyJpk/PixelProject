@@ -236,6 +236,12 @@
     <ClInclude Include="WoodPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
+    <ClInclude Include="OilPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="FirePixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

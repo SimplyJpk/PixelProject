@@ -3,7 +3,8 @@
 
 namespace Logger
 {
-		void Log(const char* message) {
-				std::cout << message;
-		}
+   void Log(const char* message)
+   {
+      std::cout << message;
+   }
 }

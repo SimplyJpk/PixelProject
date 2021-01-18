@@ -184,12 +184,14 @@
     <ClInclude Include="ChunkUtility.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="DebugStopWatch.h" />
+    <ClInclude Include="FirePixel.h" />
     <ClInclude Include="GUIManager.h" />
     <ClInclude Include="InputKeyCodes.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="ISerializable.h" />
     <ClInclude Include="lib\XoshiroCpp.hpp" />
+    <ClInclude Include="OilPixel.h" />
     <ClInclude Include="PaintManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GroundPixel.h" />
