@@ -93,6 +93,8 @@ int main(int argc, char** argv)
 		WorldDataHandler::Instance()->AddPixelData(new SandPixel());
 		WorldDataHandler::Instance()->AddPixelData(new WaterPixel());
 		WorldDataHandler::Instance()->AddPixelData(new WoodPixel());
+		WorldDataHandler::Instance()->AddPixelData(new OilPixel());
+		WorldDataHandler::Instance()->AddPixelData(new FirePixel());
 
 		// Initalize our settings
 		settings->paint_manager = new	PaintManager();
