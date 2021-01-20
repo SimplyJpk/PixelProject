@@ -45,6 +45,7 @@ public:
                          mem_usage.ReturnMemoryUsed() / 1024);
       ImGui::Text("Selected Pixel Type: %s", settings_->paint_manager->SelectedPixelName());
       ImGui::Text("Virtual Mouse: X-%i Y-%i", settings_->virtual_mouse.x, settings_->virtual_mouse.y);
+      ImGui::Text("Simulated Pixels\nX: %i\tY:%i\nTotal:%i", Constant::chunk_size_x * Constant::world_size_x, Constant::chunk_size_y * Constant::world_size_y, Constant::chunk_total_size * Constant::world_size_x * Constant::world_size_y);
       ImGui::End();
       ImGui::Render();
       ImGuiSDL::Render(ImGui::GetDrawData());

@@ -19,8 +19,8 @@ struct GameSettings
    /* Game Settings that will be global */
    IVec2 screen_size = IVec2(1280, 720);
 
-   float target_frames_per_second = 60;
-   float calculated_frame_delay = 1000.0f / 60.0f;
+   float target_frames_per_second = 60.0f;
+   float calculated_frame_delay = 1000.0f / target_frames_per_second;
 
    void LoadSettings(ConfigFile& config)
    {

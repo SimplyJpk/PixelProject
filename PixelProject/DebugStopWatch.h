@@ -37,7 +37,7 @@ public:
       {
          if (stop_watch_enabled_[keys_[i]])
          {
-            snprintf(out_string, 50, "%0.1f\tms\t%s\n", times_[keys_[i]], keys_[i]);
+            snprintf(out_string, 50, "%0.1f\t%s\n", times_[keys_[i]], keys_[i]);
             result += out_string;
          }
       }
