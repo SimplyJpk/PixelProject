@@ -181,7 +181,6 @@
     <ClInclude Include="boost\threadpool.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkDirection.h" />
-    <ClInclude Include="ChunkUtility.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="DebugStopWatch.h" />
     <ClInclude Include="FirePixel.h" />
@@ -210,7 +209,7 @@
     <ClInclude Include="WoodPixel.h" />
     <ClInclude Include="WorldChunk.h" />
     <ClInclude Include="WorldDataHandler.h" />
-    <ClInclude Include="WorldRules.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="WorldSimulator.h" />
   </ItemGroup>
   <ItemGroup>

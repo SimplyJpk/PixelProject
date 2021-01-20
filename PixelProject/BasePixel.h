@@ -6,12 +6,9 @@
 #include "VecHash.h"
 
 #include "WorldChunk.h"
-#include "WorldRules.h"
+#include "Constants.h"
 #include "./lib/XoshiroCpp.hpp"
 #include <ctime>
-
-#define MAX_PIXEL_COLOUR_COUNT 10
-#define MAX_PIXELUPDATE_ORDER_COUNT 4
 
 enum class E_PixelType
 {

@@ -7,7 +7,6 @@
 #include <atomic>
 
 #include "Logger.h"
-#include "ChunkUtility.h"
 #include "InputManager.h"
 
 #include <math.h>

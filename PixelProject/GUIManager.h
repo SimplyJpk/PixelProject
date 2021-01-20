@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "GameSettings.h"
 #include "MemoryUsage.h"
+#include "Constants.h"
 
 class GuiManager
 {

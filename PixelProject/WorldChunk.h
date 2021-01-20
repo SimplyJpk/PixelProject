@@ -6,7 +6,7 @@
 #include <SDL.h>
 
 #include "ISerializable.h"
-#include "WorldRules.h"
+#include "Constants.h"
 
 using namespace PixelProject;
 
@@ -16,9 +16,9 @@ public:
    IVec2 position;
    WorldChunk* neighbour_chunks[DIR_COUNT] = {nullptr};
 
-   Uint32 pixels[Constant::chunk_total_size]{0};
+   Uint32 pixels[Constant::chunk_total_size] = {0};
 
-   WorldChunk(const IVec2& pos)
+   explicit WorldChunk(const IVec2& pos)
    {
       position = pos;
    }

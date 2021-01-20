@@ -17,7 +17,7 @@
 
 #include "SDL_FontCache/SDL_FontCache.h"
 
-#include "WorldRules.h"
+#include "Constants.h"
 
 #include <ctime>
 #include "./lib/XoshiroCpp.hpp"
