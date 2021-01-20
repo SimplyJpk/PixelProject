@@ -41,9 +41,9 @@ public:
    boost::lockfree::queue<bool*> is_processed_queue{max_process_count};
 
    // Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
-   short* chunk_direction_order_containers[max_process_count][static_cast<short>(E_PixelType::COUNT)];
+   short* chunk_direction_order[static_cast<short>(E_PixelType::COUNT)];
 
-   XoshiroCpp::Xoshiro256PlusPlus rng{time(nullptr)};
+   XoshiroCpp::Xoroshiro128PlusPlus rng;
    // Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
    IVec2 max_visible_chunks_on_screen = IVec2::Zero();
 
@@ -169,7 +169,7 @@ protected:
    static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction,
                                       short& neighbour_index);
    // Returns true if the Pixel reacts to the neighbouring pixels type. Fills return_pixels with new pixel types for the two pixels if pixels need to be changed.
-   static bool CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
+   static int8_t CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
                           E_PixelType* return_pixels);
 
    static bool DoesChunkHaveNeighbour(WorldChunk** neighbours, short direction);
