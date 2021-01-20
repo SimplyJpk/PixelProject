@@ -49,7 +49,7 @@ public:
    short colour_count = 0;
 
    Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : pixel_rng_() % (colour_count - 1))]; }
-   Uint32 type_colours[MAX_PIXEL_COLOUR_COUNT] = {0};
+   Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
 
    virtual int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
    virtual int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
@@ -64,7 +64,7 @@ protected:
    short chunk_order_counter_ = 0;
    // A very messy solution to help with pixel order processing
    short pixel_update_order_count_ = 1;
-   short pixel_update_order_[MAX_PIXELUPDATE_ORDER_COUNT][E_ChunkDirection::DIR_COUNT] = {
+   short pixel_update_order_[Constant::pixel_max_pixel_update_order][E_ChunkDirection::DIR_COUNT] = {
       {
          E_ChunkDirection::South, E_ChunkDirection::SouthWest, E_ChunkDirection::SouthEast, E_ChunkDirection::East,
          E_ChunkDirection::West, E_ChunkDirection::NorthWest, E_ChunkDirection::NorthEast, E_ChunkDirection::North
@@ -73,7 +73,7 @@ protected:
 
    void InsertPixelUpdateOrder(const int index, std::vector<short> directions)
    {
-      if (index < MAX_PIXELUPDATE_ORDER_COUNT)
+      if (index < Constant::pixel_max_pixel_update_order)
       {
          for (int i = 0; i < E_ChunkDirection::DIR_COUNT; i++)
          {
@@ -87,6 +87,7 @@ protected:
 
    BasePixel() = default;
 
-   XoshiroCpp::SplitMix64 pixel_rng_{time(nullptr)};
+   inline static std::uint64_t xor_shift_seed_ = 1;
+   inline static XoshiroCpp::Xoroshiro128PlusPlus pixel_rng_ { xor_shift_seed_ };
 private:
 };
