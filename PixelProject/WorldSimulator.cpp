@@ -76,7 +76,7 @@ void WorldSimulator::Start()
    }
 
    // Create our world texture, we use this to render the world chunks.
-   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
                                      game_settings->screen_size.x + (Constant::chunk_size_x * 2),
                                      game_settings->screen_size.y + (Constant::chunk_size_y * 2));
    if (world_texture == nullptr)
