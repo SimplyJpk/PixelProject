@@ -51,14 +51,14 @@ public:
    Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : pixel_rng_() % (colour_count - 1))]; }
    Uint32 type_colours[MAX_PIXEL_COLOUR_COUNT] = {0};
 
-   virtual bool NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
-   virtual bool NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; };
+   virtual int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
 protected:
    ~BasePixel() = default;
    short chunk_order_counter_ = 0;

@@ -13,9 +13,9 @@ public:
       name = "Fire";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0xE2582200;
-      type_colours[1] = 0x80090900;
-      type_colours[2] = 0xD7350200;
+      type_colours[0] = 0x00E25822;
+      type_colours[1] = 0x00800909;
+      type_colours[2] = 0x00D73502;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -24,32 +24,32 @@ public:
                              {North, NorthWest, NorthEast, SouthWest, SouthEast, South});
    }
 
-   bool NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+   int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
    {
       return Logic(type, return_pixels);
    }
 
-   bool NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+   int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
    {
       return Logic(type, return_pixels);
    }
 
-   bool NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
+   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
 
-   bool SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
    {
       return Logic(type, return_pixels);
    }
 
-   bool SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
    {
       return Logic(type, return_pixels);
    }
 
-   bool SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
+   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
 
 private:
-   inline bool Logic(const E_PixelType type, E_PixelType return_pixels[2])
+   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
    {
       switch (type)
       {
@@ -58,30 +58,33 @@ private:
          {
             return_pixels[0] = E_PixelType::Space;
             return_pixels[1] = E_PixelType::Space;
+            return E_LogicResults::DualReturnPixel;
          }
-         return (pixel_rng_() % 2 == 0);
+         return pixel_rng_() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+
 
       case E_PixelType::Oil:
-         {
-            return_pixels[0] = E_PixelType::Fire;
-            return_pixels[1] = E_PixelType::Fire;
-         }
-         return true;
+         return_pixels[0] = E_PixelType::Fire;
+         return_pixels[1] = E_PixelType::Fire;
+         return E_LogicResults::DualReturnPixel;
+
 
       case E_PixelType::Wood:
          if (pixel_rng_() % 13 == 0)
          {
             return_pixels[0] = E_PixelType::Fire;
             return_pixels[1] = E_PixelType::Fire;
-            return true;
+            return E_LogicResults::DualReturnPixel;
          }
+         return E_LogicResults::FailedUpdate;
+
 
       case E_PixelType::Fire:
-         return false;
+         return E_LogicResults::FailedUpdate;
       }
+
       return_pixels[0] = E_PixelType::Space;
-      return_pixels[1] = E_PixelType::UNDEFINED;
-      return true;
+      return E_LogicResults::FirstReturnPixel;
    }
 
 private:

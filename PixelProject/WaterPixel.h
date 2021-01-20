@@ -11,9 +11,9 @@ public:
       name = "Water";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x0000FF00;
-      type_colours[1] = 0x2e2ee600;
-      type_colours[2] = 0x1818f300;
+      type_colours[0] = 0x000000FF;
+      type_colours[1] = 0x002E2EE6;
+      type_colours[2] = 0x001818F3;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -28,21 +28,21 @@ public:
                              });
    }
 
-   bool SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   bool SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   bool SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   bool WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   bool EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
 
 private:
-   static bool Logic(const E_PixelType type)
+   static int8_t Logic(const E_PixelType type)
    {
       switch (type)
       {
       case E_PixelType::Space:
-         return true;
+         return E_LogicResults::SuccessUpdate;
       }
-      return false;
+      return E_LogicResults::FailedUpdate;
    }
 
 private:

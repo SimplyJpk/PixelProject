@@ -11,9 +11,9 @@ public:
       name = "Wood";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x42101000;
-      type_colours[1] = 0x4e321100;
-      type_colours[2] = 0x4e131100;
+      type_colours[0] = 0x00421010;
+      type_colours[1] = 0x004E3211;
+      type_colours[2] = 0x004E1311;
 
       pixel_update_order_count_ = 0;
       InsertPixelUpdateOrder(0, std::vector<short>() = {});
