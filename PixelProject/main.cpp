@@ -42,7 +42,10 @@ int main(int argc, char** argv)
 
    auto frameStart = clock::now();
    auto frameEnd = clock::now();
-   float frameOverflow = 0.0f;
+   auto secondCounter = clock::now();
+   int frameCounter = 0;
+   int total_frame_count = 0;
+   float total_update_cost = 0.0f;
 
    printf("Loading config file..\n");
    ConfigFile config;
@@ -57,6 +60,11 @@ int main(int argc, char** argv)
    stopWatch.AddTimer("Draw", true);
    stopWatch.AddTimer("FrameTime", true);
    stopWatch.AddTimer("Input", false);
+   stopWatch.AddTimer("CurrentFPS", true);
+   stopWatch.AddTimer("PotentialFPS", true);
+   stopWatch.AddTimer("FullFrameTime", true);
+
+   stopWatch.AddTimer("AVG_UpdateTime", true);
 
    // In-Game Commands
    printf("/--\t\tCommands\n");
@@ -82,7 +90,6 @@ int main(int argc, char** argv)
    printf("|- Comma\t- Draw at Virtual Mouse\n");
    printf("|- Period\t- Draw at Mouse\n");
    // End
-
 
    std::unique_ptr<GameSettings> settings = std::make_unique<GameSettings>();
    settings->LoadSettings(config);
@@ -114,13 +121,7 @@ int main(int argc, char** argv)
    FC_LoadFont(font, renderer, "fonts/FreeSans.ttf", 20, FC_MakeColor(255, 255, 255, 255), TTF_STYLE_NORMAL);
    settings->font = font;
 
-   Uint32 lastUpdate = 0;
-
-   Uint32 frameCounter = 0;
-   Uint32 totalFrames = 0;
-   Uint32 currentFps = 0;
-
-   lastUpdate = SDL_GetTicks();
+   auto clock_second_start = clock::now();
 
    // Initialize all our junk
    input_manager = InputManager::Instance();
@@ -149,14 +150,19 @@ int main(int argc, char** argv)
    while (!input_manager->IsShuttingDown())
    {
       frameStart = std::chrono::steady_clock::now();
-      //x stopWatch.UpdateTime("FrameTime");
-      //x stopWatch.UpdateTime("Update");
-      //x stopWatch.UpdateTime("Input");
-      //
       // Check Inputs
       input_manager->Update();
       if (input_manager->IsShuttingDown()) break;
       stopWatch.StoreTime("Input", static_cast<duration>(clock::now() - frameStart).count());
+
+      // Debug
+      if (input_manager->GetKeyDown(KeyCode::T))
+      {
+         total_update_cost = 0;
+         total_frame_count = 0;
+      }
+
+      total_frame_count++;
 
       //TODO Move this somewhere better?
       settings->paint_manager->UpdateInput();
@@ -172,16 +178,9 @@ int main(int argc, char** argv)
       mainCam->Update();
 
       stopWatch.StoreTime("Update", static_cast<duration>(clock::now() - frameStart).count());
+      total_update_cost += static_cast<std::chrono::nanoseconds>(clock::now() - frameStart).count() / 1000;
 
-      if (SDL_GetTicks() - lastUpdate > 1000)
-      {
-         currentFps = frameCounter;
-         frameCounter = 0;
-         lastUpdate = SDL_GetTicks();
-      }
-      totalFrames++;
-      frameCounter++;
-
+      stopWatch.StoreTime("AVG_UpdateTime", total_update_cost / total_frame_count);
 
       auto drawStart = clock::now();
       //x stopWatch.UpdateTime("Draw");
@@ -194,12 +193,7 @@ int main(int argc, char** argv)
       //? Delete this? DEBUG
       SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
       SDL_RenderDrawLine(renderer, settings->virtual_mouse.x, settings->virtual_mouse.y, settings->virtual_mouse.x,
-                         settings->virtual_mouse.y);
-
-      // Copy our texture
-      //x SDL_RenderCopy(renderer, texture, NULL, &textureRect);
-      FC_Draw(font, renderer, 10, 10, "Target FPS: %0.2f \nFrames in Last Second: %i\nFPS: %i",
-              settings->target_frames_per_second, frameCounter, currentFps);
+         settings->virtual_mouse.y);
 
       // Draw GUI
       gui_manager->DrawGui();
@@ -212,36 +206,50 @@ int main(int argc, char** argv)
 
       frameEnd = clock::now();
       duration time = frameEnd - frameStart;
-      frameOverflow += time.count();
+      const float currentFrameDuration = time.count();
 
-      stopWatch.StoreTime("FrameTime", time.count());
+      stopWatch.StoreTime("FrameTime", currentFrameDuration);
+      stopWatch.StoreTime("PotentialFPS", 1000 / static_cast<duration>(clock::now() - frameStart).count());
+
+      frameCounter++;
+      if (static_cast<duration>(clock::now() - secondCounter).count() > 1000)
+      {
+         stopWatch.StoreTime("CurrentFPS", frameCounter);
+         secondCounter = clock::now();
+         frameCounter = 0;
+      }
+
+      if (currentFrameDuration < settings->calculated_frame_delay)
+      {
+         SDL_Delay(static_cast<int>(settings->calculated_frame_delay - currentFrameDuration));
+         while (static_cast<duration>(clock::now() - frameStart).count() < settings->calculated_frame_delay) {}
+      }
+
+
+      stopWatch.StoreTime("FullFrameTime", static_cast<duration>(clock::now() - frameStart).count());
 
       // If our FPS is to high, we lose granular control over sleep, we move to a while loop wait, not ideal.
-      // TODO Look into a better means?
-      if (settings->calculated_frame_delay < 8.0f)
-      {
-         if (frameOverflow >= settings->calculated_frame_delay)
-            frameOverflow = 0;
-
-         while (time.count() < settings->calculated_frame_delay)
-         {
-            time = clock::now() - frameStart;
-         }
-      }
-      else if (settings->calculated_frame_delay > frameOverflow)
-      {
-         //TODO Doing something wrong here, target FPS isn't being maintained
-         const int sleep = static_cast<int>(settings->calculated_frame_delay - frameOverflow);
-         frameOverflow = settings->calculated_frame_delay - (sleep + frameOverflow);
-         SDL_Delay(sleep);
-      }
-      else
-      {
-         frameOverflow = 0.0f;
-      }
-      //? Debug
-      // printf("%0.2f frameOverflow\n", frameOverflow);
+      //// TODO Look into a better means?
+      //if (settings->calculated_frame_delay < 8.0f)
+      //{
+      //   while (time.count() < settings->calculated_frame_delay)
+      //   {
+      //      time = clock::now() - frameStart;
+      //   }
+      //}
+      //else if (settings->calculated_frame_delay > frameOverflow)
+      //{
+      //   //TODO Doing something wrong here, target FPS isn't being maintained
+      //   const int sleep = static_cast<int>(settings->calculated_frame_delay - frameOverflow);
+      //   frameOverflow = settings->calculated_frame_delay - (sleep + frameOverflow);
+      //   SDL_Delay(sleep);
+      //}
+      //else
+      //{
+      //   frameOverflow = 0.0f;
+      //}
    }
+
    // Free all our resources
    FC_FreeFont(font);
    ImGuiSDL::Deinitialize();
