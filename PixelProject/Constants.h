@@ -11,6 +11,14 @@ namespace PixelProject::Constant
 
    constexpr int8_t pixel_max_colour_count = 10;
    constexpr int8_t pixel_max_pixel_update_order = 4;
+
+   
+   constexpr  Uint32 texture_default_format_transparency = SDL_PIXELFORMAT_ARGB8888;
+   constexpr  Uint32 texture_default_format = SDL_PIXELFORMAT_RGB888;
+   
+   constexpr Uint16 bit_mask_velocity_x = 0b11110000'00000000;
+   constexpr Uint16 bit_mask_velocity_y = 0b00001111'00000000;
+
 }
 
 enum E_LogicResults : int8_t
@@ -20,5 +28,6 @@ enum E_LogicResults : int8_t
    SuccessUpdate = 1 << 1,
    FirstReturnPixel = 1 << 2,
    SecondReturnPixel = 1 << 3,
-   DualReturnPixel = 1 << 4
+   DualReturnPixel = 1 << 4,
+   NoChange = 1 << 5
 };

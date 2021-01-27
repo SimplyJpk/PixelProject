@@ -70,11 +70,11 @@
     <Filter Include="Source Files\ImGUI\ImGUISDL">
       <UniqueIdentifier>{f66781e2-75b0-484d-97cb-b0a206837fe7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\World\Pixels">
-      <UniqueIdentifier>{d0b6723a-5eb3-4970-b2f7-21682291fc99}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Interfaces">
       <UniqueIdentifier>{5967561a-fdea-4afa-8837-f3d0d3fee2aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{d35935b2-2719-464c-aa83-9b67d198afb6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -161,9 +161,6 @@
     <ClInclude Include="WaterPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
-    <ClInclude Include="ChunkUtility.h">
-      <Filter>Header Files\World\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="ChunkDirection.h">
       <Filter>Header Files\World\Utility</Filter>
     </ClInclude>
@@ -212,9 +209,6 @@
     <ClInclude Include="InputKeyCodes.h">
       <Filter>Source Files\Input</Filter>
     </ClInclude>
-    <ClInclude Include="WorldRules.h">
-      <Filter>Header Files\World</Filter>
-    </ClInclude>
     <ClInclude Include="PixelTypeIncludes.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
@@ -241,6 +235,15 @@
     </ClInclude>
     <ClInclude Include="FirePixel.h">
       <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AcidPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="BitWise.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

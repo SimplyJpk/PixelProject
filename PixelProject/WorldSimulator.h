@@ -66,7 +66,7 @@ public:
    bool DEBUG_DropSand = false;
    int DEBUG_SandDropRate = 20;
 
-   int DEBUG_PenSize = 1;
+   int DEBUG_PenSize = 5;
    bool DEBUG_PrintPixelData = false;
 
    u_long DEBUG_FrameCounter = 0;

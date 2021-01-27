@@ -7,7 +7,7 @@
 
 #include "WorldChunk.h"
 #include "Constants.h"
-#include "./lib/XoshiroCpp.hpp"
+#include "lib/XoshiroCpp.hpp"
 #include <ctime>
 
 enum class E_PixelType
@@ -20,6 +20,7 @@ enum class E_PixelType
    Wood,
    Oil,
    Fire,
+   Acid,
    COUNT
 };
 
@@ -51,14 +52,29 @@ public:
    Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : pixel_rng_() % (colour_count - 1))]; }
    Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
 
+   virtual inline int8_t MaxUpdateRange() { return 1; }
+
+   // Calls the derived North (UP) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived North-East (UP RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived East (RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived South-East (DOWN RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived South (DOWN) Pixel logic, returning a E_LogicResults value.
    virtual int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived South-West (DOWN RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived West (RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+   // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+
+
+   static int16_t GetXVelocity(const Uint16 value) { return (value & Constant::bit_mask_velocity_x) >> 12; }
+   static int16_t GetYVelocity(const Uint16 value) { return (value & Constant::bit_mask_velocity_y) >> 8; }
+
 protected:
    ~BasePixel() = default;
    short chunk_order_counter_ = 0;
@@ -75,7 +91,7 @@ protected:
    {
       if (index < Constant::pixel_max_pixel_update_order)
       {
-         for (int i = 0; i < E_ChunkDirection::DIR_COUNT; i++)
+         for (short i = 0; i < E_ChunkDirection::DIR_COUNT; i++)
          {
             if (i < directions.size())
                pixel_update_order_[index][i] = directions[i];

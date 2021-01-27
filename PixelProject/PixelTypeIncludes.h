@@ -7,3 +7,4 @@
 #include "WoodPixel.h"
 #include "OilPixel.h"
 #include "FirePixel.h"
+#include "AcidPixel.h"

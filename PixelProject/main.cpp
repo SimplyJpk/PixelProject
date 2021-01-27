@@ -94,6 +94,13 @@ int main(int argc, char** argv)
    std::unique_ptr<GameSettings> settings = std::make_unique<GameSettings>();
    settings->LoadSettings(config);
 
+      // Create a new Window to use
+   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+   SDL_Window* window = SDL_CreateWindow("Pixel Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                         settings->screen_size.x, settings->screen_size.y, 0);
+
+   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
    //TODO Init WorldData, need to improve this, pretty awkward having it here.
    WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
    WorldDataHandler::Instance()->AddPixelData(new GroundPixel());
@@ -102,18 +109,15 @@ int main(int argc, char** argv)
    WorldDataHandler::Instance()->AddPixelData(new WoodPixel());
    WorldDataHandler::Instance()->AddPixelData(new OilPixel());
    WorldDataHandler::Instance()->AddPixelData(new FirePixel());
+   WorldDataHandler::Instance()->AddPixelData(new AcidPixel());
 
    // Initalize our settings
    settings->paint_manager = new PaintManager();
    settings->screen_size = IVec2(settings->screen_size.x, settings->screen_size.y);
    settings->stop_watch = &stopWatch;
 
-   // Create a new Window to use
-   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-   SDL_Window* window = SDL_CreateWindow("Pixel Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                         settings->screen_size.x, settings->screen_size.y, 0);
+   settings->paint_manager->GeneratePixelTextures(renderer);
 
-   SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
    // Init ImGUI
    gui_manager = new GuiManager(renderer, settings.get());
 
@@ -195,8 +199,14 @@ int main(int argc, char** argv)
       SDL_RenderDrawLine(renderer, settings->virtual_mouse.x, settings->virtual_mouse.y, settings->virtual_mouse.x,
          settings->virtual_mouse.y);
 
+
+      // SDL_RenderCopy()
+
       // Draw GUI
       gui_manager->DrawGui();
+
+      settings->paint_manager->DrawTexture(renderer, IVec2(200,200), E_PixelType::COUNT);
+
       // Render
       SDL_RenderPresent(renderer);
 

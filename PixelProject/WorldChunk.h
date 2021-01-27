@@ -16,7 +16,9 @@ public:
    IVec2 position;
    WorldChunk* neighbour_chunks[DIR_COUNT] = {nullptr};
 
-   Uint32 pixels[Constant::chunk_total_size] = {0};
+
+   Uint32 pixel_colour[Constant::chunk_total_size] = {0};
+   Uint16 pixel_data[Constant::chunk_total_size] = {0b11110000'00000000};
 
    explicit WorldChunk(const IVec2& pos)
    {
@@ -47,7 +49,7 @@ public:
       out_archive(CEREAL_NVP(position));
 
       std::vector<Uint32> pixelData(Constant::chunk_total_size);
-      std::copy_n(pixels, Constant::chunk_total_size, pixelData.begin());
+      std::copy_n(pixel_colour, Constant::chunk_total_size, pixelData.begin());
 
       out_archive(cereal::make_nvp("ChunkPixels", pixelData));
    }
@@ -58,6 +60,6 @@ public:
       std::vector<Uint32> pixelData(Constant::chunk_total_size);
       in_archive(cereal::make_nvp("ChunkPixels", pixelData));
 
-      std::copy(pixelData.begin(), pixelData.end(), pixels);
+      std::copy(pixelData.begin(), pixelData.end(), pixel_colour);
    }
 };

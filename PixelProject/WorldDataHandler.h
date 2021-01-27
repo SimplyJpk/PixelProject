@@ -20,7 +20,7 @@ public:
    // Returns the name of a PixelType from a Pixel Colour
    const char* GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
    // Returns the BasePixel based on the pixel colour passed in
-   BasePixel* GetPixelFromPixelColour(const Uint32 pixel) { return pixel_colour_map_[pixel]; }
+   inline BasePixel* GetPixelFromPixelColour(const Uint32 pixel) { return pixel_colour_map_[pixel]; }
 
    // Returns base pixel from the Index provided, only use when calling using Pixel->PixelIndex
    BasePixel* GetPixelFromIndex(const short index) { return pixel_type_list_[index]; }

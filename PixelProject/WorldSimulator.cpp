@@ -76,7 +76,7 @@ void WorldSimulator::Start()
    }
 
    // Create our world texture, we use this to render the world chunks.
-   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
+   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING,
                                      game_settings->screen_size.x + (Constant::chunk_size_x * 2),
                                      game_settings->screen_size.y + (Constant::chunk_size_y * 2));
    if (world_texture == nullptr)
@@ -125,7 +125,7 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
          double dist = powf(point.x - x, 2.0) + powf(point.y - y, 2.0);
          if (dist <= radius)
          {
-            chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixels[
+            chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixel_colour[
                ((y - (yFloor * Constant::chunk_size_y) - cameraWorldOffset.y) * Constant::chunk_size_x) + (x - (xFloor *
                      Constant::chunk_size_x) -
                   cameraWorldOffset.x)
@@ -149,7 +149,7 @@ void WorldSimulator::Update()
          {
             if (rng() % DEBUG_SandDropRate == 0)
             {
-               chunks[IVec2(x, 0)]->pixels[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rng() % maxSandColours)];
+               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rng() % maxSandColours)];
             }
          }
       }
@@ -211,11 +211,14 @@ void WorldSimulator::Update()
             const auto chunkIndex = IVec2(xChunk, yChunk);
 
             // Submit a lambda object to the pool.
-            post(thread_pool, [this, chunkIndex, chunkUpdates]() mutable
+            post(thread_pool, [this, chunkIndex]() mutable
             {
                //Now we know our chunk indexes we create a local group to simplify lookup
-               auto* localPixels = chunks[chunkIndex]->pixels; // [_localChunkIndex] ->pixels;
-               Uint32* neighbourPixels = localPixels; // [_localChunkIndex] ->pixels;
+               auto* localPixels = chunks[chunkIndex]->pixel_colour;
+               auto* localPixelsData = chunks[chunkIndex]->pixel_data;
+               
+               auto* neighbourPixels = localPixels;
+               auto* neighbourPixelsData = localPixelsData;
 
                bool* isProcessed = is_chunk_processed[chunkIndex];
                bool* neighbourIsProcessed = isProcessed;
@@ -233,12 +236,13 @@ void WorldSimulator::Update()
                   3,
                   (x_dir_ == 0 ? 1 : 2),
                };
-
+               
                for (auto piece : pieceOrder)
                {
                   if (piece == 4)
                   {
                      neighbourPixels = localPixels;
+                     neighbourPixelsData = localPixelsData;
                      neighbourIsProcessed = isProcessed;
                   }
                   /// <summary>
@@ -255,6 +259,7 @@ void WorldSimulator::Update()
                           y += y_loop_from_to_dir_[piece][y_dir_][Dir])
                      {
                         const short localIndex = (y * Constant::chunk_size_x) + x;
+
                         // If the pixel is empty, or something beat us to update it
                         if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
 
@@ -279,12 +284,14 @@ void WorldSimulator::Update()
                                  //TODO Any way to work this out in advance? vv
                                  if (neighbourChunks[direction] == nullptr)
                                     continue;
-                                 neighbourPixels = neighbourChunks[direction]->pixels;
+                                 neighbourPixels = neighbourChunks[direction]->pixel_colour;
+                                 neighbourPixelsData = neighbourChunks[direction]->pixel_data;
                                  neighbourIsProcessed = is_chunk_processed[neighbourChunks[direction]->position];
                               }
                               else
                               {
                                  neighbourPixels = localPixels;
+                                 neighbourPixelsData = localPixelsData;
                                  neighbourIsProcessed = isProcessed;
                               }
                            }
@@ -308,6 +315,7 @@ void WorldSimulator::Update()
                            {
                            case E_LogicResults::SuccessUpdate:
                               std::swap(localPixels[localIndex], neighbourPixels[neighbourIndex]);
+                              std::swap(localPixelsData[localIndex], neighbourPixelsData[neighbourIndex]);
                               neighbourIsProcessed[neighbourIndex] = true;
                               break;
 
@@ -315,6 +323,7 @@ void WorldSimulator::Update()
                            case E_LogicResults::FirstReturnPixel:
                               localPixels[localIndex] = world_data_handler->GetPixelFromType(returnPixels[0])->
                                  GetRandomColour();
+                              localPixelsData[localIndex] = 0x00;
                               isProcessed[localIndex] = true;
                               break;
 
@@ -322,6 +331,7 @@ void WorldSimulator::Update()
                            case E_LogicResults::SecondReturnPixel:
                               neighbourPixels[neighbourIndex] = world_data_handler->GetPixelFromType(returnPixels[1])
                                  ->GetRandomColour();
+                              neighbourPixelsData[neighbourIndex] = 0x00;
                               neighbourIsProcessed[neighbourIndex] = true;
                               break;
 
@@ -329,13 +339,17 @@ void WorldSimulator::Update()
                            case E_LogicResults::DualReturnPixel:
                               localPixels[localIndex] = world_data_handler->GetPixelFromType(returnPixels[0])->
                                  GetRandomColour();
+                              localPixelsData[localIndex] = 0x00;
                               isProcessed[localIndex] = true;
 
                               neighbourPixels[neighbourIndex] = world_data_handler->GetPixelFromType(returnPixels[1])
                                  ->GetRandomColour();
+                              neighbourPixelsData[neighbourIndex] = 0x00;
                               neighbourIsProcessed[neighbourIndex] = true;
                               break;
 
+                           case E_LogicResults::NoChange:
+                              break;
 
                            case E_LogicResults::FailedUpdate:
                            case E_LogicResults::None:
@@ -349,7 +363,6 @@ void WorldSimulator::Update()
                }
                --thread_pool_tasks;
             });
-            chunkUpdates++;
          }
       }
       while (thread_pool_tasks > 0)
@@ -719,7 +732,7 @@ void WorldSimulator::ClearWorld()
    {
       for (int x = 0; x < world_dimensions.x; x++)
       {
-         memset(chunks[IVec2(x, y)]->pixels, 0, Constant::chunk_total_size * sizeof(Uint32));
+         memset(chunks[IVec2(x, y)]->pixel_colour, 0, Constant::chunk_total_size * sizeof(Uint32));
       }
    }
 }
@@ -779,7 +792,7 @@ bool WorldSimulator::Draw(Camera* camera)
          else
          {
             // We update the texture using the entire chunk data
-            if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixels,
+            if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixel_colour,
                                   Constant::chunk_size_x * sizeof(Uint32)))
             {
             }
@@ -859,7 +872,7 @@ void WorldSimulator::DebugShowChunkProcessPieces()
                     x != x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][To];
                     x += x_loop_from_to_dir_[pieceOrder[piece]][x_dir_][Dir])
                {
-                  auto* localPixels = chunks[chunkIndex]->pixels;
+                  auto* localPixels = chunks[chunkIndex]->pixel_colour;
                   const short localIndex = (y * Constant::chunk_size_x) + x;
                   localPixels[localIndex] = pieceOrderTestColour[piece];
                }
