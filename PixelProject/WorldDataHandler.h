@@ -2,6 +2,7 @@
 #include <unordered_map>
 
 #include "BasePixel.h"
+#include <array>
 
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
 class WorldDataHandler

@@ -34,9 +34,9 @@ private:
       case E_PixelType::Space:
          return E_LogicResults::SuccessUpdate;
       case E_PixelType::Water:
-         return (pixel_rng_() % 3 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
+         return (rand() % 3 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
       case E_PixelType::Oil:
-         return (pixel_rng_() % 10 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
+         return (rand() % 10 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
       }
       return E_LogicResults::FailedUpdate;
    }

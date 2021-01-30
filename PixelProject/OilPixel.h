@@ -48,7 +48,7 @@ private:
       switch (type)
       {
       case E_PixelType::Water:
-         return pixel_rng_() % odds == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         return rand() % odds == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
       }
       return E_LogicResults::FailedUpdate;
    }

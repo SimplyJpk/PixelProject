@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "Vec2.h"
+#include <backends/imgui_impl_sdl.h>
 
 #include "InputKeyCodes.h"
 //TODO Implement an event system? Would be nice to call events from here

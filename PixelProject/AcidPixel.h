@@ -47,7 +47,7 @@ private:
 
          // 3 in 4 chance to move down in water, otherwise we convert the Acid into water
       case E_PixelType::Water:
-         if (pixel_rng_() % 10 != 0)
+         if (rand() % 10 != 0)
             return E_LogicResults::SuccessUpdate;
          else {
             return_pixels[0] = E_PixelType::Water;
@@ -55,7 +55,7 @@ private:
          }
 
       case E_PixelType::Acid:
-         if (pixel_rng_() % 6 == 0)
+         if (rand() % 6 == 0)
             return E_LogicResults::NoChange;
          return E_LogicResults::FailedUpdate;
 
@@ -63,7 +63,7 @@ private:
          return E_LogicResults::FailedUpdate;
 
       default:
-         int test = pixel_rng_() % 5;
+         int test = rand() % 5;
          if (test <= 1)
          {
             return_pixels[0] = E_PixelType::Space;

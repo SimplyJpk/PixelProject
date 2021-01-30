@@ -67,14 +67,20 @@
     <Filter Include="Source Files\ImGUI">
       <UniqueIdentifier>{f28b432e-ad37-47e0-a679-66e5e35657e5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ImGUI\ImGUISDL">
-      <UniqueIdentifier>{f66781e2-75b0-484d-97cb-b0a206837fe7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Interfaces">
       <UniqueIdentifier>{5967561a-fdea-4afa-8837-f3d0d3fee2aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Utility">
       <UniqueIdentifier>{d35935b2-2719-464c-aa83-9b67d198afb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ImGUI\backend">
+      <UniqueIdentifier>{97ecf3ce-88fe-470a-9032-46de460a711f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ImGUI">
+      <UniqueIdentifier>{c1fda097-ed07-4594-b534-b7703971d9c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ImGUI\backend">
+      <UniqueIdentifier>{92dc24d5-c29e-439a-8e53-a8938d5861bc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +99,18 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldDataHandler.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_demo.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_draw.cpp">
       <Filter>Source Files\ImGUI</Filter>
     </ClCompile>
@@ -102,20 +120,14 @@
     <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_widgets.cpp">
       <Filter>Source Files\ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui.cpp">
-      <Filter>Source Files\ImGUI</Filter>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\ImGUI\backend</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_demo.cpp">
-      <Filter>Source Files\ImGUI</Filter>
+    <ClCompile Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_sdl.cpp">
+      <Filter>Source Files\ImGUI\backend</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui_sdl-master\imgui_sdl.cpp">
-      <Filter>Source Files\ImGUI\ImGUISDL</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files\Input</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldDataHandler.cpp">
-      <Filter>Source Files\World</Filter>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,9 +164,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Header Files\Debug</Filter>
-    </ClInclude>
     <ClInclude Include="GroundPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
@@ -172,27 +181,6 @@
     </ClInclude>
     <ClInclude Include="BasePixel.h">
       <Filter>Header Files\World\Pixels</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui_internal.h">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_rectpack.h">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_textedit.h">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_truetype.h">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imconfig.h">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui.h">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui_sdl-master\imgui_sdl.h">
-      <Filter>Source Files\ImGUI\ImGUISDL</Filter>
     </ClInclude>
     <ClInclude Include="GUIManager.h">
       <Filter>Header Files\GUI</Filter>
@@ -244,6 +232,33 @@
     </ClInclude>
     <ClInclude Include="BitWise.h">
       <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_sdl.h">
+      <Filter>Header Files\ImGUI\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_opengl3.h">
+      <Filter>Header Files\ImGUI\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imconfig.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui_internal.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_rectpack.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_textedit.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_truetype.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

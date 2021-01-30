@@ -1,8 +1,14 @@
 #pragma once
+#include <boost/lockfree/queue.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <boost/thread/win32/mutex.hpp>
+#include <boost/asio/post.hpp>
+
 #include <vector>
 #include <iostream>
 #include <unordered_map>
 
+#include "PaintManager.h"
 #include <SDL.h>
 #include "Vec2.h"
 #include "VecHash.h"
@@ -10,22 +16,16 @@
 #include "GameSettings.h"
 #include "WorldChunk.h"
 #include "WorldDataHandler.h"
+#include "Camera.h"
 
-#include <boost/asio/post.hpp>
-#include <boost/asio/thread_pool.hpp>
-#include <boost/thread/win32/mutex.hpp>
-
-#include "SDL_FontCache/SDL_FontCache.h"
+#include <atomic>
 
 #include "Constants.h"
 
-#include <ctime>
-#include "./lib/XoshiroCpp.hpp"
-
-#include <boost/lockfree/queue.hpp>
-#include <queue>
+#include <SDL_opengl.h>
 
 using namespace PixelProject;
+using namespace boost;
 
 class WorldSimulator final : public GameObject
 {
@@ -35,15 +35,15 @@ public:
    const IVec2 world_dimensions = IVec2(Constant::world_size_x, Constant::world_size_y);
 
    std::atomic<int> thread_pool_tasks = 0;
-   boost::asio::thread_pool thread_pool{32};
+   asio::thread_pool thread_pool{32};
    const static int max_process_count = 100;
 
-   boost::lockfree::queue<bool*> is_processed_queue{max_process_count};
+   lockfree::queue<bool*> is_processed_queue{max_process_count};
 
    // Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
    short* chunk_direction_order[static_cast<short>(E_PixelType::COUNT)];
 
-   XoshiroCpp::Xoroshiro128PlusPlus rng;
+   // XoshiroCpp::Xoroshiro128PlusPlus rng;
    // Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
    IVec2 max_visible_chunks_on_screen = IVec2::Zero();
 
@@ -54,11 +54,11 @@ public:
 
    IVec2 pixel_world_dimensions;
 
-   SDL_Renderer* game_renderer;
    const int max_active_chunks = 12;
 
    GameSettings* game_settings;
    WorldDataHandler* world_data_handler;
+   PaintManager* paint_manager;
 
    SDL_Texture* world_texture = nullptr;
 
@@ -74,13 +74,12 @@ public:
 
    //std::vector<SDL_Texture*> activeTextures;
 
-   WorldSimulator(SDL_Renderer* renderer, GameSettings* settings)
+   WorldSimulator(GameSettings* settings)
    {
       //TODO Should have this be an offset from the camera?
       world_render_rect = {
          Constant::chunk_size_x, Constant::chunk_size_y, settings->screen_size.x, settings->screen_size.y
       };
-      game_renderer = renderer;
       game_settings = settings;
       // We calculate the max number of visible chunks on screen
       //? Do we need to add 2? Is this enough? Is it to much?

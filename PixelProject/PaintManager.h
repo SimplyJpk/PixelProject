@@ -12,7 +12,7 @@ public:
    short selected_pixel_type = 0;
    BasePixel* selected_pixel = nullptr;
 
-   Uint32 pixel_icons[static_cast<int>(E_PixelType::COUNT)][pixel_texture_size * pixel_texture_size] = {0};
+   Uint32 pixel_icons[static_cast<int>(E_PixelType::COUNT)][pixel_texture_size * pixel_texture_size];
    SDL_Texture* pixel_texture[static_cast<int>(E_PixelType::COUNT)];
 
    const Uint32* GetPixelTexture(const short index) const { return pixel_icons[index]; }

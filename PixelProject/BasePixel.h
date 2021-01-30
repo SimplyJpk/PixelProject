@@ -1,28 +1,11 @@
 #pragma once
 #include <SDL.h>
-#include <functional>
-#include <unordered_map>
+//#include "lib/XoshiroCpp.hpp"
 
-#include "VecHash.h"
-
-#include "WorldChunk.h"
+#include "ChunkDirection.h"
 #include "Constants.h"
-#include "lib/XoshiroCpp.hpp"
-#include <ctime>
 
-enum class E_PixelType
-{
-   UNDEFINED = -1,
-   Space,
-   Ground,
-   Sand,
-   Water,
-   Wood,
-   Oil,
-   Fire,
-   Acid,
-   COUNT
-};
+using namespace PixelProject;
 
 class BasePixel
 {
@@ -49,7 +32,7 @@ public:
    short pixel_index = -1;
    short colour_count = 0;
 
-   Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : pixel_rng_() % (colour_count - 1))]; }
+   Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : rand() % (colour_count - 1))]; }
    Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
 
    virtual inline int8_t MaxUpdateRange() { return 1; }
@@ -101,9 +84,7 @@ protected:
       }
    }
 
-   BasePixel() = default;
-
-   inline static std::uint64_t xor_shift_seed_ = 1;
-   inline static XoshiroCpp::Xoroshiro128PlusPlus pixel_rng_ { xor_shift_seed_ };
+   //inline static std::uint64_t xor_shift_seed_ = 1;
+   //inline static XoshiroCpp::Xoroshiro128PlusPlus pixel_rng_ { xor_shift_seed_ };
 private:
 };

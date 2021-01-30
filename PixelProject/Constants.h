@@ -21,6 +21,20 @@ namespace PixelProject::Constant
 
 }
 
+enum class E_PixelType
+{
+   UNDEFINED = -1,
+   Space,
+   Ground,
+   Sand,
+   Water,
+   Wood,
+   Oil,
+   Fire,
+   Acid,
+   COUNT
+};
+
 enum E_LogicResults : int8_t
 {
    None = 0,

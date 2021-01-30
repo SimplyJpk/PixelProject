@@ -1,7 +1,6 @@
 #pragma once
 #include "SDL_FontCache/SDL_FontCache.h"
 #include "Vec2.h"
-#include "PaintManager.h"
 #include "DebugStopWatch.h"
 
 #include "ConfigFile.h"
@@ -10,7 +9,6 @@ struct GameSettings
 {
    FC_Font* font = nullptr;
 
-   PaintManager* paint_manager = nullptr;
    DebugStopWatch* stop_watch = nullptr;
 
    // Temp for Debug

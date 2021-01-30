@@ -1,15 +1,6 @@
 #include "WorldSimulator.h"
-#include <cmath>
-#include <map>
-#include "Camera.h"
-#include <thread>
-#include <vector>
-#include <atomic>
 
-#include "Logger.h"
-#include "InputManager.h"
-
-#include <math.h>
+#include <GL/glu.h>
 
 void WorldSimulator::Start()
 {
@@ -76,14 +67,15 @@ void WorldSimulator::Start()
    }
 
    // Create our world texture, we use this to render the world chunks.
-   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING,
-                                     game_settings->screen_size.x + (Constant::chunk_size_x * 2),
-                                     game_settings->screen_size.y + (Constant::chunk_size_y * 2));
-   if (world_texture == nullptr)
-   {
-      printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
-      SDL_ClearError();
-   }
+   //? world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING,
+   //?                                   game_settings->screen_size.x + (Constant::chunk_size_x * 2),
+   //?                                   game_settings->screen_size.y + (Constant::chunk_size_y * 2));
+
+   //? if (world_texture == nullptr)
+   //? {
+   //?    printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
+   //?    SDL_ClearError();
+   //? }
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size)
@@ -129,7 +121,7 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
                ((y - (yFloor * Constant::chunk_size_y) - cameraWorldOffset.y) * Constant::chunk_size_x) + (x - (xFloor *
                      Constant::chunk_size_x) -
                   cameraWorldOffset.x)
-            ] = pixel_type->type_colours[(rng() % max)];
+            ] = pixel_type->type_colours[(rand() % max)];
          }
       }
    }
@@ -147,9 +139,9 @@ void WorldSimulator::Update()
       {
          for (int xDim = 0; xDim < Constant::chunk_size_x; xDim++)
          {
-            if (rng() % DEBUG_SandDropRate == 0)
+            if (rand() % DEBUG_SandDropRate == 0)
             {
-               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rng() % maxSandColours)];
+               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rand() % maxSandColours)];
             }
          }
       }
@@ -619,7 +611,7 @@ void WorldSimulator::UpdateInput()
 
    if (input->GetMouseButton(MouseLeft))
    {
-      Pen(mousePos, game_settings->paint_manager->selected_pixel, DEBUG_PenSize);
+      Pen(mousePos, paint_manager->selected_pixel, DEBUG_PenSize);
    }
    if (input->GetMouseButton(MouseRight))
    {
@@ -769,7 +761,7 @@ bool WorldSimulator::Draw(Camera* camera)
          xVal = max_visible_chunks_on_screen.x;
          continue;
       }
-
+   
       for (int yVal = 0; yVal < max_visible_chunks_on_screen.y; yVal++)
       {
          const int yChunk = yVal; // cameraChunk.y;
@@ -779,11 +771,11 @@ bool WorldSimulator::Draw(Camera* camera)
             yVal = max_visible_chunks_on_screen.y;
             continue;
          }
-
+      
          // We add one just to center the world based on how we're rendering (Bad choice)
          rect.x = ((xVal + 1) * Constant::chunk_size_x); // +cameraWorldOffset.x;
          rect.y = ((yVal + 1) * Constant::chunk_size_y); // +cameraWorldOffset.y;
-
+      
          // If part of our visible chunk isn't on screen we need to update the texture a different way
          if (rect.x + Constant::chunk_size_x > max_render_box.x || rect.y + Constant::chunk_size_y > max_render_box.y)
          {
@@ -791,11 +783,11 @@ bool WorldSimulator::Draw(Camera* camera)
          }
          else
          {
-            // We update the texture using the entire chunk data
-            if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixel_colour,
-                                  Constant::chunk_size_x * sizeof(Uint32)))
-            {
-            }
+            // // We update the texture using the entire chunk data
+            // if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixel_colour,
+            //                       Constant::chunk_size_x * sizeof(Uint32)) == 0)
+            // {
+            // }
          }
       }
    }
@@ -805,31 +797,31 @@ bool WorldSimulator::Draw(Camera* camera)
    zoomrect.w *= DEBUG_ZoomLevel;
    zoomrect.h *= DEBUG_ZoomLevel;
 
-   if (SDL_RenderCopy(game_renderer, world_texture, &zoomrect, nullptr) != 0)
-   {
-      printf("WorldRender Failed!\nError:%s\n", SDL_GetError());
-      SDL_ClearError();
-   }
+   //? if (SDL_RenderCopy(game_renderer, world_texture, &zoomrect, nullptr) != 0)
+   //? {
+   //?    printf("WorldRender Failed!\nError:%s\n", SDL_GetError());
+   //?    SDL_ClearError();
+   //? }
 
-   //TODO Move or remove this
-   SDL_SetRenderDrawColor(game_renderer, 50, 50, 50, 50);
-   if (DEBUG_DrawChunkLines)
-   {
-      const IVec2 maxGridSize((screenSize.x + (Constant::chunk_size_x * 2)) / Constant::chunk_size_x,
-                              (screenSize.y + (Constant::chunk_size_y * 2)) / Constant::chunk_size_y);
-      for (int x = 1; x < maxGridSize.x; x++)
-      {
-         SDL_RenderDrawLine(game_renderer, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel, 0,
-                            (x * Constant::chunk_size_x) / DEBUG_ZoomLevel,
-                            (Constant::chunk_size_y * maxGridSize.y - 1));
-      }
-      for (int y = 1; y < maxGridSize.y; y++)
-      {
-         SDL_RenderDrawLine(game_renderer, 0, (y * Constant::chunk_size_y) / DEBUG_ZoomLevel,
-                            (Constant::chunk_size_x * maxGridSize.x) - 1,
-                            (y * Constant::chunk_size_y) / DEBUG_ZoomLevel);
-      }
-   }
+   ////TODO Move or remove this
+   //? SDL_SetRenderDrawColor(game_renderer, 50, 50, 50, 50);
+   //? if (DEBUG_DrawChunkLines)
+   //? {
+   //?    const IVec2 maxGridSize((screenSize.x + (Constant::chunk_size_x * 2)) / Constant::chunk_size_x,
+   //?                            (screenSize.y + (Constant::chunk_size_y * 2)) / Constant::chunk_size_y);
+   //?    for (int x = 1; x < maxGridSize.x; x++)
+   //?    {
+   //?       SDL_RenderDrawLine(game_renderer, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel, 0,
+   //?                          (x * Constant::chunk_size_x) / DEBUG_ZoomLevel,
+   //?                          (Constant::chunk_size_y * maxGridSize.y - 1));
+   //?    }
+   //?    for (int y = 1; y < maxGridSize.y; y++)
+   //?    {
+   //?       SDL_RenderDrawLine(game_renderer, 0, (y * Constant::chunk_size_y) / DEBUG_ZoomLevel,
+   //?                          (Constant::chunk_size_x * maxGridSize.x) - 1,
+   //?                          (y * Constant::chunk_size_y) / DEBUG_ZoomLevel);
+   //?    }
+   //? }
    return true;
 }
 
