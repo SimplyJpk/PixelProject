@@ -99,6 +99,11 @@
       <AdditionalLibraryDirectories>D:\Libraries\SDL2\lib\x86;D:\C++\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+      <Command>XCOPY "$(SolutionDir)$(ProjectName)\shaders" "$(TargetDir)shaders\" /S /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -120,6 +125,11 @@
       <AdditionalLibraryDirectories>D:\Libraries\SDL2\lib\x86;D:\C++\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+      <Command>XCOPY "$(SolutionDir)$(ProjectName)\shaders" "$(TargetDir)shaders\" /S /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -136,6 +146,11 @@
       <AdditionalLibraryDirectories>D:\Libraries\SDL2\lib\x64;D:\C++\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+      <Command>XCOPY "$(SolutionDir)$(ProjectName)\shaders" "$(TargetDir)shaders\" /S /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -156,6 +171,11 @@
       <AdditionalLibraryDirectories>D:\Libraries\SDL2\lib\x64;D:\C++\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+      <Command>XCOPY "$(SolutionDir)$(ProjectName)\shaders" "$(TargetDir)shaders\" /S /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_opengl3.cpp" />
@@ -170,6 +190,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="WorldChunk.cpp" />
     <ClCompile Include="WorldDataHandler.cpp" />
     <ClCompile Include="WorldSimulator.cpp" />
@@ -209,6 +230,7 @@
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
+    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="VecHash.h" />
@@ -222,6 +244,8 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
+    <None Include="shaders\default.frag" />
+    <None Include="shaders\default.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

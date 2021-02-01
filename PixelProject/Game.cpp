@@ -113,6 +113,7 @@ void Game::Run()
 
       SDL_GL_SwapWindow(g_window);
 
+      //? Debug Info
       game_settings->stop_watch->UpdateTime("FrameTime", static_cast<duration>(clock::now() - frameStart).count());
 
       frameCounter++;
