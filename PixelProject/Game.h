@@ -9,6 +9,7 @@
 
 #include "PixelTypeIncludes.h"
 #include "Camera.h"
+#include "ShaderManager.h"
 
 #include "Vec2.h"
 
@@ -26,6 +27,8 @@ class Game
 
    WorldSimulator* world_sim;
    Camera* main_cam;
+
+   GLint defaultShader;
 
 public:
    bool Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings);

@@ -1,10 +1,16 @@
 #include "Game.h"
 
+typedef ShaderManager::ShaderTypes ShaderType;
+
 bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings)
 {
    game_settings = settings;
    g_context = gl_context;
    g_window = gl_window;
+   
+   ShaderManager::Instance()->CompileShader("default", ShaderType::Vertex, "shaders/default.vert");
+   ShaderManager::Instance()->CompileShader("default", ShaderType::Fragment, "shaders/default.frag");
+   defaultShader = ShaderManager::Instance()->CreateShaderProgram("default", false);
 
    //TODO Need to find a better place for this. This needs to be done before Paint Manager in instanced.
    WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
