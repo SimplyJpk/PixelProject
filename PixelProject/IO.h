@@ -52,4 +52,20 @@ namespace PixelProject::IO
       std::ofstream of(file);
       of.close();
    }
+
+   inline std::string get_file_contents(const std::string& file, bool needs_base = true)
+   {
+      if (does_file_exist(file, !needs_base))
+      {
+         std::ifstream ifs((needs_base ? SDL_GetBasePath() + file : file));
+         std::string content(
+            (std::istreambuf_iterator<char>(ifs)),
+            (std::istreambuf_iterator<char>()));
+         if (content.length() > 0)
+         {
+            return content;
+         }
+      }
+      return nullptr;
+   }
 }
