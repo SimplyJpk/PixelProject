@@ -266,15 +266,15 @@ bool CreateWindowAndContext(GameSettings* settings)
          printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
       }
 
-      //Initialize Projection Matrix
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
+      ////Initialize Projection Matrix
+      //glMatrixMode(GL_PROJECTION);
+      //glLoadIdentity();
 
-      //Initialize Modelview Matrix
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
+      ////Initialize Modelview Matrix
+      //glMatrixMode(GL_MODELVIEW);
+      //glLoadIdentity();
       //Initialize clear color
-      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
    }
 
