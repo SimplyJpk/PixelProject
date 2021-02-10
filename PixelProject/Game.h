@@ -8,7 +8,7 @@
 #include "WorldSimulator.h"
 
 #include "PixelTypeIncludes.h"
-#include "Camera.h"
+#include "FlyCamera.h"
 #include "ShaderManager.h"
 
 #include "Vec2.h"
@@ -26,7 +26,7 @@ class Game
    PaintManager* paint_manager;
 
    WorldSimulator* world_sim;
-   Camera* main_cam;
+   FlyCamera main_cam;
 
    GLint defaultShader;
 
