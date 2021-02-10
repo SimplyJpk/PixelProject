@@ -17,7 +17,7 @@ public:
    static ShaderManager* Instance();
 
    int CreateShaderProgram(const char* shader_name, bool delete_sources = true);
-
+   
    bool CompileShader(const char* shader_name, const int shader_type, const std::string path);
    bool CompileShader(const char* shader_name, const int shader_type, const char* path);
 

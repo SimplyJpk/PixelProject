@@ -15,11 +15,13 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
 {
    GLuint program = glCreateProgram();
    auto shaderArray = shader_map_[shader_name];
+   int shaders_added = 0;
    for (int i = 0; i < shader_types_count; i++)
    {
-      if (shaderArray != 0)
+      if (shaderArray[i] != 0)
       {
          glAttachShader(program, shaderArray[i]);
+         shaders_added++;
       }
    }
    // Link our program
@@ -37,11 +39,12 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
 
       // Clear Program, and shaders if we're doing that here.
       glDeleteProgram(program);
+      //TODO Tidy this with below #1
       if (delete_sources)
       {
          for (int i = 0; i < shader_types_count; i++)
          {
-            if (shaderArray != 0)
+            if (shaderArray[i] != 0)
             {
                glDeleteShader(shaderArray[i]);
             }
@@ -50,10 +53,22 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
       }
       return - 1;
    }
+   printf("Shader Program '%s' Generated using %i modules\n", shader_name, shaders_added);
    program_id_[shader_name] = program;
    program_name_[program] = shader_name;
+   //TODO Tidy this with above #1
+   if (delete_sources)
+      {
+         for (int i = 0; i < shader_types_count; i++)
+         {
+            if (shaderArray[i] != 0)
+            {
+               glDeleteShader(shaderArray[i]);
+            }
+         }
+         shader_map_.erase(shader_name);
+      }
    return program;
-
 }
 
 GLint ShaderManager::GetProgramID(const char* program_name)
@@ -96,7 +111,7 @@ bool ShaderManager::CompileShader(const char* shader_name, const int shader_type
    GLint result;
    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
    if (GL_FALSE == result) {
-      printf("Vertex shader compilation failed!\nSource: %s", path.c_str());
+      printf("Shader compilation failed!\nSource: %s", path.c_str());
       // Get and print the info log
       GLint logLen;
       glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
