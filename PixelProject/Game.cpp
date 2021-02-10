@@ -7,10 +7,23 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    game_settings = settings;
    g_context = gl_context;
    g_window = gl_window;
-   
-   ShaderManager::Instance()->CompileShader("default", ShaderType::Vertex, "shaders/default.vert");
-   ShaderManager::Instance()->CompileShader("default", ShaderType::Fragment, "shaders/default.frag");
+
+   glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   float aspect = (float)settings->screen_size.x / (float)settings->screen_size.y;
+   glOrtho(-aspect, aspect, -1, 1, -1, 1);
+
+   glMatrixMode(GL_MODELVIEW);
+   glLoadIdentity();
+
+   if (!ShaderManager::Instance()->CompileShader("default", ShaderType::Vertex, "shaders/default.vert"))
+      printf("Failed to generate Vertex Shader");
+   if (!ShaderManager::Instance()->CompileShader("default", ShaderType::Fragment, "shaders/default.frag"))
+      printf("Failed to generate Frag Shader");
+
    defaultShader = ShaderManager::Instance()->CreateShaderProgram("default", false);
+   game_settings->default_shader = defaultShader;
 
    //TODO Need to find a better place for this. This needs to be done before Paint Manager in instanced.
    WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
@@ -23,7 +36,6 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    WorldDataHandler::Instance()->AddPixelData(new AcidPixel());
 
    paint_manager = new PaintManager();
-   game_settings->screen_size = IVec2(game_settings->screen_size.x, game_settings->screen_size.y);
 
    //TODO Needs to be updated to work with new renderer
    //? game_settings->paint_manager->GeneratePixelTextures(renderer);
@@ -35,16 +47,15 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    game_settings->font = nullptr;
    // Input
    input_manager = InputManager::Instance();
+   // Camera
+   main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
+
    // World Sim
    world_sim = new WorldSimulator(game_settings);
    world_sim->paint_manager = paint_manager;
 
-   //TODO Fix Camera
-   main_cam = new Camera(IVec2(0, 0), game_settings);
-   main_cam->Start();
-
    // Store Camera in World Simulator so we don't have to pass it
-   world_sim->cam = main_cam;
+   world_sim->cam = &main_cam;
    world_sim->Start();
 
    return true;
@@ -63,6 +74,8 @@ void Game::Run()
    game_settings->stop_watch->AddTimer("FrameTime");
    game_settings->stop_watch->AddTimer("CurrentFPS");
 
+   auto deltaTime = 0.0f;
+
    //? Debug Info
    auto frameStart = clock::now();
    auto secondCounter = clock::now();
@@ -70,19 +83,23 @@ void Game::Run()
 
    while (!input_manager->IsShuttingDown())
    {
+      deltaTime = (static_cast<duration>(frameStart - clock::now())).count();
       //? Debug Info
       frameStart = clock::now();
 
+      //? ======
       //! Update
       input_manager->Update();
       if (input_manager->IsShuttingDown()) break;
+
+      main_cam.Update(deltaTime);
 
       paint_manager->UpdateInput();
 
       world_sim->UpdateInput();
 
       world_sim->Update();
-      main_cam->Update();
+      //? main_cam->Update();
 
       //? Debug Info
       game_settings->stop_watch->UpdateTime("Update_ms", static_cast<duration>(clock::now() - frameStart).count());
@@ -97,15 +114,15 @@ void Game::Run()
       else { microUpdate++; }
       auto drawStart = clock::now();
 
+      //? ======
       //! Render
       // Clear Screen
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       gui_manager->NewGuiFrame();
 
-      world_sim->Draw(main_cam);
+      world_sim->Draw(&main_cam);
       // Draw some stock GUI with ImGUI
       gui_manager->DrawGui();
-
 
       gui_manager->FinishGuiFrame();
 
