@@ -1,6 +1,7 @@
 #include "WorldSimulator.h"
 
-#include <GL/glu.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 void WorldSimulator::Start()
 {
@@ -66,6 +67,55 @@ void WorldSimulator::Start()
       is_processed_queue.push(is_processed_array_[i]);
    }
 
+   short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
+   short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
+
+   // map_textures = new GLuint[yDim * xDim];
+   glGenTextures(1, &map_textures);
+   glBindTexture(GL_TEXTURE_2D, map_textures);
+        // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, chunks[IVec2(0, 0)]->pixel_colour);
+
+   // int width, height, nrChannels;
+   // unsigned char *data = stbi_load("image.png", &width, &height, &nrChannels, 0);
+   // 
+   // if (data != nullptr)
+   // {
+   //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+   // }
+   // else
+   // {
+   //    printf("Texture failed to load");
+   // }
+   // stbi_image_free(data);
+
+   glUseProgram(game_settings->default_shader);
+   glUniform1i(glGetUniformLocation(game_settings->default_shader, "ourTexture"), 0);
+   //for (int y = 0; y < yDim; y++)
+   //{
+   //   for (int x = 0; x < xDim; x++)
+   //   {
+   //      glBindTexture(GL_TEXTURE_2D, map_textures[(xDim * y) + x]); 
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   //      // set texture filtering parameters
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+   //      //short index = (xDim * y) + x;
+   //      //glBindTexture(GL_TEXTURE_2D, map_textures[index]);
+   //      //glTexImage2D(GL_TEXTURE_2D, 0, GL_BGRA, Constant::chunk_size_x,
+   //      //   Constant::chunk_size_y, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8,
+   //      //   chunks[IVec2(x, y)]->pixel_colour);
+   //   }
+   //}
+
    // Create our world texture, we use this to render the world chunks.
    //? world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING,
    //?                                   game_settings->screen_size.x + (Constant::chunk_size_x * 2),
@@ -81,15 +131,15 @@ void WorldSimulator::Start()
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size)
 {
    // Grab our CameraPosition in Pixels
-   const SDL_Rect cameraPos = cam->view_port;
+   // const SDL_Rect cameraPos = cam->view_port;
    // Calculate the Position of the Camera in the world in Chunks
-   const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-                                         static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
+   // const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
+   //                                       static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
    // Same as above, but now we round to floor
-   const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
-   // Now we remove our position to get our offset
-   const IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-                                         (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+   // const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
+   // // Now we remove our position to get our offset
+   // const IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
+   //                                       (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
 
    const short max = pixel_type->colour_count;
 
@@ -117,10 +167,9 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
          double dist = powf(point.x - x, 2.0) + powf(point.y - y, 2.0);
          if (dist <= radius)
          {
-            chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixel_colour[
-               ((y - (yFloor * Constant::chunk_size_y) - cameraWorldOffset.y) * Constant::chunk_size_x) + (x - (xFloor *
-                     Constant::chunk_size_x) -
-                  cameraWorldOffset.x)
+            chunks[IVec2(xFloor, yFloor)]->pixel_colour[
+               ((y - (yFloor * Constant::chunk_size_y)) * Constant::chunk_size_x) + (x - (xFloor *
+                     Constant::chunk_size_x))
             ] = pixel_type->type_colours[(rand() % max)];
          }
       }
@@ -737,20 +786,22 @@ bool WorldSimulator::Draw(Camera* camera)
    rect.h = Constant::chunk_size_y;
 
    // Grab our CameraPosition in Pixels
-   const SDL_Rect cameraPos = camera->view_port;
+   // const SDL_Rect cameraPos = camera->view_port;
    // Calculate the Position of the Camera in the world in Chunks
-   const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-                                         static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
+   // const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x, static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
    // Same as above, but now we round to floor
-   const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
+   // const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
    // Now we remove our position to get our offset
-   IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-                                   (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+   // IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
+   //                                 (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
    //? printf("CameraWorld X: %f, Y: %f\n", cameraWorldPosition.x, cameraWorldPosition.y);
    //? printf("CameraPixelOffset X: %i, Y: %i\n", cameraWorldOffset.x, cameraWorldOffset.y);
 
+   // glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)game_settings->screen_size.x/(float)game_settings->screen_size.y, 0.1f, 100.0f);
+
    const IVec2 screenSize = game_settings->screen_size;
 
+   int counter = 0;
    //TODO Fix all this vv
    for (int xVal = 0; xVal < max_visible_chunks_on_screen.x; xVal++)
    {
@@ -779,10 +830,49 @@ bool WorldSimulator::Draw(Camera* camera)
          // If part of our visible chunk isn't on screen we need to update the texture a different way
          if (rect.x + Constant::chunk_size_x > max_render_box.x || rect.y + Constant::chunk_size_y > max_render_box.y)
          {
-            //printf("We Skipped X:%i Y:%i\n", XChunk, y + cameraChunk.y);
+            //printf("We Skipped X:%i YourTexture%i\n", XChunk, y + cameraChunk.y);
          }
          else
          {
+            //glBindTexture(GL_TEXTURE_2D, map_textures[(yVal * world_dimensions.y) + xVal]);
+            //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, Constant::chunk_size_x,
+            //Constant::chunk_size_y, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV,
+            //chunks[IVec2(xVal, yVal)]->pixel_colour);
+            
+            glUseProgram(game_settings->default_shader);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, map_textures);
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Constant::chunk_size_x, Constant::chunk_size_y, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, chunks[IVec2(xVal, yVal)]->pixel_colour);
+
+            static float pos = 0.0f;
+            if (InputManager::Instance()->GetKeyDown(KeyCode::V))
+               pos -= 0.01f;
+            else if (InputManager::Instance()->GetKeyDown(KeyCode::B))
+               pos += 0.01f;
+
+            //TODO How to draw all chunks?
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
+            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+
+            // glm::mat4 view = glm::mat4(1.0f);
+            // // note that we're translating the scene in the reverse direction of where we want to move
+            // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -12.0f));
+
+            int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            int viewLoc = glGetUniformLocation(game_settings->default_shader, "view");
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
+            int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+
+
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
             // // We update the texture using the entire chunk data
             // if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixel_colour,
             //                       Constant::chunk_size_x * sizeof(Uint32)) == 0)

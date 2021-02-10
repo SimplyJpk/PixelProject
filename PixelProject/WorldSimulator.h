@@ -1,4 +1,5 @@
 #pragma once
+
 #include <boost/lockfree/queue.hpp>
 #include <boost/asio/thread_pool.hpp>
 #include <boost/thread/win32/mutex.hpp>
@@ -23,6 +24,11 @@
 #include "Constants.h"
 
 #include <SDL_opengl.h>
+
+#include <GL/glu.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace PixelProject;
 using namespace boost;
@@ -60,7 +66,7 @@ public:
    WorldDataHandler* world_data_handler;
    PaintManager* paint_manager;
 
-   SDL_Texture* world_texture = nullptr;
+   //? SDL_Texture* world_texture = nullptr;
 
    bool DEBUG_DrawChunkLines = false;
    bool DEBUG_DropSand = false;
@@ -72,7 +78,21 @@ public:
    u_long DEBUG_FrameCounter = 0;
    float DEBUG_ZoomLevel = 1;
 
-   //std::vector<SDL_Texture*> activeTextures;
+   GLuint map_textures;
+   unsigned int VBO;
+   unsigned int VAO;
+   unsigned int EBO;
+    float vertices[32] = {
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+    };
+    unsigned int indices[6] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
    WorldSimulator(GameSettings* settings)
    {
@@ -90,6 +110,29 @@ public:
                              game_settings->screen_size.y + (Constant::chunk_size_y * 2));
 
       world_data_handler = WorldDataHandler::Instance();
+
+      glGenVertexArrays(1, &VAO);
+      glGenBuffers(1, &VBO);
+      glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
    }
 
    //TODO Chunk object?
