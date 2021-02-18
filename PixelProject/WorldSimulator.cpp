@@ -738,7 +738,9 @@ void WorldSimulator::UpdateInput()
       DEBUG_ZoomLevel += -0.01f;
    }
 
-   if (input->GetKeyDown((KeyCode::S)))
+
+   //TODO Save/Load Manager?
+   if (input->GetKeyDown((KeyCode::SemiColon)))
    {
       for (int x = 0; x < world_dimensions.x; x++)
       {
