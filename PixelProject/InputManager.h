@@ -13,6 +13,9 @@ public:
 
    void Update();
 
+   bool IsAnyKeyDown();
+   bool IsMovementKeysDown();
+
    // Mouse
    // Pressed this frame
    bool GetMouseDown(short button);
@@ -54,6 +57,9 @@ private:
    int mouse_x_ = 0, mouse_y_ = 0;
    IVec2 mouse_pos_ = IVec2::Zero();
    IVec2 mouse_scroll_ = IVec2::Zero();
+
+   bool is_movement_down_ = false;
+   bool is_any_key_down_ = false;
 
    bool is_key_down_[SCANCODE_MAXSIZE]{false};
    bool is_key_up_[SCANCODE_MAXSIZE]{false};
