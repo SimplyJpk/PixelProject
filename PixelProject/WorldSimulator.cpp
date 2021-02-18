@@ -339,6 +339,12 @@ void WorldSimulator::Update()
 
                            auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(
                               neighbourPixels[neighbourIndex]);
+#ifdef DEBUG_GAME
+                           if (pixelNeighbour == nullptr){
+                              printf("WARNING: pixelNeighbour returned NULL\n");
+                              continue;
+                           }
+#endif
                            const auto neighbourType = pixelNeighbour->GetType();
 
                            // Now we ask the Pixel what it wants to do with its neighbour
