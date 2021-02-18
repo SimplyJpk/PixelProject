@@ -54,10 +54,6 @@ public:
    // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
 
-
-   static int16_t GetXVelocity(const Uint16 value) { return (value & Constant::bit_mask_velocity_x) >> 12; }
-   static int16_t GetYVelocity(const Uint16 value) { return (value & Constant::bit_mask_velocity_y) >> 8; }
-
 protected:
    ~BasePixel() = default;
    short chunk_order_counter_ = 0;
