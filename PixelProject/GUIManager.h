@@ -35,6 +35,11 @@ public:
       ImGui_ImplSDL2_InitForOpenGL(window, context);
       ImGui_ImplOpenGL3_Init();
 
+      ImGui::SetWindowSize("Debug Window", ImVec2(240, 240));
+      ImGui::SetWindowPos("Debug Window", ImVec2(settings_->screen_size.x - 245, 15));
+
+      ImGui::SetWindowSize("Frame Data", ImVec2(240, 240));
+      ImGui::SetWindowPos("Frame Data", ImVec2(settings_->screen_size.x - 245, 275));
       g_window = window;
    }
 
@@ -55,8 +60,6 @@ public:
    void DrawFrameData() const
    {
       ImGui::Begin("Frame Data");
-      // ImGui::SetWindowSize(ImVec2(240, 240));
-      // ImGui::SetWindowPos(ImVec2(settings_->screen_size.x - 245, 275));
 
       ImGui::Text(settings_->stop_watch->GetData().c_str());
 
@@ -69,8 +72,6 @@ public:
    {
       DrawFrameData();
       ImGui::Begin("Debug Window");
-      // ImGui::SetWindowSize(ImVec2(240, 240));
-      // ImGui::SetWindowPos(ImVec2(settings_->screen_size.x - 245, 15));
       ImGui::Text("Screen Size: W-%i\tH-%i", settings_->screen_size.x, settings_->screen_size.y);
       ImGui::TextColored(mem_usage.IsMemoryMore() ? red : green, "Memory Used: %ikb",
                          mem_usage.ReturnMemoryUsed() / 1024);
