@@ -9,13 +9,13 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    g_window = gl_window;
 
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   float aspect = (float)settings->screen_size.x / (float)settings->screen_size.y;
-   glOrtho(-aspect, aspect, -1, 1, -1, 1);
+   // glMatrixMode(GL_PROJECTION);
+   // glLoadIdentity();
+   // float aspect = (float)settings->screen_size.x / (float)settings->screen_size.y;
+   // glOrtho(-aspect, aspect, -1, 1, -1, 1);
 
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
+   // glMatrixMode(GL_MODELVIEW);
+   // glLoadIdentity();
 
    if (!ShaderManager::Instance()->CompileShader("default", ShaderType::Vertex, "shaders/default.vert"))
       printf("Failed to generate Vertex Shader");
@@ -74,6 +74,11 @@ void Game::Run()
    game_settings->stop_watch->AddTimer("FrameTime");
    game_settings->stop_watch->AddTimer("CurrentFPS");
 
+   game_settings->stop_watch->AddTimer("SlowestUpdate");
+   game_settings->stop_watch->UpdateTime("SlowestUpdate", 0.0f);
+   game_settings->stop_watch->AddTimer("FastestUpdate");
+   game_settings->stop_watch->UpdateTime("FastestUpdate", 1000.0f);
+
    auto deltaTime = 0.0f;
 
    //? Debug Info
@@ -104,14 +109,21 @@ void Game::Run()
       //? Debug Info
       game_settings->stop_watch->UpdateTime("Update_ms", static_cast<duration>(clock::now() - frameStart).count());
       static float average = 0.f;
-      average += static_cast<std::chrono::nanoseconds>(clock::now() - frameStart).count() / 1000;
+      auto nanoTime = static_cast<std::chrono::nanoseconds>(clock::now() - frameStart).count() / 1000;
+      average += nanoTime;
       static int microUpdate = 0;
+      if (nanoTime > game_settings->stop_watch->GetTime("SlowestUpdate"))
+         game_settings->stop_watch->UpdateTime("SlowestUpdate", nanoTime);
+      if (nanoTime < game_settings->stop_watch->GetTime("FastestUpdate"))
+         game_settings->stop_watch->UpdateTime("FastestUpdate", nanoTime);
+
       if (microUpdate >= 12) {
          game_settings->stop_watch->UpdateTime("Update_micro_avg", average / (microUpdate + 1));
          average = 0.f;
          microUpdate = 0;
       }
       else { microUpdate++; }
+
       auto drawStart = clock::now();
 
       //? ======
