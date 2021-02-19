@@ -11,9 +11,9 @@ public:
       name = "Sand";
       colour_count = 3;
       // Yellows
-      type_colours[0] = 0x00E2D9AE;
-      type_colours[1] = 0x00E8BB9A;
-      type_colours[2] = 0x00EDC9AF;
+      type_colours[0] = 0xE2D9AEFF;
+      type_colours[1] = 0xE8BB9AFF;
+      type_colours[2] = 0xEDC9AFFF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =

@@ -13,9 +13,9 @@ public:
       name = "Fire";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x00E25822;
-      type_colours[1] = 0x00800909;
-      type_colours[2] = 0x00D73502;
+      type_colours[0] = 0xE25822FF;
+      type_colours[1] = 0x800909FF;
+      type_colours[2] = 0xD73502FF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =

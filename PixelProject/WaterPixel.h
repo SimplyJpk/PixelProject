@@ -11,9 +11,9 @@ public:
       name = "Water";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x000000FF;
-      type_colours[1] = 0x002E2EE6;
-      type_colours[2] = 0x001818F3;
+      type_colours[0] = 0x0000FFFF;
+      type_colours[1] = 0x2E2EE6FF;
+      type_colours[2] = 0x1818F3FF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =

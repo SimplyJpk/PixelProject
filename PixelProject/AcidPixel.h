@@ -11,9 +11,9 @@ public:
       name = "Acid";
       colour_count = 3;
       // Yellows
-      type_colours[0] = 0x00B0BF1A;
-      type_colours[1] = 0x00CBE315;
-      type_colours[2] = 0x0000FF00;
+      type_colours[0] = 0xB0BF1AFF;
+      type_colours[1] = 0xCBE315FF;
+      type_colours[2] = 0x00FF00FF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
