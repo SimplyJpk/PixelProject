@@ -277,7 +277,8 @@ void WorldSimulator::Update()
                   3,
                   (x_dir_ == 0 ? 1 : 2),
                };
-               
+
+               bool isPixelsLocal = true;
                for (auto piece : pieceOrder)
                {
                   if (piece == 4)
@@ -285,6 +286,7 @@ void WorldSimulator::Update()
                      neighbourPixels = localPixels;
                      neighbourPixelsData = localPixelsData;
                      neighbourIsProcessed = isProcessed;
+                     isPixelsLocal = true;
                   }
                   /// <summary>
                   /// Our Inner Chunk Update
@@ -313,28 +315,66 @@ void WorldSimulator::Update()
                            // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
                            if (direction == DIR_COUNT) break;
 
-                           short neighbourIndex;
-                           if (piece == 4)
+                           // This will be the case for most updates.
+                           if (!isPixelsLocal)
                            {
-                              neighbourIndex = GetInnerNeighbourIndex(localIndex, direction);
+                              neighbourPixels = localPixels;
+                              neighbourPixelsData = localPixelsData;
+                              neighbourIsProcessed = isProcessed;
+                              isPixelsLocal = true;
                            }
-                           else
+
+                           short neighbourIndex;
+                           uint32_t pixelIndexChange = 0;
+
+                           short maxPixelRange = pixel->MaxUpdateRange();
+                           short borderRange = GetDistanceToBorder(x, y, direction);
+
+                           switch (piece)
                            {
-                              if (GetOuterNeighbourIndex(localIndex, y, x, direction, neighbourIndex))
+                           case 4: // Inner Chunk (No Chunk traversal)
+                              neighbourIndex = localIndex + Constant::pixel_index_direction_change[direction];
+                              break;
+                           case 0: // North
+                              if ((localIndex == Constant::chunk_n_w_corner_index || localIndex == Constant::chunk_n_e_corner_index) && !(direction == E_ChunkDirection::South || direction == E_ChunkDirection::North))
+                                 continue;
+                              pixelIndexChange = Constant::pixel_index_north_border[direction];
+                              direction = E_ChunkDirection::North;
+                              break;
+                           case 1: // East
+                              pixelIndexChange = Constant::pixel_index_east_border[direction];
+                              direction = E_ChunkDirection::East;
+                              break;
+                           case 2: // West
+                              pixelIndexChange = Constant::pixel_index_west_border[direction];
+                              direction = E_ChunkDirection::West;
+                              break;
+                           case 3: // South
+                              if ((localIndex == Constant::chunk_s_w_corner_index || localIndex == Constant::chunk_s_e_corner_index) && !(direction == E_ChunkDirection::South || direction == E_ChunkDirection::North))
+                                 continue;
+                              pixelIndexChange = Constant::pixel_index_south_border[direction];
+                              direction = E_ChunkDirection::South;
+                              break;
+                           }
+
+                           // Piece 4 is Internal Chunk, we know we won't need to worry about chunk traversal
+                           if (piece != 4) {
+                              if ((pixelIndexChange) & (1U << Constant::new_chunk_bit))
                               {
-                                 //TODO Any way to work this out in advance? vv
                                  if (neighbourChunks[direction] == nullptr)
                                     continue;
+                                 //? change &= ~(1 << Constant::new_chunk_bit);
+                                 //TODO We could probably just store what our chunk is and do this if we have to do any updates.
                                  neighbourPixels = neighbourChunks[direction]->pixel_colour;
                                  neighbourPixelsData = neighbourChunks[direction]->pixel_data;
                                  neighbourIsProcessed = is_chunk_processed[neighbourChunks[direction]->position];
+                                 isPixelsLocal = false;
                               }
+                              //? change &= ~(1 << Constant::negative_bit);
+                              if (pixelIndexChange & (1U << Constant::negative_bit))
+                                 neighbourIndex = localIndex - static_cast<short>(pixelIndexChange);
                               else
-                              {
-                                 neighbourPixels = localPixels;
-                                 neighbourPixelsData = localPixelsData;
-                                 neighbourIsProcessed = isProcessed;
-                              }
+                                 neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                            }
 
                            auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(
@@ -432,6 +472,32 @@ void WorldSimulator::Update()
       {
          is_chunk_processed[IVec2(x, y)] = nullptr;
       }
+   }
+}
+
+inline short WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction)
+{
+   //TODO Continue from here
+   switch (direction)
+   {
+   case North:
+      return y + 1;
+   case NorthEast:
+      return (Constant::chunk_size_x - x) < y ? y + 1 : (Constant::chunk_size_x - x);
+   case East:
+      return (Constant::chunk_size_x - x);
+   case SouthEast:
+      return (Constant::chunk_size_x - x) < y ? Constant::chunk_size_y - y + 1 : (Constant::chunk_size_x - x);
+   case South:
+      return Constant::chunk_size_y - y;
+   case SouthWest:
+      return x < y ? x + 1 : Constant::chunk_size_y - y;
+   case West:
+      return x + 1;
+   case NorthWest:
+      return (Constant::chunk_size_x - x) < y ? x + 1 : y + 1;
+   default:
+      return -1;
    }
 }
 

@@ -156,6 +156,7 @@ public:
    bool Draw(Camera* camera) override;
 
 protected:
+   short GetDistanceToBorder(short x, short y, short direction);
    // Ugly, can we improve this?
    short x_dir_ = -1, y_dir_ = 1;
 
