@@ -929,7 +929,8 @@ bool WorldSimulator::Draw(Camera* camera)
             //TODO How to draw all chunks?
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
+            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2) + (0.05f * xVal)), static_cast<float>(-yVal + (world_dimensions.y / 2) - (0.05f * yVal)),0.0f)); 
+            //? model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
             model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
 
             // glm::mat4 view = glm::mat4(1.0f);
@@ -992,12 +993,12 @@ bool WorldSimulator::Draw(Camera* camera)
 void WorldSimulator::DebugShowChunkProcessPieces()
 {
    Uint32 pieceOrderTestColour[] = {
-      0xff000000, // Red
-      0x0000ff00, // Blue
-      0xffff0000, // Yellow
-      0x00ff0000, // Green
-      0xffffff00, // White
-      0xcc00cc00 // Purple
+      0xFF0000FF, // Red
+      0x0000FFFF, // Blue
+      0xFFFF00FF, // Yellow
+      0x00FF00FF, // Green
+      0xFFFFFFFF, // White
+      0xCC00CCCC // Purple
    };
 
    int pieceOrder[] =
