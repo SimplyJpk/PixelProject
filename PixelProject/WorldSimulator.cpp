@@ -178,6 +178,9 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
 void WorldSimulator::Update()
 {
+   DebugDrawPixelRange();
+   return;
+
    //TODO Remove this
    DEBUG_FrameCounter++;
    if (DEBUG_DropSand)
@@ -487,11 +490,11 @@ inline short WorldSimulator::GetDistanceToBorder(const short x, const short y, c
    case East:
       return (Constant::chunk_size_x - x);
    case SouthEast:
-      return (Constant::chunk_size_x - x) < y ? Constant::chunk_size_y - y + 1 : (Constant::chunk_size_x - x);
+      return (Constant::chunk_size_x - x) < y ? (Constant::chunk_size_x - x) : Constant::chunk_size_y - y + 1;
    case South:
       return Constant::chunk_size_y - y;
    case SouthWest:
-      return x < y ? x + 1 : Constant::chunk_size_y - y;
+      return x <= Constant::chunk_size_y - y ? x + 1 : Constant::chunk_size_y - y;
    case West:
       return x + 1;
    case NorthWest:
@@ -1037,4 +1040,63 @@ void WorldSimulator::DebugShowChunkProcessPieces()
          }
       }
    }
+}
+
+void WorldSimulator::DebugDrawPixelRange()
+{
+   if (!InputManager::Instance()->GetKeyDown(KeyCode::R))
+      return;
+
+   ClearWorld();
+
+      Uint32 pixelDepthColour[] = {
+      0x0000FFFF, // Blue
+      0x00FF00FF, // Green
+      0x00e500FF, // Green
+      0x00cc00FF, // Green
+      0x00b200FF, // Green
+      0x009900FF, // Green
+      0x007f00FF, // Green
+      0x006600FF, // Green
+      0x004c00FF, // Green
+      0x003300FF, // Green
+   };
+
+   IVec2 virtualMouse = game_settings->virtual_mouse;
+   if (virtualMouse.x < 0 || virtualMouse.y < 0)
+      return;
+   if (virtualMouse.x > world_dimensions.x * Constant::chunk_size_x || virtualMouse.y > world_dimensions.y * Constant::chunk_size_y)
+      return;
+
+   const auto chunkIndex = IVec2(virtualMouse.x / Constant::chunk_size_x, virtualMouse.y / Constant::chunk_size_y);
+   auto* localPixels = chunks[chunkIndex]->pixel_colour;
+
+   const auto pixelPos = IVec2(virtualMouse.x % Constant::chunk_size_x, virtualMouse.y % Constant::chunk_size_y);
+
+   const short pixelIndex = (pixelPos.y * Constant::chunk_size_x) + pixelPos.x;
+
+   world_data_handler->FillWithPixelUpdateOrders(chunk_direction_order);
+
+   BasePixel* pixel = paint_manager->selected_pixel;
+   short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange();
+
+   const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
+   for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
+   {
+      int direction = pixelDirOrder[directionIndex];
+      // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
+      if (direction == DIR_COUNT) break;
+
+      short borderRange = GetDistanceToBorder(pixelPos.x, pixelPos.y, direction);
+      int neighbourIndex = pixelIndex;
+      for (int pixelRange = 1; pixelRange <= maxPixelRange; pixelRange++)
+      {
+         if (pixelRange == borderRange)
+            break;
+
+         neighbourIndex = neighbourIndex + Constant::pixel_index_direction_change[direction];
+         localPixels[neighbourIndex] = pixelDepthColour[pixelRange];
+      }
+   }
+   localPixels[pixelIndex] = pixelDepthColour[0];
 }

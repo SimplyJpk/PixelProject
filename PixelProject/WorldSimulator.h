@@ -163,17 +163,11 @@ protected:
    bool is_processed_array_[max_process_count][Constant::chunk_total_size];
    boost::lockfree::queue<bool*> used_processed_queue{max_process_count};
 
-   // TODO All seems to mostly work, now we need to work out how to organize these into Directional Bias preferences.. fun
-   // TODO All seems to mostly work, now we need to work out how to organize these into Directional Bias preferences.. fun
-
    short x_loop_from_to_dir_[5][2][3] = {
       // North
       {{0, Constant::chunk_size_x, 1}, {Constant::chunk_size_x - 1, -1, -1}},
       // East
-      {
-         {Constant::chunk_size_x - 1, Constant::chunk_size_x, 1},
-         {Constant::chunk_size_x - 1, Constant::chunk_size_x - 2, -1}
-      },
+      {{Constant::chunk_size_x - 1, Constant::chunk_size_x, 1}, {Constant::chunk_size_x - 1, Constant::chunk_size_x - 2, -1}},
       // West
       {{0, 1, 1}, {0, -1, -1}},
       // South
@@ -209,8 +203,9 @@ protected:
    // Returns the index of the cell in the direction passed in.
    static short GetInnerNeighbourIndex(short local, int direction);
    // Returns the index of the cell in the neighbouring chunk of the index/direction passed in.
-   static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction,
-                                      short& neighbour_index);
+   static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction, short& neighbour_index);
+
+
    // Returns true if the Pixel reacts to the neighbouring pixels type. Fills return_pixels with new pixel types for the two pixels if pixels need to be changed.
    static int8_t CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
                           E_PixelType* return_pixels);
@@ -222,4 +217,5 @@ protected:
 private:
    void ClearWorld();
    void DebugShowChunkProcessPieces();
+   void DebugDrawPixelRange();
 };

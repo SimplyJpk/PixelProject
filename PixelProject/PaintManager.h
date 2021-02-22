@@ -65,12 +65,12 @@ public:
 
    void GeneratePixelTextures(SDL_Renderer* renderer)
    {
-      for (int index = 0; index < static_cast<int>(E_PixelType::COUNT); index ++)
-      {
-         pixel_texture[index] = SDL_CreateTexture(renderer, Constant::texture_default_format_transparency, SDL_TEXTUREACCESS_STATIC, pixel_texture_size, pixel_texture_size);
-         SDL_SetTextureBlendMode(pixel_texture[index], SDL_BLENDMODE_BLEND);
-         SDL_UpdateTexture(pixel_texture[index], nullptr, pixel_icons[index],  pixel_texture_size * sizeof(Uint32));
-      }
+      //? for (int index = 0; index < static_cast<int>(E_PixelType::COUNT); index ++)
+      //? {
+      //?    pixel_texture[index] = SDL_CreateTexture(renderer, Constant::texture_default_format_transparency, SDL_TEXTUREACCESS_STATIC, pixel_texture_size, pixel_texture_size);
+      //?    SDL_SetTextureBlendMode(pixel_texture[index], SDL_BLENDMODE_BLEND);
+      //?    SDL_UpdateTexture(pixel_texture[index], nullptr, pixel_icons[index],  pixel_texture_size * sizeof(Uint32));
+      //? }
    }
 
    void DrawTexture(SDL_Renderer* renderer, const IVec2 position, E_PixelType pixel_type)

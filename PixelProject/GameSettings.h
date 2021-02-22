@@ -7,6 +7,7 @@
 
 #include "ConfigFile.h"
 
+#include "Constants.h"
 struct GameSettings
 {
    GLint default_shader;
@@ -15,7 +16,7 @@ struct GameSettings
    DebugStopWatch* stop_watch = nullptr;
 
    // Temp for Debug
-   IVec2 virtual_mouse = IVec2::Zero();
+   IVec2 virtual_mouse = IVec2(PixelProject::Constant::chunk_size_x / 2, PixelProject::Constant::chunk_size_y / 2);
 
    /* Game Settings that will be global */
    IVec2 screen_size = IVec2(1280, 720);
