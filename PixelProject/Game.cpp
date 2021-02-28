@@ -4,6 +4,9 @@ typedef ShaderManager::ShaderTypes ShaderType;
 
 bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings)
 {
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
    game_settings = settings;
    g_context = gl_context;
    g_window = gl_window;
@@ -53,6 +56,8 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    // World Sim
    world_sim = new WorldSimulator(game_settings);
    world_sim->paint_manager = paint_manager;
+   // Call this after the World_Sim so we know everything is ready.
+   paint_manager->GeneratePixelTextures(game_settings);
 
    // Store Camera in World Simulator so we don't have to pass it
    world_sim->cam = &main_cam;
@@ -136,6 +141,7 @@ void Game::Run()
       // Draw some stock GUI with ImGUI
       gui_manager->DrawGui();
 
+      paint_manager->DrawPaintGUI(&main_cam);
       gui_manager->FinishGuiFrame();
 
       game_settings->stop_watch->UpdateTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
