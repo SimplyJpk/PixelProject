@@ -13,9 +13,9 @@ public:
       name = "Oil";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x00373A36;
-      type_colours[1] = 0x00232522;
-      type_colours[2] = 0x005F615E;
+      type_colours[0] = 0x373A36FF;
+      type_colours[1] = 0x232522FF;
+      type_colours[2] = 0x5F615EFF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -48,7 +48,7 @@ private:
       switch (type)
       {
       case E_PixelType::Water:
-         return pixel_rng_() % odds == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         return rand() % odds == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
       }
       return E_LogicResults::FailedUpdate;
    }

@@ -1,37 +1,46 @@
 #pragma once
-#include "GameSettings.h"
-#include "GameObject.h"
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+#include <SDL.h>
 
-class Camera final : public GameObject
+class Camera
 {
 public:
-   SDL_Rect view_port{};
+   Camera();
+   ~Camera();
 
-   explicit Camera(GameSettings* settings)
-   {
-      SetScreenSize(settings->screen_size);
-   }
+   // Update camera Position and Rotation
+   virtual void Update(float delta);
 
-   Camera(const IVec2& position, GameSettings* settings)
-   {
-      SetScreenSize(settings->screen_size);
-      SetPosition(position);
-   }
+   // Set Perspective view of camera
+   void SetPerspective(float field_of_view, float aspect_ratio, float near, float far);
+   // Look at Vector
+   void SetLookAt(glm::vec3 from, glm::vec3 to, glm::vec3 up);
+   // Set position of Camera
+   void SetPosition(glm::vec3 position);
 
-   void Start() override;
-   void Update() override;
+   glm::mat4 GetWorldTransform();
+   glm::mat4 GetView();
+   glm::mat4 GetProjection();
+   glm::mat4 GetProjectionView();
 
-   void SetScreenSize(const IVec2& size)
-   {
-      view_port.h = size.y;
-      view_port.w = size.x;
-   }
+   void SetWorldTrans(glm::mat4 transform);
 
-   void SetPosition(const IVec2& pos)
-   {
-      view_port.x = pos.x;
-      view_port.y = pos.y;
-   }
+   glm::vec3 GetPosition();
+   glm::vec3 Row(int row);
+   glm::vec4* GetFrustumPlanes();
 
+protected:
+   // Generates the Frustum when ever the Camera moves
+   void GenerateFrustum();
+   glm::vec4 frustum_[6];
 private:
+   glm::mat4 world_transform_;
+   glm::mat4 view_transform_;
+   glm::mat4 projection_transform_;
+   glm::mat4 projection_view_transform_;
+
+   void UpdateProjectionView();
+   void UpdateWorldTransform();
 };
+

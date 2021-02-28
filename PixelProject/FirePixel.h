@@ -13,9 +13,9 @@ public:
       name = "Fire";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x00E25822;
-      type_colours[1] = 0x00800909;
-      type_colours[2] = 0x00D73502;
+      type_colours[0] = 0xE25822FF;
+      type_colours[1] = 0x800909FF;
+      type_colours[2] = 0xD73502FF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -54,13 +54,13 @@ private:
       switch (type)
       {
       case E_PixelType::Space:
-         if (pixel_rng_() % 30 == 0)
+         if (rand() % 30 == 0)
          {
             return_pixels[0] = E_PixelType::Space;
             return_pixels[1] = E_PixelType::Space;
             return E_LogicResults::DualReturnPixel;
          }
-         return pixel_rng_() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         return rand() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
 
 
       case E_PixelType::Oil:
@@ -70,7 +70,7 @@ private:
 
 
       case E_PixelType::Wood:
-         if (pixel_rng_() % 13 == 0)
+         if (rand() % 13 == 0)
          {
             return_pixels[0] = E_PixelType::Fire;
             return_pixels[1] = E_PixelType::Fire;

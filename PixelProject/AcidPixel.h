@@ -11,9 +11,9 @@ public:
       name = "Acid";
       colour_count = 3;
       // Yellows
-      type_colours[0] = 0x00B0BF1A;
-      type_colours[1] = 0x00CBE315;
-      type_colours[2] = 0x0000FF00;
+      type_colours[0] = 0xB0BF1AFF;
+      type_colours[1] = 0xCBE315FF;
+      type_colours[2] = 0x00FF00FF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -47,7 +47,7 @@ private:
 
          // 3 in 4 chance to move down in water, otherwise we convert the Acid into water
       case E_PixelType::Water:
-         if (pixel_rng_() % 10 != 0)
+         if (rand() % 10 != 0)
             return E_LogicResults::SuccessUpdate;
          else {
             return_pixels[0] = E_PixelType::Water;
@@ -55,7 +55,7 @@ private:
          }
 
       case E_PixelType::Acid:
-         if (pixel_rng_() % 6 == 0)
+         if (rand() % 6 == 0)
             return E_LogicResults::NoChange;
          return E_LogicResults::FailedUpdate;
 
@@ -63,7 +63,7 @@ private:
          return E_LogicResults::FailedUpdate;
 
       default:
-         int test = pixel_rng_() % 5;
+         int test = rand() % 5;
          if (test <= 1)
          {
             return_pixels[0] = E_PixelType::Space;

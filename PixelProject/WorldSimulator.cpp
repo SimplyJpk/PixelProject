@@ -1,15 +1,7 @@
 #include "WorldSimulator.h"
-#include <cmath>
-#include <map>
-#include "Camera.h"
-#include <thread>
-#include <vector>
-#include <atomic>
 
-#include "Logger.h"
-#include "InputManager.h"
-
-#include <math.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 void WorldSimulator::Start()
 {
@@ -75,29 +67,79 @@ void WorldSimulator::Start()
       is_processed_queue.push(is_processed_array_[i]);
    }
 
+   short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
+   short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
+
+   // map_textures = new GLuint[yDim * xDim];
+   glGenTextures(1, &map_textures);
+   glBindTexture(GL_TEXTURE_2D, map_textures);
+        // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, chunks[IVec2(0, 0)]->pixel_colour);
+
+   // int width, height, nrChannels;
+   // unsigned char *data = stbi_load("image.png", &width, &height, &nrChannels, 0);
+   // 
+   // if (data != nullptr)
+   // {
+   //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+   // }
+   // else
+   // {
+   //    printf("Texture failed to load");
+   // }
+   // stbi_image_free(data);
+
+   glUseProgram(game_settings->default_shader);
+   glUniform1i(glGetUniformLocation(game_settings->default_shader, "ourTexture"), 0);
+   //for (int y = 0; y < yDim; y++)
+   //{
+   //   for (int x = 0; x < xDim; x++)
+   //   {
+   //      glBindTexture(GL_TEXTURE_2D, map_textures[(xDim * y) + x]); 
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   //      // set texture filtering parameters
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   //      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+   //      //short index = (xDim * y) + x;
+   //      //glBindTexture(GL_TEXTURE_2D, map_textures[index]);
+   //      //glTexImage2D(GL_TEXTURE_2D, 0, GL_BGRA, Constant::chunk_size_x,
+   //      //   Constant::chunk_size_y, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8,
+   //      //   chunks[IVec2(x, y)]->pixel_colour);
+   //   }
+   //}
+
    // Create our world texture, we use this to render the world chunks.
-   world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING,
-                                     game_settings->screen_size.x + (Constant::chunk_size_x * 2),
-                                     game_settings->screen_size.y + (Constant::chunk_size_y * 2));
-   if (world_texture == nullptr)
-   {
-      printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
-      SDL_ClearError();
-   }
+   //? world_texture = SDL_CreateTexture(game_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING,
+   //?                                   game_settings->screen_size.x + (Constant::chunk_size_x * 2),
+   //?                                   game_settings->screen_size.y + (Constant::chunk_size_y * 2));
+
+   //? if (world_texture == nullptr)
+   //? {
+   //?    printf("WorldTexture failed to Init\nError:%s\n", SDL_GetError());
+   //?    SDL_ClearError();
+   //? }
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size)
 {
    // Grab our CameraPosition in Pixels
-   const SDL_Rect cameraPos = cam->view_port;
+   // const SDL_Rect cameraPos = cam->view_port;
    // Calculate the Position of the Camera in the world in Chunks
-   const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-                                         static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
+   // const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
+   //                                       static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
    // Same as above, but now we round to floor
-   const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
-   // Now we remove our position to get our offset
-   const IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-                                         (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+   // const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
+   // // Now we remove our position to get our offset
+   // const IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
+   //                                       (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
 
    const short max = pixel_type->colour_count;
 
@@ -125,11 +167,10 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
          double dist = powf(point.x - x, 2.0) + powf(point.y - y, 2.0);
          if (dist <= radius)
          {
-            chunks[IVec2(xFloor + cameraChunk.x, yFloor + cameraChunk.y)]->pixel_colour[
-               ((y - (yFloor * Constant::chunk_size_y) - cameraWorldOffset.y) * Constant::chunk_size_x) + (x - (xFloor *
-                     Constant::chunk_size_x) -
-                  cameraWorldOffset.x)
-            ] = pixel_type->type_colours[(rng() % max)];
+            chunks[IVec2(xFloor, yFloor)]->pixel_colour[
+               ((y - (yFloor * Constant::chunk_size_y)) * Constant::chunk_size_x) + (x - (xFloor *
+                     Constant::chunk_size_x))
+            ] = pixel_type->type_colours[(rand() % max)];
          }
       }
    }
@@ -137,6 +178,9 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
 void WorldSimulator::Update()
 {
+   //? DebugDrawPixelRange();
+   //? return;
+
    //TODO Remove this
    DEBUG_FrameCounter++;
    if (DEBUG_DropSand)
@@ -147,9 +191,9 @@ void WorldSimulator::Update()
       {
          for (int xDim = 0; xDim < Constant::chunk_size_x; xDim++)
          {
-            if (rng() % DEBUG_SandDropRate == 0)
+            if (rand() % DEBUG_SandDropRate == 0)
             {
-               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rng() % maxSandColours)];
+               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rand() % maxSandColours)];
             }
          }
       }
@@ -236,7 +280,8 @@ void WorldSimulator::Update()
                   3,
                   (x_dir_ == 0 ? 1 : 2),
                };
-               
+
+               bool isPixelsLocal = true;
                for (auto piece : pieceOrder)
                {
                   if (piece == 4)
@@ -244,6 +289,7 @@ void WorldSimulator::Update()
                      neighbourPixels = localPixels;
                      neighbourPixelsData = localPixelsData;
                      neighbourIsProcessed = isProcessed;
+                     isPixelsLocal = true;
                   }
                   /// <summary>
                   /// Our Inner Chunk Update
@@ -272,32 +318,76 @@ void WorldSimulator::Update()
                            // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
                            if (direction == DIR_COUNT) break;
 
-                           short neighbourIndex;
-                           if (piece == 4)
+                           // This will be the case for most updates.
+                           if (!isPixelsLocal)
                            {
-                              neighbourIndex = GetInnerNeighbourIndex(localIndex, direction);
+                              neighbourPixels = localPixels;
+                              neighbourPixelsData = localPixelsData;
+                              neighbourIsProcessed = isProcessed;
+                              isPixelsLocal = true;
                            }
-                           else
+
+                           short neighbourIndex;
+                           uint32_t pixelIndexChange = 0;
+
+                           short maxPixelRange = pixel->MaxUpdateRange();
+                           short borderRange = GetDistanceToBorder(x, y, direction);
+
+                           switch (piece)
                            {
-                              if (GetOuterNeighbourIndex(localIndex, y, x, direction, neighbourIndex))
+                           case 4: // Inner Chunk (No Chunk traversal)
+                              neighbourIndex = localIndex + Constant::pixel_index_direction_change[direction];
+                              break;
+                           case 0: // North
+                              if ((localIndex == Constant::chunk_n_w_corner_index || localIndex == Constant::chunk_n_e_corner_index) && !(direction == E_ChunkDirection::South || direction == E_ChunkDirection::North))
+                                 continue;
+                              pixelIndexChange = Constant::pixel_index_north_border[direction];
+                              direction = E_ChunkDirection::North;
+                              break;
+                           case 1: // East
+                              pixelIndexChange = Constant::pixel_index_east_border[direction];
+                              direction = E_ChunkDirection::East;
+                              break;
+                           case 2: // West
+                              pixelIndexChange = Constant::pixel_index_west_border[direction];
+                              direction = E_ChunkDirection::West;
+                              break;
+                           case 3: // South
+                              if ((localIndex == Constant::chunk_s_w_corner_index || localIndex == Constant::chunk_s_e_corner_index) && !(direction == E_ChunkDirection::South || direction == E_ChunkDirection::North))
+                                 continue;
+                              pixelIndexChange = Constant::pixel_index_south_border[direction];
+                              direction = E_ChunkDirection::South;
+                              break;
+                           }
+
+                           // Piece 4 is Internal Chunk, we know we won't need to worry about chunk traversal
+                           if (piece != 4) {
+                              if ((pixelIndexChange) & (1U << Constant::new_chunk_bit))
                               {
-                                 //TODO Any way to work this out in advance? vv
                                  if (neighbourChunks[direction] == nullptr)
                                     continue;
+                                 //? change &= ~(1 << Constant::new_chunk_bit);
+                                 //TODO We could probably just store what our chunk is and do this if we have to do any updates.
                                  neighbourPixels = neighbourChunks[direction]->pixel_colour;
                                  neighbourPixelsData = neighbourChunks[direction]->pixel_data;
                                  neighbourIsProcessed = is_chunk_processed[neighbourChunks[direction]->position];
+                                 isPixelsLocal = false;
                               }
+                              //? change &= ~(1 << Constant::negative_bit);
+                              if (pixelIndexChange & (1U << Constant::negative_bit))
+                                 neighbourIndex = localIndex - static_cast<short>(pixelIndexChange);
                               else
-                              {
-                                 neighbourPixels = localPixels;
-                                 neighbourPixelsData = localPixelsData;
-                                 neighbourIsProcessed = isProcessed;
-                              }
+                                 neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                            }
 
                            auto* pixelNeighbour = world_data_handler->GetPixelFromPixelColour(
                               neighbourPixels[neighbourIndex]);
+#ifdef DEBUG_GAME
+                           if (pixelNeighbour == nullptr){
+                              printf("WARNING: pixelNeighbour returned NULL\n");
+                              continue;
+                           }
+#endif
                            const auto neighbourType = pixelNeighbour->GetType();
 
                            // Now we ask the Pixel what it wants to do with its neighbour
@@ -385,6 +475,29 @@ void WorldSimulator::Update()
       {
          is_chunk_processed[IVec2(x, y)] = nullptr;
       }
+   }
+}
+
+inline short WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction)
+{
+   switch (direction)
+   {
+   case North:
+      return y + 1;
+   case NorthEast:
+      return std::min(y + 1,Constant::chunk_size_x - x );
+   case East:
+      return Constant::chunk_size_x - x;
+   case SouthEast:
+      return std::min(Constant::chunk_size_x - x , Constant::chunk_size_y - y);
+   case South:
+      return Constant::chunk_size_y - y;
+   case SouthWest:
+      return std::min(Constant::chunk_size_y - y, x + 1);
+   case West:
+      return x + 1;
+   case NorthWest:
+      return std::min( x + 1, y + 1);
    }
 }
 
@@ -619,7 +732,7 @@ void WorldSimulator::UpdateInput()
 
    if (input->GetMouseButton(MouseLeft))
    {
-      Pen(mousePos, game_settings->paint_manager->selected_pixel, DEBUG_PenSize);
+      Pen(mousePos, paint_manager->selected_pixel, DEBUG_PenSize);
    }
    if (input->GetMouseButton(MouseRight))
    {
@@ -697,7 +810,9 @@ void WorldSimulator::UpdateInput()
       DEBUG_ZoomLevel += -0.01f;
    }
 
-   if (input->GetKeyDown((KeyCode::S)))
+
+   //TODO Save/Load Manager?
+   if (input->GetKeyDown((KeyCode::SemiColon)))
    {
       for (int x = 0; x < world_dimensions.x; x++)
       {
@@ -745,20 +860,22 @@ bool WorldSimulator::Draw(Camera* camera)
    rect.h = Constant::chunk_size_y;
 
    // Grab our CameraPosition in Pixels
-   const SDL_Rect cameraPos = camera->view_port;
+   // const SDL_Rect cameraPos = camera->view_port;
    // Calculate the Position of the Camera in the world in Chunks
-   const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-                                         static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
+   // const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x, static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
    // Same as above, but now we round to floor
-   const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
+   // const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
    // Now we remove our position to get our offset
-   IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-                                   (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+   // IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
+   //                                 (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
    //? printf("CameraWorld X: %f, Y: %f\n", cameraWorldPosition.x, cameraWorldPosition.y);
    //? printf("CameraPixelOffset X: %i, Y: %i\n", cameraWorldOffset.x, cameraWorldOffset.y);
 
+   // glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)game_settings->screen_size.x/(float)game_settings->screen_size.y, 0.1f, 100.0f);
+
    const IVec2 screenSize = game_settings->screen_size;
 
+   int counter = 0;
    //TODO Fix all this vv
    for (int xVal = 0; xVal < max_visible_chunks_on_screen.x; xVal++)
    {
@@ -769,7 +886,7 @@ bool WorldSimulator::Draw(Camera* camera)
          xVal = max_visible_chunks_on_screen.x;
          continue;
       }
-
+   
       for (int yVal = 0; yVal < max_visible_chunks_on_screen.y; yVal++)
       {
          const int yChunk = yVal; // cameraChunk.y;
@@ -779,23 +896,64 @@ bool WorldSimulator::Draw(Camera* camera)
             yVal = max_visible_chunks_on_screen.y;
             continue;
          }
-
+      
          // We add one just to center the world based on how we're rendering (Bad choice)
          rect.x = ((xVal + 1) * Constant::chunk_size_x); // +cameraWorldOffset.x;
          rect.y = ((yVal + 1) * Constant::chunk_size_y); // +cameraWorldOffset.y;
-
+      
          // If part of our visible chunk isn't on screen we need to update the texture a different way
          if (rect.x + Constant::chunk_size_x > max_render_box.x || rect.y + Constant::chunk_size_y > max_render_box.y)
          {
-            //printf("We Skipped X:%i Y:%i\n", XChunk, y + cameraChunk.y);
+            //printf("We Skipped X:%i YourTexture%i\n", XChunk, y + cameraChunk.y);
          }
          else
          {
-            // We update the texture using the entire chunk data
-            if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixel_colour,
-                                  Constant::chunk_size_x * sizeof(Uint32)))
-            {
-            }
+            //glBindTexture(GL_TEXTURE_2D, map_textures[(yVal * world_dimensions.y) + xVal]);
+            //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, Constant::chunk_size_x,
+            //Constant::chunk_size_y, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV,
+            //chunks[IVec2(xVal, yVal)]->pixel_colour);
+            
+            glUseProgram(game_settings->default_shader);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, map_textures);
+
+            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Constant::chunk_size_x, Constant::chunk_size_y, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, chunks[IVec2(xVal, yVal)]->pixel_colour);
+
+            //TODO Fix this so it isn't trash vv
+            static float pos = 0.0f;
+            if (InputManager::Instance()->GetKeyDown(KeyCode::V))
+               pos -= 0.01f;
+            else if (InputManager::Instance()->GetKeyDown(KeyCode::B))
+               pos += 0.01f;
+
+            //TODO How to draw all chunks?
+
+            glm::mat4 model = glm::mat4(1.0f);
+            //? model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2) + (0.05f * xVal)), static_cast<float>(-yVal + (world_dimensions.y / 2) - (0.05f * yVal)),0.0f)); 
+            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
+            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+
+            // glm::mat4 view = glm::mat4(1.0f);
+            // // note that we're translating the scene in the reverse direction of where we want to move
+            // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -12.0f));
+
+            int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            int viewLoc = glGetUniformLocation(game_settings->default_shader, "view");
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
+            int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+
+
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+            // // We update the texture using the entire chunk data
+            // if (SDL_UpdateTexture(world_texture, &rect, chunks[IVec2(xChunk, yChunk)]->pixel_colour,
+            //                       Constant::chunk_size_x * sizeof(Uint32)) == 0)
+            // {
+            // }
          }
       }
    }
@@ -805,43 +963,43 @@ bool WorldSimulator::Draw(Camera* camera)
    zoomrect.w *= DEBUG_ZoomLevel;
    zoomrect.h *= DEBUG_ZoomLevel;
 
-   if (SDL_RenderCopy(game_renderer, world_texture, &zoomrect, nullptr) != 0)
-   {
-      printf("WorldRender Failed!\nError:%s\n", SDL_GetError());
-      SDL_ClearError();
-   }
+   //? if (SDL_RenderCopy(game_renderer, world_texture, &zoomrect, nullptr) != 0)
+   //? {
+   //?    printf("WorldRender Failed!\nError:%s\n", SDL_GetError());
+   //?    SDL_ClearError();
+   //? }
 
-   //TODO Move or remove this
-   SDL_SetRenderDrawColor(game_renderer, 50, 50, 50, 50);
-   if (DEBUG_DrawChunkLines)
-   {
-      const IVec2 maxGridSize((screenSize.x + (Constant::chunk_size_x * 2)) / Constant::chunk_size_x,
-                              (screenSize.y + (Constant::chunk_size_y * 2)) / Constant::chunk_size_y);
-      for (int x = 1; x < maxGridSize.x; x++)
-      {
-         SDL_RenderDrawLine(game_renderer, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel, 0,
-                            (x * Constant::chunk_size_x) / DEBUG_ZoomLevel,
-                            (Constant::chunk_size_y * maxGridSize.y - 1));
-      }
-      for (int y = 1; y < maxGridSize.y; y++)
-      {
-         SDL_RenderDrawLine(game_renderer, 0, (y * Constant::chunk_size_y) / DEBUG_ZoomLevel,
-                            (Constant::chunk_size_x * maxGridSize.x) - 1,
-                            (y * Constant::chunk_size_y) / DEBUG_ZoomLevel);
-      }
-   }
+   ////TODO Move or remove this
+   //? SDL_SetRenderDrawColor(game_renderer, 50, 50, 50, 50);
+   //? if (DEBUG_DrawChunkLines)
+   //? {
+   //?    const IVec2 maxGridSize((screenSize.x + (Constant::chunk_size_x * 2)) / Constant::chunk_size_x,
+   //?                            (screenSize.y + (Constant::chunk_size_y * 2)) / Constant::chunk_size_y);
+   //?    for (int x = 1; x < maxGridSize.x; x++)
+   //?    {
+   //?       SDL_RenderDrawLine(game_renderer, (x * Constant::chunk_size_x) / DEBUG_ZoomLevel, 0,
+   //?                          (x * Constant::chunk_size_x) / DEBUG_ZoomLevel,
+   //?                          (Constant::chunk_size_y * maxGridSize.y - 1));
+   //?    }
+   //?    for (int y = 1; y < maxGridSize.y; y++)
+   //?    {
+   //?       SDL_RenderDrawLine(game_renderer, 0, (y * Constant::chunk_size_y) / DEBUG_ZoomLevel,
+   //?                          (Constant::chunk_size_x * maxGridSize.x) - 1,
+   //?                          (y * Constant::chunk_size_y) / DEBUG_ZoomLevel);
+   //?    }
+   //? }
    return true;
 }
 
 void WorldSimulator::DebugShowChunkProcessPieces()
 {
    Uint32 pieceOrderTestColour[] = {
-      0xff000000, // Red
-      0x0000ff00, // Blue
-      0xffff0000, // Yellow
-      0x00ff0000, // Green
-      0xffffff00, // White
-      0xcc00cc00 // Purple
+      0xFF0000FF, // Red
+      0x0000FFFF, // Blue
+      0xFFFF00FF, // Yellow
+      0x00FF00FF, // Green
+      0xFFFFFFFF, // White
+      0xCC00CCCC // Purple
    };
 
    int pieceOrder[] =
@@ -880,4 +1038,63 @@ void WorldSimulator::DebugShowChunkProcessPieces()
          }
       }
    }
+}
+
+void WorldSimulator::DebugDrawPixelRange()
+{
+   if (!InputManager::Instance()->GetKeyDown(KeyCode::R))
+      return;
+
+   ClearWorld();
+
+      Uint32 pixelDepthColour[] = {
+      0x0000FFFF, // Blue
+      0x00FF00FF, // Green
+      0x00e500FF, // Green
+      0x00cc00FF, // Green
+      0x00b200FF, // Green
+      0x009900FF, // Green
+      0x007f00FF, // Green
+      0x006600FF, // Green
+      0x004c00FF, // Green
+      0x003300FF, // Green
+   };
+
+   IVec2 virtualMouse = game_settings->virtual_mouse;
+   if (virtualMouse.x < 0 || virtualMouse.y < 0)
+      return;
+   if (virtualMouse.x > world_dimensions.x * Constant::chunk_size_x || virtualMouse.y > world_dimensions.y * Constant::chunk_size_y)
+      return;
+
+   const auto chunkIndex = IVec2(virtualMouse.x / Constant::chunk_size_x, virtualMouse.y / Constant::chunk_size_y);
+   auto* localPixels = chunks[chunkIndex]->pixel_colour;
+
+   const auto pixelPos = IVec2(virtualMouse.x % Constant::chunk_size_x, virtualMouse.y % Constant::chunk_size_y);
+
+   const short pixelIndex = (pixelPos.y * Constant::chunk_size_x) + pixelPos.x;
+
+   world_data_handler->FillWithPixelUpdateOrders(chunk_direction_order);
+
+   BasePixel* pixel = paint_manager->selected_pixel;
+   short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange();
+
+   const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
+   for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
+   {
+      int direction = pixelDirOrder[directionIndex];
+      // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
+      if (direction == DIR_COUNT) break;
+
+      short borderRange = GetDistanceToBorder(pixelPos.x, pixelPos.y, direction);
+      int neighbourIndex = pixelIndex;
+      for (int pixelRange = 1; pixelRange <= maxPixelRange; pixelRange++)
+      {
+         if (pixelRange >= borderRange)
+            break;
+
+         neighbourIndex = neighbourIndex + Constant::pixel_index_direction_change[direction];
+         localPixels[neighbourIndex] = pixelDepthColour[pixelRange];
+      }
+   }
+   localPixels[pixelIndex] = pixelDepthColour[0];
 }

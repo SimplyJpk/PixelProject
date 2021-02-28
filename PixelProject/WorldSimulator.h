@@ -1,8 +1,15 @@
 #pragma once
+
+#include <boost/lockfree/queue.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <boost/thread/win32/mutex.hpp>
+#include <boost/asio/post.hpp>
+
 #include <vector>
 #include <iostream>
 #include <unordered_map>
 
+#include "PaintManager.h"
 #include <SDL.h>
 #include "Vec2.h"
 #include "VecHash.h"
@@ -10,40 +17,39 @@
 #include "GameSettings.h"
 #include "WorldChunk.h"
 #include "WorldDataHandler.h"
+#include "Camera.h"
 
-#include <boost/asio/post.hpp>
-#include <boost/asio/thread_pool.hpp>
-#include <boost/thread/win32/mutex.hpp>
-
-#include "SDL_FontCache/SDL_FontCache.h"
+#include <atomic>
 
 #include "Constants.h"
 
-#include <ctime>
-#include "./lib/XoshiroCpp.hpp"
+#include <SDL_opengl.h>
 
-#include <boost/lockfree/queue.hpp>
-#include <queue>
+#include <GL/glu.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace PixelProject;
+using namespace boost;
 
 class WorldSimulator final : public GameObject
 {
    //TODO Need to make an update config for each type of terrain
 public:
-
+   
    const IVec2 world_dimensions = IVec2(Constant::world_size_x, Constant::world_size_y);
 
    std::atomic<int> thread_pool_tasks = 0;
-   boost::asio::thread_pool thread_pool{32};
+   asio::thread_pool thread_pool{ 32 };
    const static int max_process_count = 100;
 
-   boost::lockfree::queue<bool*> is_processed_queue{max_process_count};
+   lockfree::queue<bool*> is_processed_queue{ max_process_count };
 
    // Might be worth looking into a different way to do this, this saves allocations but not sure if there is much benefit
    short* chunk_direction_order[static_cast<short>(E_PixelType::COUNT)];
 
-   XoshiroCpp::Xoroshiro128PlusPlus rng;
+   // XoshiroCpp::Xoroshiro128PlusPlus rng;
    // Most chunks that could be rendered at any time, we use this to quickly cull any impossible to render chunks
    IVec2 max_visible_chunks_on_screen = IVec2::Zero();
 
@@ -54,13 +60,13 @@ public:
 
    IVec2 pixel_world_dimensions;
 
-   SDL_Renderer* game_renderer;
    const int max_active_chunks = 12;
 
    GameSettings* game_settings;
    WorldDataHandler* world_data_handler;
+   PaintManager* paint_manager;
 
-   SDL_Texture* world_texture = nullptr;
+   //? SDL_Texture* world_texture = nullptr;
 
    bool DEBUG_DrawChunkLines = false;
    bool DEBUG_DropSand = false;
@@ -72,25 +78,61 @@ public:
    u_long DEBUG_FrameCounter = 0;
    float DEBUG_ZoomLevel = 1;
 
-   //std::vector<SDL_Texture*> activeTextures;
+   GLuint map_textures;
+   unsigned int VBO;
+   unsigned int VAO;
+   unsigned int EBO;
+   float vertices[20] = {
+      // positions                    // texture coords
+       0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
+       0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+      -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
+      -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
+   };
+   unsigned int indices[6] = {
+       0, 1, 3, // first triangle
+       1, 2, 3  // second triangle
+   };
 
-   WorldSimulator(SDL_Renderer* renderer, GameSettings* settings)
+   WorldSimulator(GameSettings* settings)
    {
       //TODO Should have this be an offset from the camera?
       world_render_rect = {
          Constant::chunk_size_x, Constant::chunk_size_y, settings->screen_size.x, settings->screen_size.y
       };
-      game_renderer = renderer;
       game_settings = settings;
       // We calculate the max number of visible chunks on screen
       //? Do we need to add 2? Is this enough? Is it to much?
       max_visible_chunks_on_screen = IVec2((game_settings->screen_size.x / Constant::chunk_size_x) + 2,
-                                           (game_settings->screen_size.y / Constant::chunk_size_y) + 2);
+         (game_settings->screen_size.y / Constant::chunk_size_y) + 2);
       // Max pixel width/height allowed for the texture
       max_render_box = IVec2(game_settings->screen_size.x + (Constant::chunk_size_x * 2),
-                             game_settings->screen_size.y + (Constant::chunk_size_y * 2));
+         game_settings->screen_size.y + (Constant::chunk_size_y * 2));
 
       world_data_handler = WorldDataHandler::Instance();
+
+      glGenVertexArrays(1, &VAO);
+      glGenBuffers(1, &VBO);
+      glGenBuffers(1, &EBO);
+
+      glBindVertexArray(VAO);
+
+      glBindBuffer(GL_ARRAY_BUFFER, VBO);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
+
+      // position attribute
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+      glEnableVertexAttribArray(0);
+      //x // color attribute
+      //x glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+      //x glEnableVertexAttribArray(1);
+      // texture coord attribute
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+      glEnableVertexAttribArray(1);
+
    }
 
    //TODO Chunk object?
@@ -114,23 +156,28 @@ public:
    bool Draw(Camera* camera) override;
 
 protected:
+   short GetDistanceToBorder(short x, short y, short direction);
    // Ugly, can we improve this?
    short x_dir_ = -1, y_dir_ = 1;
 
    bool is_processed_array_[max_process_count][Constant::chunk_total_size];
-   boost::lockfree::queue<bool*> used_processed_queue{max_process_count};
+   boost::lockfree::queue<bool*> used_processed_queue{ max_process_count };
 
-   // TODO All seems to mostly work, now we need to work out how to organize these into Directional Bias preferences.. fun
-   // TODO All seems to mostly work, now we need to work out how to organize these into Directional Bias preferences.. fun
+   short x_loop_from_to_[2][3] = {
+      {0, Constant::chunk_size_x, 1},
+      {Constant::chunk_size_x - 1, -1, -1}
+   };
+   short y_loop_from_to_[2][3] = {
+   {0, Constant::chunk_size_y, 1},
+      {Constant::chunk_size_y - 1, -1, -1}
+   };
+
 
    short x_loop_from_to_dir_[5][2][3] = {
       // North
       {{0, Constant::chunk_size_x, 1}, {Constant::chunk_size_x - 1, -1, -1}},
       // East
-      {
-         {Constant::chunk_size_x - 1, Constant::chunk_size_x, 1},
-         {Constant::chunk_size_x - 1, Constant::chunk_size_x - 2, -1}
-      },
+      {{Constant::chunk_size_x - 1, Constant::chunk_size_x, 1}, {Constant::chunk_size_x - 1, Constant::chunk_size_x - 2, -1}},
       // West
       {{0, 1, 1}, {0, -1, -1}},
       // South
@@ -166,17 +213,19 @@ protected:
    // Returns the index of the cell in the direction passed in.
    static short GetInnerNeighbourIndex(short local, int direction);
    // Returns the index of the cell in the neighbouring chunk of the index/direction passed in.
-   static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction,
-                                      short& neighbour_index);
+   static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction, short& neighbour_index);
+
+
    // Returns true if the Pixel reacts to the neighbouring pixels type. Fills return_pixels with new pixel types for the two pixels if pixels need to be changed.
    static int8_t CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
-                          E_PixelType* return_pixels);
+      E_PixelType* return_pixels);
 
    static bool DoesChunkHaveNeighbour(WorldChunk** neighbours, short direction);
    static void ProcessLogicResults(WorldDataHandler* data_handler, const E_PixelType return_pixels[2],
-                                   Uint32& from_pixel, Uint32& to_pixel);
+      Uint32& from_pixel, Uint32& to_pixel);
 
 private:
    void ClearWorld();
    void DebugShowChunkProcessPieces();
+   void DebugDrawPixelRange();
 };

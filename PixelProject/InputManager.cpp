@@ -21,14 +21,32 @@ void InputManager::Update()
    SDL_memset(is_mouse_down_, false, MouseClickTypeCount * sizeof(bool));
    SDL_memset(is_mouse_up_, false, MouseClickTypeCount * sizeof(bool));
 
+   is_movement_down_ = false;
+   is_any_key_down_ = false;
+
    SDL_Event event;
    while (SDL_PollEvent(&event))
    {
+      ImGui_ImplSDL2_ProcessEvent(&event);
       switch (event.type)
       {
       case SDL_KEYDOWN:
          keyboard_ = SDL_GetKeyboardState(nullptr);
          is_key_down_[event.key.keysym.scancode] = true;
+         is_any_key_down_ = true;
+         if (is_movement_down_ == false) 
+         {
+            switch (event.key.keysym.scancode)
+            {
+               case static_cast<int>(KeyCode::W) :
+                  case static_cast<int>(KeyCode::A) :
+                  case static_cast<int>(KeyCode::S) :
+                  case static_cast<int>(KeyCode::D) :
+                  case static_cast<int>(KeyCode::Q) :
+                  case static_cast<int>(KeyCode::E) :
+                  is_movement_down_ = true;
+            }
+         }
          break;
       case SDL_KEYUP:
          keyboard_ = SDL_GetKeyboardState(nullptr);
@@ -71,6 +89,16 @@ void InputManager::Update()
          break;
       }
    }
+}
+
+bool InputManager::IsAnyKeyDown()
+{
+   return is_any_key_down_;
+}
+
+bool InputManager::IsMovementKeysDown()
+{
+   return is_movement_down_;
 }
 
 auto InputManager::GetMouseDown(const short button) -> bool

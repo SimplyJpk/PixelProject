@@ -11,9 +11,9 @@ public:
       name = "Water";
       colour_count = 3;
       // Browns
-      type_colours[0] = 0x000000FF;
-      type_colours[1] = 0x002E2EE6;
-      type_colours[2] = 0x001818F3;
+      type_colours[0] = 0x0000FFFF;
+      type_colours[1] = 0x2E2EE6FF;
+      type_colours[2] = 0x1818F3FF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -27,6 +27,8 @@ public:
                                 E_ChunkDirection::West, E_ChunkDirection::East
                              });
    }
+
+   inline int8_t MaxUpdateRange() override { return 8; }
 
    int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
    int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }

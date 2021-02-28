@@ -1,9 +1,9 @@
 #pragma once
+#include <SDL.h>
 #include "ChunkDirection.h"
 #include "Vec2.h"
 
 #include <vector>
-#include <SDL.h>
 
 #include "ISerializable.h"
 #include "Constants.h"
@@ -44,7 +44,7 @@ public:
    }
 
    // Inherited via ISerializable
-   virtual void Save(cereal::BinaryOutputArchive out_archive) override
+   void Save(cereal::BinaryOutputArchive out_archive) override
    {
       out_archive(CEREAL_NVP(position));
 
@@ -54,7 +54,7 @@ public:
       out_archive(cereal::make_nvp("ChunkPixels", pixelData));
    }
 
-   virtual void Load(cereal::BinaryInputArchive in_archive) override
+   void Load(cereal::BinaryInputArchive in_archive) override
    {
       in_archive(position);
       std::vector<Uint32> pixelData(Constant::chunk_total_size);

@@ -11,9 +11,9 @@ public:
       name = "Sand";
       colour_count = 3;
       // Yellows
-      type_colours[0] = 0x00E2D9AE;
-      type_colours[1] = 0x00E8BB9A;
-      type_colours[2] = 0x00EDC9AF;
+      type_colours[0] = 0xE2D9AEFF;
+      type_colours[1] = 0xE8BB9AFF;
+      type_colours[2] = 0xEDC9AFFF;
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
@@ -34,9 +34,9 @@ private:
       case E_PixelType::Space:
          return E_LogicResults::SuccessUpdate;
       case E_PixelType::Water:
-         return (pixel_rng_() % 3 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
+         return (rand() % 3 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
       case E_PixelType::Oil:
-         return (pixel_rng_() % 10 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
+         return (rand() % 10 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
       }
       return E_LogicResults::FailedUpdate;
    }

@@ -1,7 +1,16 @@
 #pragma once
+#include <gl/GLEW.h>
+#include <glm/fwd.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
+
+
 #include "BasePixel.h"
+#include "Camera.h"
+#include "GameSettings.h"
 #include "WorldDataHandler.h"
 #include "InputManager.h"
+#include "ShaderManager.h"
 
 //TODO Namespace for this?
 constexpr int8_t pixel_texture_size = 32;
@@ -12,8 +21,9 @@ public:
    short selected_pixel_type = 0;
    BasePixel* selected_pixel = nullptr;
 
-   Uint32 pixel_icons[static_cast<int>(E_PixelType::COUNT)][pixel_texture_size * pixel_texture_size] = {0};
-   SDL_Texture* pixel_texture[static_cast<int>(E_PixelType::COUNT)];
+   const short texture_count = static_cast<int>(E_PixelType::COUNT);
+   Uint32 pixel_icons[static_cast<int>(E_PixelType::COUNT)][pixel_texture_size * pixel_texture_size];
+   //? SDL_Texture* pixel_texture[static_cast<int>(E_PixelType::COUNT)];
 
    const Uint32* GetPixelTexture(const short index) const { return pixel_icons[index]; }
 
@@ -46,7 +56,7 @@ public:
       int Bottom = (Top + size * 2) - 1;
       float radius = powf(size, 2);
 
-      for (int index = 0; index < static_cast<int>(E_PixelType::COUNT); index++)
+      for (int index = 0; index < texture_count; index++)
       {
          BasePixel* pixel = world_data_->GetPixelFromIndex(index);
          for (int y = Top; y <= Bottom; ++y)
@@ -56,35 +66,143 @@ public:
                double dist = powf(point - x, 2.0) + powf(point - y, 2.0);
                if (dist <= radius)
                {
-                  pixel_icons[index][(y * pixel_texture_size) + x] = 0xFF000000 | pixel->GetRandomColour();
+                  pixel_icons[index][(y * pixel_texture_size) + x] = pixel->GetRandomColour();
                }
             }
          }
       }
+
+      glGenVertexArrays(1, &vao_);
+      glGenBuffers(1, &vbo_);
+      glGenBuffers(1, &ebo_);
+
+      glBindVertexArray(vao_);
+
+      glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_), vertices_, GL_DYNAMIC_DRAW);
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices_), indices_, GL_DYNAMIC_DRAW);
+
+      // position attribute
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+      glEnableVertexAttribArray(0);
+      //x // color attribute
+      //x glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+      //x glEnableVertexAttribArray(1);
+      // texture coord attribute
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+      glEnableVertexAttribArray(1);
    }
 
-   void GeneratePixelTextures(SDL_Renderer* renderer)
+   void GeneratePixelTextures(GameSettings* game_settings)
    {
-      for (int index = 0; index < static_cast<int>(E_PixelType::COUNT); index ++)
+      // Create our shader
+      ShaderManager::Instance()->CompileShader("orthoUI", GL_VERTEX_SHADER, "shaders/orthoUI.vert");
+      ShaderManager::Instance()->CompileShader("orthoUI", GL_FRAGMENT_SHADER, "shaders/orthoUI.frag");
+      used_shader_ = ShaderManager::Instance()->CreateShaderProgram("orthoUI", false);
+
+      glGenTextures(texture_count, pixel_texture_id_);
+
+      for (int i = 0; i < texture_count; i++) {
+         glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
+         // set the texture wrapping parameters
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+         // set texture filtering parameters
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixel_texture_size, pixel_texture_size, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixel_icons[i]);
+
+         glUseProgram(used_shader_);
+         glUniform1i(glGetUniformLocation(used_shader_, "ourTexture"), 0);
+
+      }
+
+      game_settings_ = game_settings;
+
+      //TODO Work out a better way of doing this, should I have multiple cameras?
+      //TODO Remove magic numbers please
+      // Set view
+      projection_transform_ = glm::ortho((float)0, (float)game_settings->screen_size.x, (float)game_settings->screen_size.y, (float)0);
+      //glm::perspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
+      // view_transform_ = glm::lookAt(glm::vec3(5, 0, 5.0f), glm::vec3(5, 0, 0), glm::vec3(0, 1, 0));
+
+      //? for (int index = 0; index < static_cast<int>(E_PixelType::COUNT); index ++)
+      //? {
+      //?    pixel_texture[index] = SDL_CreateTexture(renderer, Constant::texture_default_format_transparency, SDL_TEXTUREACCESS_STATIC, pixel_texture_size, pixel_texture_size);
+      //?    SDL_SetTextureBlendMode(pixel_texture[index], SDL_BLENDMODE_BLEND);
+      //?    SDL_UpdateTexture(pixel_texture[index], nullptr, pixel_icons[index],  pixel_texture_size * sizeof(Uint32));
+      //? }
+   }
+
+   void DrawPaintGUI(Camera* camera)
+   {
+      glUseProgram(used_shader_);
+
+      //TODO work out easier way to work out how much space we have based on Camera view?
+      float screenIndex = 10.0f / (texture_count * 2);
+
+      for (int i = 0; i < texture_count; i++)
       {
-         pixel_texture[index] = SDL_CreateTexture(renderer, Constant::texture_default_format_transparency, SDL_TEXTUREACCESS_STATIC, pixel_texture_size, pixel_texture_size);
-         SDL_SetTextureBlendMode(pixel_texture[index], SDL_BLENDMODE_BLEND);
-         SDL_UpdateTexture(pixel_texture[index], nullptr, pixel_icons[index],  pixel_texture_size * sizeof(Uint32));
+         glActiveTexture(GL_TEXTURE0);
+         glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
+
+         glm::mat4 model = glm::mat4(1.0f);
+
+         glm::vec3 modelPos = glm::vec3(
+            ((pixel_texture_size / 2) * i) + (i * pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
+            (pixel_texture_size / 2) + (pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
+            0
+         );
+         model = glm::translate(model, modelPos);
+         model = glm::scale(model, glm::vec3(pixel_texture_size * 2,pixel_texture_size * 2,1.0f));
+
+         int modelLoc = glGetUniformLocation(used_shader_, "model");
+         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+         int projLoc = glGetUniformLocation(used_shader_, "projection");
+         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
+
+         glBindVertexArray(vao_);
+         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
       }
    }
 
+
    void DrawTexture(SDL_Renderer* renderer, const IVec2 position, E_PixelType pixel_type)
    {
-      int index;
-      if (pixel_type == E_PixelType::COUNT)
-         index = selected_pixel->pixel_index;
-      else
-         index = static_cast<int>(pixel_type);
+      //int index;
+      //if (pixel_type == E_PixelType::COUNT)
+      //   index = selected_pixel->pixel_index;
+      //else
+      //   index = static_cast<int>(pixel_type);
 
-      SDL_Rect rect = {position.x, position.y, pixel_texture_size, pixel_texture_size};
-      SDL_RenderCopy(renderer, pixel_texture[index], nullptr, &rect);
+      //SDL_Rect rect = { position.x, position.y, pixel_texture_size, pixel_texture_size };
+      //SDL_RenderCopy(renderer, pixel_texture[index], nullptr, &rect);
    }
 
 private:
+   GameSettings* game_settings_;
+
    WorldDataHandler* world_data_ = nullptr;
+
+   GLint used_shader_ = -1;
+   GLuint pixel_texture_id_[static_cast<int>(E_PixelType::COUNT)];
+   //TODO Make some sort of class that generates this so we don't have this junk data all over the place?
+   unsigned int vbo_, vao_, ebo_;
+   float vertices_[20] = {
+      // positions             // texture coords
+       0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
+       0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+      -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
+      -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
+   };
+   unsigned int indices_[6] = {
+       0, 1, 3, // first triangle
+       1, 2, 3  // second triangle
+   };
+
+   glm::mat4 projection_transform_;
+   // glm::mat4 view_transform_;
 };

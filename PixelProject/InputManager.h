@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "Vec2.h"
+#include <backends/imgui_impl_sdl.h>
 
 #include "InputKeyCodes.h"
 //TODO Implement an event system? Would be nice to call events from here
@@ -11,6 +12,9 @@ public:
    static InputManager* Instance();
 
    void Update();
+
+   bool IsAnyKeyDown();
+   bool IsMovementKeysDown();
 
    // Mouse
    // Pressed this frame
@@ -53,6 +57,9 @@ private:
    int mouse_x_ = 0, mouse_y_ = 0;
    IVec2 mouse_pos_ = IVec2::Zero();
    IVec2 mouse_scroll_ = IVec2::Zero();
+
+   bool is_movement_down_ = false;
+   bool is_any_key_down_ = false;
 
    bool is_key_down_[SCANCODE_MAXSIZE]{false};
    bool is_key_up_[SCANCODE_MAXSIZE]{false};
