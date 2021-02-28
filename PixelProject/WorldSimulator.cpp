@@ -178,8 +178,8 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
 void WorldSimulator::Update()
 {
-   DebugDrawPixelRange();
-   return;
+   //? DebugDrawPixelRange();
+   //? return;
 
    //TODO Remove this
    DEBUG_FrameCounter++;
@@ -480,27 +480,24 @@ void WorldSimulator::Update()
 
 inline short WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction)
 {
-   //TODO Continue from here
    switch (direction)
    {
    case North:
       return y + 1;
    case NorthEast:
-      return (Constant::chunk_size_x - x) < y ? y + 1 : (Constant::chunk_size_x - x);
+      return std::min(y + 1,Constant::chunk_size_x - x );
    case East:
-      return (Constant::chunk_size_x - x);
+      return Constant::chunk_size_x - x;
    case SouthEast:
-      return (Constant::chunk_size_x - x) < y ? (Constant::chunk_size_x - x) : Constant::chunk_size_y - y + 1;
+      return std::min(Constant::chunk_size_x - x , Constant::chunk_size_y - y);
    case South:
       return Constant::chunk_size_y - y;
    case SouthWest:
-      return x <= Constant::chunk_size_y - y ? x + 1 : Constant::chunk_size_y - y;
+      return std::min(Constant::chunk_size_y - y, x + 1);
    case West:
       return x + 1;
    case NorthWest:
-      return (Constant::chunk_size_x - x) < y ? x + 1 : y + 1;
-   default:
-      return -1;
+      return std::min( x + 1, y + 1);
    }
 }
 
@@ -923,6 +920,7 @@ bool WorldSimulator::Draw(Camera* camera)
 
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Constant::chunk_size_x, Constant::chunk_size_y, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, chunks[IVec2(xVal, yVal)]->pixel_colour);
 
+            //TODO Fix this so it isn't trash vv
             static float pos = 0.0f;
             if (InputManager::Instance()->GetKeyDown(KeyCode::V))
                pos -= 0.01f;
@@ -932,8 +930,8 @@ bool WorldSimulator::Draw(Camera* camera)
             //TODO How to draw all chunks?
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2) + (0.05f * xVal)), static_cast<float>(-yVal + (world_dimensions.y / 2) - (0.05f * yVal)),0.0f)); 
-            //? model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
+            //? model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2) + (0.05f * xVal)), static_cast<float>(-yVal + (world_dimensions.y / 2) - (0.05f * yVal)),0.0f)); 
+            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
             model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
 
             // glm::mat4 view = glm::mat4(1.0f);
@@ -1091,7 +1089,7 @@ void WorldSimulator::DebugDrawPixelRange()
       int neighbourIndex = pixelIndex;
       for (int pixelRange = 1; pixelRange <= maxPixelRange; pixelRange++)
       {
-         if (pixelRange == borderRange)
+         if (pixelRange >= borderRange)
             break;
 
          neighbourIndex = neighbourIndex + Constant::pixel_index_direction_change[direction];
