@@ -304,11 +304,15 @@
     <ClInclude Include="BasePixel.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="PixelTypeIncludes.h" />
+    <ClInclude Include="RectTransform.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SpacePixel.h" />
+    <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Transform.h" />
+    <ClInclude Include="VectorHelper.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="VecHash.h" />
     <ClInclude Include="WaterPixel.h" />

@@ -91,6 +91,18 @@
     <Filter Include="Resource Files\shaders">
       <UniqueIdentifier>{4c77121f-5a63-41d1-b450-7f24cd22f6e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rendering">
+      <UniqueIdentifier>{0c4e88ff-84c2-4bfa-9a07-4640daf1885a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Rendering">
+      <UniqueIdentifier>{e0481442-956f-4e58-acd1-131579aeb6ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{7906fd3a-1be1-491f-8993-03363e8d48c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{74a1b28c-6da7-43df-97f7-329b560affcc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -280,6 +292,18 @@
     </ClInclude>
     <ClInclude Include="FlyCamera.h">
       <Filter>Header Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorHelper.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="RectTransform.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
