@@ -3,14 +3,13 @@
 #include <glm/fwd.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-
-
 #include "BasePixel.h"
 #include "Camera.h"
 #include "GameSettings.h"
 #include "WorldDataHandler.h"
 #include "InputManager.h"
 #include "ShaderManager.h"
+#include "Sprite.h"
 
 //TODO Namespace for this?
 constexpr int8_t pixel_texture_size = 32;
@@ -22,10 +21,9 @@ public:
    BasePixel* selected_pixel = nullptr;
 
    const short texture_count = static_cast<int>(E_PixelType::COUNT);
-   Uint32 pixel_icons[static_cast<int>(E_PixelType::COUNT)][pixel_texture_size * pixel_texture_size];
    //? SDL_Texture* pixel_texture[static_cast<int>(E_PixelType::COUNT)];
 
-   const Uint32* GetPixelTexture(const short index) const { return pixel_icons[index]; }
+   //? const Uint32* GetPixelTexture(const short index) const { return pixel_icons[index]; }
 
    const char* SelectedPixelName() const { return selected_pixel->Name(); }
 
@@ -39,6 +37,9 @@ public:
          else
             selected_pixel = world_data_->GetPixelFromIndex(selected_pixel->pixel_index + 1);
       }
+
+      IVec2 mousePos = InputManager::Instance()->MousePosition();
+
    }
 
    PaintManager()
@@ -58,6 +59,7 @@ public:
 
       for (int index = 0; index < texture_count; index++)
       {
+         Uint32* textureInfo = new Uint32[pixel_texture_size * pixel_texture_size]{0x00000000};
          BasePixel* pixel = world_data_->GetPixelFromIndex(index);
          for (int y = Top; y <= Bottom; ++y)
          {
@@ -66,10 +68,11 @@ public:
                double dist = powf(point - x, 2.0) + powf(point - y, 2.0);
                if (dist <= radius)
                {
-                  pixel_icons[index][(y * pixel_texture_size) + x] = pixel->GetRandomColour();
+                  textureInfo[(y * pixel_texture_size) + x] = pixel->GetRandomColour();
                }
             }
          }
+         pixel_sprites_[index].SetSprite(textureInfo);
       }
 
       glGenVertexArrays(1, &vao_);
@@ -113,11 +116,23 @@ public:
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixel_texture_size, pixel_texture_size, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixel_icons[i]);
+         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixel_texture_size, pixel_texture_size, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixel_sprites_[i].GetSprite());
 
          glUseProgram(used_shader_);
          glUniform1i(glGetUniformLocation(used_shader_, "ourTexture"), 0);
 
+         // Setup structure for future use
+         pixel_sprites_[i].SetTextureID(pixel_texture_id_[i]);
+
+         //? Is this trash way to do this?
+         Transform& trans = pixel_sprites_[i].transform;
+         glm::vec3 position = glm::vec3(
+            ((pixel_texture_size / 2) * i) + (i * pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
+            (pixel_texture_size / 2) + (pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
+            0
+         );
+         trans.SetPosition(position);
+         trans.SetScale(glm::vec3(pixel_texture_size * 2, pixel_texture_size * 2, 1.0f));
       }
 
       game_settings_ = game_settings;
@@ -141,26 +156,26 @@ public:
    {
       glUseProgram(used_shader_);
 
-      //TODO work out easier way to work out how much space we have based on Camera view?
-      float screenIndex = 10.0f / (texture_count * 2);
+      if (InputManager::Instance()->GetKeyDown(KeyCode::Y))
+      {
+         IVec2 mousePos = InputManager::Instance()->MousePosition();
+         printf("Wow");
+      }
 
       for (int i = 0; i < texture_count; i++)
       {
          glActiveTexture(GL_TEXTURE0);
          glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
 
-         glm::mat4 model = glm::mat4(1.0f);
-
-         glm::vec3 modelPos = glm::vec3(
-            ((pixel_texture_size / 2) * i) + (i * pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
-            (pixel_texture_size / 2) + (pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
-            0
-         );
-         model = glm::translate(model, modelPos);
-         model = glm::scale(model, glm::vec3(pixel_texture_size * 2,pixel_texture_size * 2,1.0f));
-
          int modelLoc = glGetUniformLocation(used_shader_, "model");
-         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+         if (selected_pixel->pixel_index != i)
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pixel_sprites_[i].transform.GetModel()));
+         else
+         {
+            glm::mat4 scaledModel = glm::mat4(pixel_sprites_[i].transform.GetModel());
+            scaledModel = glm::scale(scaledModel, glm::vec3(1.5f, 1.5f, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(scaledModel));
+         }
          int projLoc = glGetUniformLocation(used_shader_, "projection");
          glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
 
@@ -169,23 +184,12 @@ public:
       }
    }
 
-
-   void DrawTexture(SDL_Renderer* renderer, const IVec2 position, E_PixelType pixel_type)
-   {
-      //int index;
-      //if (pixel_type == E_PixelType::COUNT)
-      //   index = selected_pixel->pixel_index;
-      //else
-      //   index = static_cast<int>(pixel_type);
-
-      //SDL_Rect rect = { position.x, position.y, pixel_texture_size, pixel_texture_size };
-      //SDL_RenderCopy(renderer, pixel_texture[index], nullptr, &rect);
-   }
-
 private:
    GameSettings* game_settings_;
 
    WorldDataHandler* world_data_ = nullptr;
+
+   Sprite pixel_sprites_[static_cast<int>(E_PixelType::COUNT)];
 
    GLint used_shader_ = -1;
    GLuint pixel_texture_id_[static_cast<int>(E_PixelType::COUNT)];
@@ -204,5 +208,4 @@ private:
    };
 
    glm::mat4 projection_transform_;
-   // glm::mat4 view_transform_;
 };
