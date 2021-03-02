@@ -39,7 +39,22 @@ public:
       }
 
       IVec2 mousePos = InputManager::Instance()->MousePosition();
-
+      // Crude check, we only want to check if we're hovering if we're close to the items
+      if (mousePos.y < pixel_texture_size * 2)
+      {
+         for (short index = 0; index < texture_count; index++)
+         {
+            Sprite* sprite = &pixel_sprites_[index];
+            glm::vec4 bounds = sprite->transform.GetBounds();
+            // If we're moused over
+            if (mousePos.x > bounds.x && mousePos.x < bounds.z &&
+               mousePos.y > bounds.y && mousePos.y < bounds.w)
+            {
+               selected_pixel = world_data_->GetPixelFromIndex(index);
+               break;
+            }
+         }
+      }
    }
 
    PaintManager()
