@@ -20,12 +20,12 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    // glMatrixMode(GL_MODELVIEW);
    // glLoadIdentity();
 
-   if (!ShaderManager::Instance()->CompileShader("default", ShaderType::Vertex, "shaders/default.vert"))
+   if (!ShaderManager::Instance()->CompileShader("orthoWorld", ShaderType::Vertex, "shaders/orthoWorld.vert"))
       printf("Failed to generate Vertex Shader");
-   if (!ShaderManager::Instance()->CompileShader("default", ShaderType::Fragment, "shaders/default.frag"))
+   if (!ShaderManager::Instance()->CompileShader("orthoWorld", ShaderType::Fragment, "shaders/orthoWorld.frag"))
       printf("Failed to generate Frag Shader");
 
-   defaultShader = ShaderManager::Instance()->CreateShaderProgram("default", false);
+   defaultShader = ShaderManager::Instance()->CreateShaderProgram("orthoWorld", false);
    game_settings->default_shader = defaultShader;
 
    //TODO Need to find a better place for this. This needs to be done before Paint Manager in instanced.
@@ -51,7 +51,8 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    // Input
    input_manager = InputManager::Instance();
    // Camera
-   main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
+   main_cam.SetOrtho(0, game_settings->screen_size.x, game_settings->screen_size.y, 0);
+   //? main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
 
    // World Sim
    world_sim = new WorldSimulator(game_settings);

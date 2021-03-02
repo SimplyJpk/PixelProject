@@ -931,8 +931,13 @@ bool WorldSimulator::Draw(Camera* camera)
 
             glm::mat4 model = glm::mat4(1.0f);
             //? model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2) + (0.05f * xVal)), static_cast<float>(-yVal + (world_dimensions.y / 2) - (0.05f * yVal)),0.0f)); 
-            model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f)); 
-            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
+
+            model = glm::translate(model, glm::vec3((Constant::chunk_size_x * (xVal + 1) - (Constant::chunk_size_x/2)), (Constant::chunk_size_y * (yVal + 1) - (Constant::chunk_size_y/2)), 1.0f));
+
+            // model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f));
+
+            model = glm::scale(model, glm::vec3(128, 128, 1.0f));
+            //? model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
 
             // glm::mat4 view = glm::mat4(1.0f);
             // // note that we're translating the scene in the reverse direction of where we want to move
@@ -940,8 +945,8 @@ bool WorldSimulator::Draw(Camera* camera)
 
             int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-            int viewLoc = glGetUniformLocation(game_settings->default_shader, "view");
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
+            // int viewLoc = glGetUniformLocation(game_settings->default_shader, "view");
+            // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
             int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
             glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
