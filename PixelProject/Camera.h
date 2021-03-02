@@ -11,6 +11,7 @@ public:
 
    // Update camera Position and Rotation
    virtual void Update(float delta);
+   void SetOrtho(float left, float right, float bottom, float top);
 
    // Set Perspective view of camera
    void SetPerspective(float field_of_view, float aspect_ratio, float near, float far);
@@ -31,6 +32,7 @@ public:
    glm::vec4* GetFrustumPlanes();
 
 protected:
+   bool isOrtho = false;
    // Generates the Frustum when ever the Camera moves
    void GenerateFrustum();
    glm::vec4 frustum_[6];
