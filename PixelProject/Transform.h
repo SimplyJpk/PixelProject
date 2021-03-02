@@ -18,11 +18,13 @@ public:
    void SetPosition(const glm::vec3 position)
    {
       local_position_ = position;
+      UpdateBounds();
       has_changed_ = true;
    }
    void SetScale(const glm::vec3 scale)
    {
       local_scale_ = scale;
+      UpdateBounds();
       has_changed_ = true;
    }
    void SetRotation(const glm::vec3 rotation)
@@ -31,7 +33,7 @@ public:
       has_changed_ = true;
    }
 
-   glm::mat4& GetModel()
+   const glm::mat4& GetModel()
    {
       if (has_changed_)
       {
@@ -46,8 +48,26 @@ public:
       return model_transform_;
    }
 
+   const glm::vec4& GetBounds()
+   {
+      return bounding_box_;
+   }
+
 protected:
+   //TODO This could probably be a component?
+   inline void UpdateBounds()
+   {
+      float scaleX = (local_scale_.x / 2);
+      float scaleY = (local_scale_.y / 2);
+      bounding_box_.x = local_position_.x - scaleX; // Min-X
+      bounding_box_.y = local_position_.y - scaleY; // Min-Y
+      bounding_box_.z = local_position_.x + scaleX; // Max-X
+      bounding_box_.w = local_position_.y + scaleY; // Max-Y
+   }
+
    glm::mat4 model_transform_ = glm::mat4(1.0f);
+
+   glm::vec4 bounding_box_;
 
    glm::vec3 local_position_ = vec3_zero;
    glm::vec3 local_scale_ = vec3_one;
