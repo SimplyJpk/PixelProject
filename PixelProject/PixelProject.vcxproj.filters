@@ -305,6 +305,9 @@
     <ClInclude Include="RectTransform.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="TextureUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

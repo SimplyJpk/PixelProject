@@ -311,6 +311,7 @@
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="TextureUtility.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VectorHelper.h" />
     <ClInclude Include="Vec2.h" />
