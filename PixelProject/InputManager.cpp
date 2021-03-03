@@ -4,6 +4,14 @@ InputManager* InputManager::instance_ = nullptr;
 
 InputManager::InputManager() = default;
 
+bool InputManager::IsValidKey(KeyCode& key_code)
+{
+   const int key = static_cast<int>(key_code);
+   if (key < 0 || key >= SCANCODE_MAXSIZE)
+      return false;
+   return true;
+}
+
 InputManager* InputManager::Instance()
 {
    if (!instance_)
@@ -33,6 +41,7 @@ void InputManager::Update()
       case SDL_KEYDOWN:
          keyboard_ = SDL_GetKeyboardState(nullptr);
          is_key_down_[event.key.keysym.scancode] = true;
+         is_key_held_[event.key.keysym.scancode] = true;
          is_any_key_down_ = true;
          if (is_movement_down_ == false) 
          {
@@ -51,6 +60,7 @@ void InputManager::Update()
       case SDL_KEYUP:
          keyboard_ = SDL_GetKeyboardState(nullptr);
          is_key_up_[event.key.keysym.scancode] = true;
+         is_key_held_[event.key.keysym.scancode] = false;
       case SDL_MOUSEMOTION:
          //TODO May need to remove the +1
          mouse_x_ = event.motion.x + 1;
@@ -137,20 +147,25 @@ bool InputManager::GetMouseButton(const short button) const
    return false;
 }
 
+bool InputManager::IsKeyHeld(KeyCode key_code)
+{
+   if (!IsValidKey(key_code))
+      return false;
+   return (is_key_held_[static_cast<int>(key_code)]);
+}
+
 bool InputManager::GetKeyDown(KeyCode key_code)
 {
-   const int key = static_cast<int>(key_code);
-   if (key < 0 || key >= SCANCODE_MAXSIZE)
+   if (!IsValidKey(key_code))
       return false;
-   return (is_key_down_[key]);
+   return (is_key_down_[static_cast<int>(key_code)]);
 }
 
 bool InputManager::GetKeyUp(KeyCode key_code)
 {
-   const int key = static_cast<int>(key_code);
-   if (key < 0 || key >= SCANCODE_MAXSIZE)
+   if (!IsValidKey(key_code))
       return false;
-   return (is_key_up_[key]);
+   return (is_key_up_[static_cast<int>(key_code)]);
 }
 
 bool InputManager::GetKeyButton(KeyCode key_code) const

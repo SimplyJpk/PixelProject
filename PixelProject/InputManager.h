@@ -25,6 +25,8 @@ public:
    bool GetMouseButton(short button) const;
 
    // Keyboard
+   // If the key is being pressed during this frame. (First, or ongoing)
+   bool IsKeyHeld(KeyCode key_code);
    // Pressed this frame
    bool GetKeyDown(KeyCode key_code);
    // Released this frame
@@ -48,6 +50,8 @@ public:
    }
 
    bool IsShuttingDown() { return GetKeyDown(KeyCode::Escape); };
+protected:
+   inline bool IsValidKey(KeyCode& key_code);
 private:
    static InputManager* instance_;
 
@@ -61,9 +65,11 @@ private:
    bool is_movement_down_ = false;
    bool is_any_key_down_ = false;
 
-   bool is_key_down_[SCANCODE_MAXSIZE]{false};
-   bool is_key_up_[SCANCODE_MAXSIZE]{false};
+   bool is_key_held_[SCANCODE_MAXSIZE]{ false };
 
-   bool is_mouse_down_[MouseClickTypeCount]{false};
-   bool is_mouse_up_[MouseClickTypeCount]{false};
+   bool is_key_down_[SCANCODE_MAXSIZE]{ false };
+   bool is_key_up_[SCANCODE_MAXSIZE]{ false };
+
+   bool is_mouse_down_[MouseClickTypeCount]{ false };
+   bool is_mouse_up_[MouseClickTypeCount]{ false };
 };
