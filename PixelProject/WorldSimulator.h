@@ -30,6 +30,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "TextureUtility.h"
+
 using namespace PixelProject;
 using namespace boost;
 
@@ -210,19 +212,11 @@ protected:
       Dir
    };
 
-   // Returns the index of the cell in the direction passed in.
-   static short GetInnerNeighbourIndex(short local, int direction);
-   // Returns the index of the cell in the neighbouring chunk of the index/direction passed in.
-   static bool GetOuterNeighbourIndex(const short local, const short y, const short x, int& direction, short& neighbour_index);
-
-
    // Returns true if the Pixel reacts to the neighbouring pixels type. Fills return_pixels with new pixel types for the two pixels if pixels need to be changed.
    static int8_t CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
       E_PixelType* return_pixels);
 
    static bool DoesChunkHaveNeighbour(WorldChunk** neighbours, short direction);
-   static void ProcessLogicResults(WorldDataHandler* data_handler, const E_PixelType return_pixels[2],
-      Uint32& from_pixel, Uint32& to_pixel);
 
 private:
    void ClearWorld();

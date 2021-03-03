@@ -1,4 +1,5 @@
 #pragma once
+#include <stb_image.h>
 #include <gl/GLEW.h>
 #include <glm/fwd.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -10,6 +11,7 @@
 #include "InputManager.h"
 #include "ShaderManager.h"
 #include "Sprite.h"
+#include "TextureUtility.h"
 
 //TODO Namespace for this?
 constexpr int8_t pixel_texture_size = 32;
@@ -120,16 +122,28 @@ public:
       ShaderManager::Instance()->CompileShader("orthoUI", GL_FRAGMENT_SHADER, "shaders/orthoUI.frag");
       used_shader_ = ShaderManager::Instance()->CreateShaderProgram("orthoUI", false);
 
+      //TODO Need to complete some sort of UI background/border/box?
+      glGenTextures(1, &background_image_id_);
+      glBindTexture(GL_TEXTURE_2D, background_image_id_);
+      TextureUtility::SetTexParams();
+      int width, height, nrChannels;
+      unsigned char* data = stbi_load("./Textures/board.png", &width, &height, &nrChannels, 0);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+
+      glUseProgram(used_shader_);
+      glUniform1i(glGetUniformLocation(used_shader_, "ourTexture"), 0);
+      background_image_.SetTextureID(background_image_id_);
+      background_image_.SetSprite((Uint32*)data);
+      background_image_.transform.SetPosition(glm::vec3(260, 260, 1.0f));
+      background_image_.transform.SetScale(glm::vec3(width,height, 1.0f));
+
+      // Generate Textures for PixelTypes
       glGenTextures(texture_count, pixel_texture_id_);
 
       for (int i = 0; i < texture_count; i++) {
          glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
-         // set the texture wrapping parameters
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-         // set texture filtering parameters
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+         TextureUtility::SetTexParams();
 
          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixel_texture_size, pixel_texture_size, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixel_sprites_[i].GetSprite());
 
@@ -177,12 +191,22 @@ public:
          printf("Wow");
       }
 
+      int modelLoc = glGetUniformLocation(used_shader_, "model");
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, background_image_id_);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(background_image_.transform.GetModel()));
+      int projLoc = glGetUniformLocation(used_shader_, "projection");
+      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
+      glBindVertexArray(vao_);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+      glUseProgram(used_shader_);
       for (int i = 0; i < texture_count; i++)
       {
          glActiveTexture(GL_TEXTURE0);
          glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
 
-         int modelLoc = glGetUniformLocation(used_shader_, "model");
+         modelLoc = glGetUniformLocation(used_shader_, "model");
          if (selected_pixel->pixel_index != i)
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pixel_sprites_[i].transform.GetModel()));
          else
@@ -191,7 +215,7 @@ public:
             scaledModel = glm::scale(scaledModel, glm::vec3(1.5f, 1.5f, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(scaledModel));
          }
-         int projLoc = glGetUniformLocation(used_shader_, "projection");
+         projLoc = glGetUniformLocation(used_shader_, "projection");
          glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
 
          glBindVertexArray(vao_);
@@ -204,9 +228,11 @@ private:
 
    WorldDataHandler* world_data_ = nullptr;
 
+   Sprite background_image_;
    Sprite pixel_sprites_[static_cast<int>(E_PixelType::COUNT)];
 
    GLint used_shader_ = -1;
+   GLuint background_image_id_;
    GLuint pixel_texture_id_[static_cast<int>(E_PixelType::COUNT)];
    //TODO Make some sort of class that generates this so we don't have this junk data all over the place?
    unsigned int vbo_, vao_, ebo_;
