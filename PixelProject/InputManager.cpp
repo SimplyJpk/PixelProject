@@ -7,7 +7,7 @@ InputManager::InputManager() = default;
 bool InputManager::IsValidKey(KeyCode& key_code)
 {
    const int key = static_cast<int>(key_code);
-   if (key < 0 || key >= SCANCODE_MAXSIZE)
+   if (key < 0 || key >= keycode_max_value)
       return false;
    return true;
 }
@@ -23,8 +23,8 @@ void InputManager::Update()
 {
    // We clear all our states
    // Keyboard
-   SDL_memset(is_key_down_, false, SCANCODE_MAXSIZE * sizeof(bool));
-   SDL_memset(is_key_up_, false, SCANCODE_MAXSIZE * sizeof(bool));
+   SDL_memset(is_key_down_, false, keycode_max_value * sizeof(bool));
+   SDL_memset(is_key_up_, false, keycode_max_value * sizeof(bool));
    // Mouse
    SDL_memset(is_mouse_down_, false, MouseClickTypeCount * sizeof(bool));
    SDL_memset(is_mouse_up_, false, MouseClickTypeCount * sizeof(bool));

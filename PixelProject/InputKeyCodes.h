@@ -3,7 +3,7 @@
 
 // Keys https://wiki.libsdl.org/SDLScancodeLookup
 // Max value from https://wiki.libsdl.org/SDLScancodeLookup
-#define SCANCODE_MAXSIZE 284
+constexpr short keycode_max_value = 284;
 
 //TODO Double check, do we need any other inputs? This should cover most.
 enum class KeyCode

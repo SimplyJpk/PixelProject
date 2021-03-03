@@ -51,7 +51,7 @@ public:
 
    bool IsShuttingDown() { return GetKeyDown(KeyCode::Escape); };
 protected:
-   inline bool IsValidKey(KeyCode& key_code);
+   static inline bool IsValidKey(KeyCode& key_code);
 private:
    static InputManager* instance_;
 
@@ -65,10 +65,10 @@ private:
    bool is_movement_down_ = false;
    bool is_any_key_down_ = false;
 
-   bool is_key_held_[SCANCODE_MAXSIZE]{ false };
+   bool is_key_held_[keycode_max_value]{ false };
 
-   bool is_key_down_[SCANCODE_MAXSIZE]{ false };
-   bool is_key_up_[SCANCODE_MAXSIZE]{ false };
+   bool is_key_down_[keycode_max_value]{ false };
+   bool is_key_up_[keycode_max_value]{ false };
 
    bool is_mouse_down_[MouseClickTypeCount]{ false };
    bool is_mouse_up_[MouseClickTypeCount]{ false };
