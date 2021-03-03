@@ -24,29 +24,29 @@ void FlyCamera::MoveCam(const float delta)
   auto* im = InputManager::Instance();
 
 	// Left Right
-	if (im->GetKeyButton(KeyCode::A))
+	if (im->IsKeyHeld(KeyCode::A))
 	{
 		currentPos -= left* delta* move_speed_;
 	}
-	else if (im->GetKeyButton(KeyCode::D))
+	else if (im->IsKeyHeld(KeyCode::D))
 	{
 		currentPos += left* delta * move_speed_;
 	}
 	// Up Down
-	if (im->GetKeyButton(KeyCode::S))
+	if (im->IsKeyHeld(KeyCode::S))
 	{
 		currentPos -= up* delta* move_speed_;
 	}
-	else if (im->GetKeyButton(KeyCode::W))
+	else if (im->IsKeyHeld(KeyCode::W))
 	{
 		currentPos += up* delta * move_speed_;
 	}
 	 	// Forward Back
-	if (im->GetKeyButton(KeyCode::Q))
+	if (im->IsKeyHeld(KeyCode::Q))
 	{
 		currentPos -= forward* delta* move_speed_;
 	}
-	else if (im->GetKeyButton(KeyCode::E))
+	else if (im->IsKeyHeld(KeyCode::E))
 	{
 		currentPos += forward* delta * move_speed_;
 	}
