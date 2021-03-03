@@ -169,8 +169,8 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
          {
             chunks[IVec2(xFloor, yFloor)]->pixel_colour[
                ((y - (yFloor * Constant::chunk_size_y)) * Constant::chunk_size_x) + (x - (xFloor *
-                     Constant::chunk_size_x))
-            ] = pixel_type->type_colours[(rand() % max)];
+                  Constant::chunk_size_x))
+            ] = pixel_type->type_colours[(rng() % max)];
          }
       }
    }
@@ -191,9 +191,9 @@ void WorldSimulator::Update()
       {
          for (int xDim = 0; xDim < Constant::chunk_size_x; xDim++)
          {
-            if (rand() % DEBUG_SandDropRate == 0)
+            if (rng() % DEBUG_SandDropRate == 0)
             {
-               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rand() % maxSandColours)];
+               chunks[IVec2(x, 0)]->pixel_colour[(xDim * 0) + xDim] = sandPixel->type_colours[0, (rng() % maxSandColours)];
             }
          }
       }

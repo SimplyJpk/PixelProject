@@ -4,8 +4,11 @@
 
 #include "ChunkDirection.h"
 #include "Constants.h"
+#include "lib/XoshiroCpp.hpp"
+#include <random>
 
 using namespace PixelProject;
+using namespace XoshiroCpp;
 
 class BasePixel
 {
@@ -15,6 +18,8 @@ public:
    virtual bool IsUpdateable() { return true; }
 
    const char* name = "UNKNOWN";
+
+   inline static Xoshiro256PlusPlus rng;
 
    short* GetSingleChunkOrder()
    {
@@ -32,7 +37,7 @@ public:
    short pixel_index = -1;
    short colour_count = 0;
 
-   Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : rand() % (colour_count - 1))]; }
+   Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : rng() % (colour_count - 1))]; }
    Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
 
    virtual inline int8_t MaxUpdateRange() { return 1; }
@@ -79,8 +84,5 @@ protected:
          }
       }
    }
-
-   //inline static std::uint64_t xor_shift_seed_ = 1;
-   //inline static XoshiroCpp::Xoroshiro128PlusPlus pixel_rng_ { xor_shift_seed_ };
 private:
 };

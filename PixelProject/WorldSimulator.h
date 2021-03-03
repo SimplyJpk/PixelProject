@@ -228,4 +228,6 @@ private:
    void ClearWorld();
    void DebugShowChunkProcessPieces();
    void DebugDrawPixelRange();
+
+   inline static Xoshiro256PlusPlus rng;
 };

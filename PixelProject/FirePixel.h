@@ -54,13 +54,13 @@ private:
       switch (type)
       {
       case E_PixelType::Space:
-         if (rand() % 30 == 0)
+         if (rng() % 30 == 0)
          {
             return_pixels[0] = E_PixelType::Space;
             return_pixels[1] = E_PixelType::Space;
             return E_LogicResults::DualReturnPixel;
          }
-         return rand() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         return rng() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
 
 
       case E_PixelType::Oil:
@@ -70,7 +70,7 @@ private:
 
 
       case E_PixelType::Wood:
-         if (rand() % 13 == 0)
+         if (rng() % 13 == 0)
          {
             return_pixels[0] = E_PixelType::Fire;
             return_pixels[1] = E_PixelType::Fire;
