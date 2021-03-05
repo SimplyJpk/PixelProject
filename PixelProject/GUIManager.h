@@ -23,6 +23,8 @@ public:
 
    void SetPaintManager(PaintManager* painter) {paint_manager_ = painter; }
 
+   float plotData[100];
+
    GuiManager(GameSettings* settings, SDL_Window* window, SDL_GLContext* context)
    {
       settings_ = settings;
@@ -40,7 +42,16 @@ public:
 
       ImGui::SetWindowSize("Frame Data", ImVec2(240, 240));
       ImGui::SetWindowPos("Frame Data", ImVec2(settings_->screen_size.x - 245, 275));
+#if DEBUG_GAME
+      ImGui::SetWindowSize("WorldSimulator DEBUG", ImVec2(240, 240));
+      ImGui::SetWindowPos("WorldSimulator DEBUG", ImVec2(settings_->screen_size.x - 545, 275));
+#endif
       g_window = window;
+
+      for(int i = 0; i < 100; i++)
+      {
+         plotData[i] = static_cast<float>(mem_usage.ReturnMemoryUsed());
+      }
    }
 
    void NewGuiFrame() const
@@ -57,7 +68,7 @@ public:
       ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
    }
 
-   void DrawFrameData() const
+   void DrawFrameData()
    {
       ImGui::Begin("Frame Data");
 
@@ -65,6 +76,25 @@ public:
 
       ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
       ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
+
+      static int delayCounter = 0;
+      delayCounter++;
+      static float minMax[2];
+      if (delayCounter > 10)
+      {
+         delayCounter -= 10;
+         static int counter = 0;
+         counter++;
+         if (counter >= 100)
+            counter = 0;
+         plotData[counter] = mem_usage.ReturnMemoryUsed() / 1000.0f;
+         if (plotData[counter] < minMax[0])
+            minMax[0] = plotData[counter];
+         if (plotData[counter] > minMax[1])
+            minMax[1] = plotData[counter];
+      }
+      ImGui::PlotLines("Memory: ", plotData, 100, 0, 0, minMax[0], minMax[1], ImVec2(200, 50));
+
       ImGui::End();
    }
 
