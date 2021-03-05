@@ -308,6 +308,9 @@
     <ClInclude Include="TextureUtility.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="GoldPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -37,6 +37,7 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    WorldDataHandler::Instance()->AddPixelData(new OilPixel());
    WorldDataHandler::Instance()->AddPixelData(new FirePixel());
    WorldDataHandler::Instance()->AddPixelData(new AcidPixel());
+   WorldDataHandler::Instance()->AddPixelData(new GoldPixel());
 
    paint_manager = new PaintManager();
 

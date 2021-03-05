@@ -8,3 +8,4 @@
 #include "OilPixel.h"
 #include "FirePixel.h"
 #include "AcidPixel.h"
+#include "GoldPixel.h"

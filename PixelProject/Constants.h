@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 namespace PixelProject::Constant
 {
@@ -97,6 +98,7 @@ enum class E_PixelType
    Oil,
    Fire,
    Acid,
+   Gold,
    COUNT
 };
 

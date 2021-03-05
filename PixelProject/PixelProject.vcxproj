@@ -289,6 +289,7 @@
     <ClInclude Include="DebugStopWatch.h" />
     <ClInclude Include="FirePixel.h" />
     <ClInclude Include="FlyCamera.h" />
+    <ClInclude Include="GoldPixel.h" />
     <ClInclude Include="GUIManager.h" />
     <ClInclude Include="InputKeyCodes.h" />
     <ClInclude Include="InputManager.h" />
