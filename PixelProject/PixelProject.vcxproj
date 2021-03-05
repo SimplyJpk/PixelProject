@@ -125,6 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Libraries\SDL2\include;D:\C++\includes;D:\Libraries\imgui-master;D:\Libraries\imgui_sdl-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,6 +171,8 @@
       <AdditionalIncludeDirectories>D:\Libraries\SDL2\include;D:\C++\includes;D:\Libraries\imgui-master;D:\Libraries\imgui_sdl-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -193,6 +196,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Libraries\SDL2\include;D:\C++\includes;D:\Libraries\imgui-master;D:\Libraries\imgui_sdl-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -237,6 +241,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Libraries\SDL2\include;D:\C++\includes;D:\Libraries\imgui-master;D:\Libraries\imgui_sdl-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -263,12 +269,20 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FlyCamera.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx512.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_neon.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse2.cpp" />
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="WorldChunk.cpp" />
     <ClCompile Include="WorldDataHandler.cpp" />
+    <ClCompile Include="WorldGenerator.cpp" />
     <ClCompile Include="WorldSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -295,6 +309,8 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="ISerializable.h" />
+    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD.h" />
+    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.h" />
     <ClInclude Include="lib\XoshiroCpp.hpp" />
     <ClInclude Include="OilPixel.h" />
     <ClInclude Include="PaintManager.h" />
@@ -322,6 +338,7 @@
     <ClInclude Include="WorldChunk.h" />
     <ClInclude Include="WorldDataHandler.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="WorldGenerator.h" />
     <ClInclude Include="WorldSimulator.h" />
   </ItemGroup>
   <ItemGroup>

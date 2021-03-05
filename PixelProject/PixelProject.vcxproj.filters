@@ -103,6 +103,18 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{74a1b28c-6da7-43df-97f7-329b560affcc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\lib">
+      <UniqueIdentifier>{9c78580f-774d-47e0-bb16-937e1b338134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lib\noise">
+      <UniqueIdentifier>{0e62d222-8a50-4be0-b2f6-2fddbfbedc40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\lib">
+      <UniqueIdentifier>{97fa7dc8-8089-441b-9210-7602fcac637d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\lib\noise">
+      <UniqueIdentifier>{aa2eb5a2-3474-40b3-8a46-8e5c68da2be6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -155,6 +167,30 @@
     </ClCompile>
     <ClCompile Include="FlyCamera.cpp">
       <Filter>Source Files\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldGenerator.cpp">
+      <Filter>Source Files\World</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx512.cpp">
+      <Filter>Source Files\lib\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.cpp">
+      <Filter>Source Files\lib\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_neon.cpp">
+      <Filter>Source Files\lib\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse2.cpp">
+      <Filter>Source Files\lib\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp">
+      <Filter>Source Files\lib\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD.cpp">
+      <Filter>Source Files\lib\noise</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp">
+      <Filter>Source Files\lib\noise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -230,9 +266,6 @@
     <ClInclude Include="DebugStopWatch.h">
       <Filter>Header Files\Debug</Filter>
     </ClInclude>
-    <ClInclude Include="lib\XoshiroCpp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -307,6 +340,18 @@
     </ClInclude>
     <ClInclude Include="TextureUtility.h">
       <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldGenerator.h">
+      <Filter>Header Files\World</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD.h">
+      <Filter>Header Files\lib\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.h">
+      <Filter>Header Files\lib\noise</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\XoshiroCpp.hpp">
+      <Filter>Header Files\lib</Filter>
     </ClInclude>
     <ClInclude Include="GoldPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
