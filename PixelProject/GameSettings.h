@@ -22,8 +22,14 @@ struct GameSettings
    IVec2 screen_size = IVec2(1280, 720);
    float aspect_ratio = screen_size.x / screen_size.y;
 
+   // Game Fixed TimeStep
+   uint8_t target_sand_updates_per_seconds = 60;
+   double target_sand_update_time = 1000.0 / target_sand_updates_per_seconds;
+
    float target_frames_per_second = 60.0f;
    float calculated_frame_delay = 1000.0f / target_frames_per_second;
+   // Max number of updates we want the fixed update to run, this prevents complete lockup.
+   uint8_t max_sand_updates_per_frame = 10;
 
    void LoadSettings(ConfigFile& config)
    {
@@ -35,5 +41,10 @@ struct GameSettings
       target_frames_per_second = config.target_frames_per_second;
 
       calculated_frame_delay = 1000.0f / target_frames_per_second;
+
+      target_sand_updates_per_seconds = config.target_sand_update_per_seconds;
+      target_sand_update_time = 1000.0 / target_sand_updates_per_seconds;
+
+      max_sand_updates_per_frame = config.max_sand_updates_per_frame;
    };
 };

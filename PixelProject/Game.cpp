@@ -88,7 +88,9 @@ void Game::Run()
    game_settings->stop_watch->AddTimer("FastestUpdate");
    game_settings->stop_watch->UpdateTime("FastestUpdate", 1000.0f);
 
-   auto deltaTime = 0.0f;
+   auto deltaClock = clock::now();
+   double deltaTime = 0.0;
+   double fixedRemainingTime = 0.0;
 
    //? Debug Info
    auto frameStart = clock::now();
@@ -97,9 +99,22 @@ void Game::Run()
 
    while (!input_manager->IsShuttingDown())
    {
-      deltaTime = (static_cast<duration>(frameStart - clock::now())).count();
-      //? Debug Info
+      deltaTime = static_cast<duration>(clock::now() - deltaClock).count();
+      deltaClock = clock::now();
       frameStart = clock::now();
+
+      fixedRemainingTime+= deltaTime;
+
+      uint8_t frameFixedStepCounter = 0;
+      while (fixedRemainingTime > game_settings->target_sand_update_time) {
+         world_sim->FixedUpdate();
+         fixedRemainingTime -= game_settings->target_sand_update_time;
+         // Prevents lockup of game during intensive updates, but should hopefully allow recovery.
+         frameFixedStepCounter++;
+         if (frameFixedStepCounter >= game_settings->max_sand_updates_per_frame)
+            break;
+      }
+      game_settings->stop_watch->UpdateTime("Fixed_ms", static_cast<duration>(clock::now() - frameStart).count());
 
       //? ======
       //! Update

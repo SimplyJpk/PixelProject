@@ -136,6 +136,11 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
 void WorldSimulator::Update()
 {
+   
+}
+
+void WorldSimulator::FixedUpdate()
+{
    //? DebugDrawPixelRange();
    //? return;
 
@@ -625,15 +630,9 @@ bool WorldSimulator::Draw(Camera* camera)
    rect.w = Constant::chunk_size_x;
    rect.h = Constant::chunk_size_y;
 
-   // Grab our CameraPosition in Pixels
-   // const SDL_Rect cameraPos = camera->view_port;
-   // Calculate the Position of the Camera in the world in Chunks
-   // const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x, static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
-   // Same as above, but now we round to floor
-   // const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
-   // Now we remove our position to get our offset
-   // IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-   //                                 (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
+   //Grab our CameraPosition in Pixels
+   glm::vec3 camPos = camera->GetPosition();
+
 
    const IVec2 screenSize = game_settings->screen_size;
 
@@ -663,8 +662,10 @@ bool WorldSimulator::Draw(Camera* camera)
          rect.x = ((xVal + 1) * Constant::chunk_size_x); // +cameraWorldOffset.x;
          rect.y = ((yVal + 1) * Constant::chunk_size_y); // +cameraWorldOffset.y;
 
+
+
          // If part of our visible chunk isn't on screen we need to update the texture a different way
-         if (rect.x + Constant::chunk_size_x > max_render_box.x || rect.y + Constant::chunk_size_y > max_render_box.y)
+         if ((rect.x + camPos.x) + Constant::chunk_size_x > max_render_box.x || (rect.y + camPos.y) + Constant::chunk_size_y > max_render_box.y)
          {
             //printf("We Skipped X:%i YourTexture%i\n", XChunk, y + cameraChunk.y);
          }

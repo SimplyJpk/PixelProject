@@ -3,10 +3,13 @@
 
 struct ConfigFile final : public ISerializable
 {
-   int screen_x = 1280;
-   int screen_y = 720;
+   short screen_x = 1280;
+   short screen_y = 720;
 
    float target_frames_per_second = 60.0;
+
+   uint8_t target_sand_update_per_seconds = 60;
+   uint8_t max_sand_updates_per_frame = 10;
 
    SaveTypes SaveType() override
    {
@@ -21,6 +24,8 @@ struct ConfigFile final : public ISerializable
       out_archive(CEREAL_NVP(screen_x));
       out_archive(CEREAL_NVP(screen_y));
       out_archive(CEREAL_NVP(target_frames_per_second));
+      out_archive(CEREAL_NVP(target_sand_update_per_seconds));
+      out_archive(CEREAL_NVP(max_sand_updates_per_frame));
    }
 
    virtual void Load(cereal::JSONInputArchive in_archive) override
@@ -28,5 +33,7 @@ struct ConfigFile final : public ISerializable
       in_archive(screen_x);
       in_archive(screen_y);
       in_archive(target_frames_per_second);
+      in_archive(target_sand_update_per_seconds);
+      in_archive(max_sand_updates_per_frame);
    }
 };
