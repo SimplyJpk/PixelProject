@@ -63,8 +63,8 @@ void WorldSimulator::Start()
       is_processed_queue.push(is_processed_array_[i]);
    }
 
-   short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
-   short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
+   //short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
+   //short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
 
    // map_textures = new GLuint[yDim * xDim];
    glGenTextures(1, &map_textures);
@@ -76,6 +76,14 @@ void WorldSimulator::Start()
 
    glUseProgram(game_settings->default_shader);
    glUniform1i(glGetUniformLocation(game_settings->default_shader, "ourTexture"), 0);
+
+   for (int x = 0; x < world_dimensions.x; x++)
+   {
+      for (int y = 0; y < world_dimensions.y; y++)
+      {
+         world_generator->GenerateChunk(glm::vec2(x * Constant::chunk_size_x, y * Constant::chunk_size_y), chunks[IVec2(x, y)]->pixel_colour);
+      }
+   }
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size)

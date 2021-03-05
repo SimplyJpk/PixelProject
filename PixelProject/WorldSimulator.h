@@ -31,6 +31,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "TextureUtility.h"
+#include "WorldGenerator.h"
 
 using namespace PixelProject;
 using namespace boost;
@@ -66,6 +67,7 @@ public:
 
    GameSettings* game_settings;
    WorldDataHandler* world_data_handler;
+   WorldGenerator* world_generator;
    PaintManager* paint_manager;
 
    //? SDL_Texture* world_texture = nullptr;
@@ -96,7 +98,7 @@ public:
        1, 2, 3  // second triangle
    };
 
-   WorldSimulator(GameSettings* settings)
+   WorldSimulator(GameSettings* settings, WorldGenerator* world_generator_)
    {
       //TODO Should have this be an offset from the camera?
       world_render_rect = {
@@ -112,6 +114,7 @@ public:
          game_settings->screen_size.y + (Constant::chunk_size_y * 2));
 
       world_data_handler = WorldDataHandler::Instance();
+      world_generator = world_generator_;
 
       glGenVertexArrays(1, &VAO);
       glGenBuffers(1, &VBO);
@@ -150,6 +153,7 @@ public:
 
    void Start() override;
    void Update() override;
+   void FixedUpdate() override;
    void UpdateInput();
 
    //x void SubscribeInputs(InputHandler* inputHandler) override;

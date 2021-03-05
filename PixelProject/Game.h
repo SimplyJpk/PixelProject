@@ -6,6 +6,7 @@
 #include "GUIManager.h"
 #include "InputManager.h"
 #include "WorldSimulator.h"
+#include "WorldGenerator.h"
 
 #include "PixelTypeIncludes.h"
 #include "FlyCamera.h"
@@ -26,6 +27,7 @@ class Game
    PaintManager* paint_manager;
 
    WorldSimulator* world_sim;
+   WorldGenerator* world_generator_;
    FlyCamera main_cam;
 
    GLint defaultShader;

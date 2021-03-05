@@ -32,6 +32,8 @@ bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, Uint32* pixe
             pixelType = E_PixelType::Water;
          else if (noiseValue < 0.1f)
             pixelType = E_PixelType::Sand;
+         else if (noiseValue > 0.5f && noiseValue < 0.54f)
+            pixelType = E_PixelType::Gold;
 
          Uint32 pixelColour = world_data->GetColorFromType(pixelType);
          pixel_data[index] = pixelColour;

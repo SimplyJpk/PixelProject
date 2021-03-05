@@ -55,8 +55,10 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    main_cam.SetOrtho(0, game_settings->screen_size.x, game_settings->screen_size.y, 0);
    //? main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
 
+   //TODO V This should probably be static, it doesn't really need to know what is going on in the world, only where it is.
+   world_generator_ = new WorldGenerator();
    // World Sim
-   world_sim = new WorldSimulator(game_settings);
+   world_sim = new WorldSimulator(game_settings, world_generator_);
    world_sim->paint_manager = paint_manager;
    // Call this after the World_Sim so we know everything is ready.
    paint_manager->GeneratePixelTextures(game_settings);
