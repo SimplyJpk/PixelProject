@@ -26,6 +26,9 @@ public:
    // Returns base pixel from the Index provided, only use when calling using Pixel->PixelIndex
    BasePixel* GetPixelFromIndex(const short index) { return pixel_type_list_[index]; }
 
+   // Returns random colour based on the type passed in.
+   Uint32 GetColorFromType(const E_PixelType index) { return pixel_types_[index]->GetRandomColour(); }
+
    // Information from PixelType (Enum)
    BasePixel* GetPixelFromType(const E_PixelType type) { return pixel_types_[type]; }
    // Returns the name of a PixelType from the PixelType passed in
