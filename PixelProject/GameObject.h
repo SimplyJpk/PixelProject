@@ -19,6 +19,11 @@ public:
    {
    };
 
+   virtual void FixedUpdate()
+   {
+      
+   };
+
    virtual void Destroy()
    {
    };
