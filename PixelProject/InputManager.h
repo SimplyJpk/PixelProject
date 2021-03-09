@@ -2,6 +2,9 @@
 #include "SDL.h"
 #include "Vec2.h"
 #include <backends/imgui_impl_sdl.h>
+#include <algorithm>
+#include <vector>
+
 
 #include "InputKeyCodes.h"
 //TODO Implement an event system? Would be nice to call events from here
@@ -72,4 +75,13 @@ private:
 
    bool is_mouse_down_[MouseClickTypeCount]{ false };
    bool is_mouse_up_[MouseClickTypeCount]{ false };
+
+   std::vector<int> movement_keys_ = {
+      static_cast<int>(KeyCode::W),
+      static_cast<int>(KeyCode::A),
+      static_cast<int>(KeyCode::S),
+      static_cast<int>(KeyCode::D),
+      static_cast<int>(KeyCode::Q),
+      static_cast<int>(KeyCode::E)
+   };
 };

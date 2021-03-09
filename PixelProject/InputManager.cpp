@@ -1,5 +1,7 @@
 #include "InputManager.h"
 
+#include <cstdio>
+
 InputManager* InputManager::instance_ = nullptr;
 
 InputManager::InputManager() = default;
@@ -42,20 +44,6 @@ void InputManager::Update()
          keyboard_ = SDL_GetKeyboardState(nullptr);
          is_key_down_[event.key.keysym.scancode] = true;
          is_key_held_[event.key.keysym.scancode] = true;
-         is_any_key_down_ = true;
-         if (is_movement_down_ == false) 
-         {
-            switch (event.key.keysym.scancode)
-            {
-               case static_cast<int>(KeyCode::W) :
-                  case static_cast<int>(KeyCode::A) :
-                  case static_cast<int>(KeyCode::S) :
-                  case static_cast<int>(KeyCode::D) :
-                  case static_cast<int>(KeyCode::Q) :
-                  case static_cast<int>(KeyCode::E) :
-                  is_movement_down_ = true;
-            }
-         }
          break;
       case SDL_KEYUP:
          keyboard_ = SDL_GetKeyboardState(nullptr);
@@ -108,6 +96,18 @@ bool InputManager::IsAnyKeyDown()
 
 bool InputManager::IsMovementKeysDown()
 {
+   if (is_movement_down_ == false)
+   {
+      //TODO This could be improved, we can do this check during the Update, and then a final sweep after Inputs to check Helds.
+      std::vector<int>::iterator it;
+      for (it = movement_keys_.begin(); it != movement_keys_.end(); ++it) {
+         if (is_key_held_[(*it)] || is_key_down_[(*it)])
+         {
+            is_movement_down_ = true;
+            break;
+         }
+      }
+   }
    return is_movement_down_;
 }
 
