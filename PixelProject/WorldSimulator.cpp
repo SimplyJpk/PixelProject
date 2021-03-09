@@ -103,11 +103,17 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
    const IVec2 newPoint = IVec2(DEBUG_ZoomLevel * point.x, DEBUG_ZoomLevel * point.y);
 
-   int Left = point.x - size;
-   int Right = Left + size * 2;
-   int Top = point.y - size;
-   int Bottom = Top + size * 2;
+   auto camPosition = cam->GetPosition();
+   
+   int XCenter = static_cast<int>(camPosition.x) + point.x;
+   int YCenter = static_cast<int>(camPosition.y) + point.y;
+
+   int Left = XCenter - size;
+   int Right = XCenter + size;
+   int Top =  YCenter - size;
+   int Bottom = YCenter + size;
    float radius = powf(size, 2);
+
    for (int y = Top; y <= Bottom; ++y)
    {
       if (y < 0 || y >= world_dimensions.y * Constant::chunk_size_y)
@@ -122,7 +128,7 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
          const int xFloor = floor(x / Constant::chunk_size_x);
          if (xFloor > world_dimensions.x) continue;
 
-         double dist = powf(point.x - x, 2.0) + powf(point.y - y, 2.0);
+         double dist = powf(XCenter - x, 2.0) + powf(YCenter - y, 2.0);
          if (dist <= radius)
          {
             chunks[IVec2(xFloor, yFloor)]->pixel_colour[
