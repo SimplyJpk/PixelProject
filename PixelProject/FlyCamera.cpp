@@ -26,11 +26,11 @@ void FlyCamera::MoveCam(const float delta)
 	// Left Right
 	if (im->IsKeyHeld(KeyCode::A))
 	{
-		currentPos -= left* delta* move_speed_;
+		currentPos += left* delta* move_speed_;
 	}
 	else if (im->IsKeyHeld(KeyCode::D))
 	{
-		currentPos += left* delta * move_speed_;
+		currentPos -= left* delta * move_speed_;
 	}
 	// Up Down
 	if (im->IsKeyHeld(KeyCode::S))

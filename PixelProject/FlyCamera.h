@@ -11,10 +11,10 @@ public:
   void Update(float delta) override;
 private:
 	// Default speed and Shift Multiplier, holding shift will move camera default*mult faster
-	float default_speed_ = 0.025f;
-	float shift_multi_ = 4;
+	float default_speed_ = 1.0f;
+	float shift_multi_ = 5;
 
-	float move_speed_ = 0.025f;
+	float move_speed_ = 1.0f;
 
 	// Moves the Camera
 	void MoveCam(float delta);
