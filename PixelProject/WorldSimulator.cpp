@@ -631,91 +631,62 @@ void WorldSimulator::ClearWorld()
 
 bool WorldSimulator::Draw(Camera* camera)
 {
-   // Copy our texture
-   SDL_Rect rect;
-   rect.w = Constant::chunk_size_x;
-   rect.h = Constant::chunk_size_y;
-
-   //Grab our CameraPosition in Pixels
    glm::vec3 camPos = camera->GetPosition();
-
-
    const IVec2 screenSize = game_settings->screen_size;
 
-   int counter = 0;
-   //TODO Fix all this vv
-   for (int xVal = 0; xVal < max_visible_chunks_on_screen.x; xVal++)
+   int xChunkStart = static_cast<int>(floor(camPos.x / Constant::chunk_size_x));
+   int xChunkEnd = xChunkStart + (screenSize.x / Constant::chunk_size_x) + 2;
+   int xOffset = static_cast<int>(camPos.x) % Constant::chunk_size_x;
+   if (camPos.x < 0)
+      xChunkStart += 1;
+
+   int yChunkStart = static_cast<int>(floor(camPos.y / Constant::chunk_size_y));
+   int yChunkEnd = yChunkStart + (screenSize.y / Constant::chunk_size_y) + 2;
+   int yOffset = static_cast<int>(camPos.y) % Constant::chunk_size_y;
+   if (camPos.y < 0)
+      yChunkStart += 1;
+
+   for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {
-      const int xChunk = xVal; // +cameraChunk.x;
-      if (xChunk < 0) continue;
-      if (xChunk >= world_dimensions.x)
+      for (int yVal = yChunkStart; yVal < yChunkEnd; yVal++)
       {
-         xVal = max_visible_chunks_on_screen.x;
-         continue;
-      }
-
-      for (int yVal = 0; yVal < max_visible_chunks_on_screen.y; yVal++)
-      {
-         const int yChunk = yVal; // cameraChunk.y;
-         if (yChunk < 0) continue;
-         if (yChunk >= world_dimensions.y)
-         {
-            yVal = max_visible_chunks_on_screen.y;
+         auto worldChunk = chunks.find(IVec2(xVal, yVal));
+         // Chunk doesn't exist, we don't render
+         if (worldChunk == chunks.end())
             continue;
-         }
 
-         // We add one just to center the world based on how we're rendering (Bad choice)
-         rect.x = ((xVal + 1) * Constant::chunk_size_x); // +cameraWorldOffset.x;
-         rect.y = ((yVal + 1) * Constant::chunk_size_y); // +cameraWorldOffset.y;
+         glUseProgram(game_settings->default_shader);
 
+         glActiveTexture(GL_TEXTURE0);
+         glBindTexture(GL_TEXTURE_2D, map_textures);
 
+         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Constant::chunk_size_x, Constant::chunk_size_y, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, worldChunk->second->pixel_colour);
 
-         // If part of our visible chunk isn't on screen we need to update the texture a different way
-         if ((rect.x + camPos.x) + Constant::chunk_size_x > max_render_box.x || (rect.y + camPos.y) + Constant::chunk_size_y > max_render_box.y)
-         {
-            //printf("We Skipped X:%i YourTexture%i\n", XChunk, y + cameraChunk.y);
-         }
-         else
-         {
-            glUseProgram(game_settings->default_shader);
+         glm::mat4 model = glm::mat4(1.0f);
+         glm::vec3 modelPosition = glm::vec3(
+            -xOffset + (((xVal - xChunkStart) + 1) * Constant::chunk_size_x) - (Constant::chunk_size_x / 2),
+            -yOffset + (((yVal - yChunkStart) + 1) * Constant::chunk_size_y) - (Constant::chunk_size_y / 2),
+            1.0f
+         );
+         model = glm::translate(model, modelPosition);
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, map_textures);
+         model = glm::scale(model, glm::vec3(128, 128, 1.0f));
 
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Constant::chunk_size_x, Constant::chunk_size_y, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, chunks[IVec2(xVal, yVal)]->pixel_colour);
-
-            glm::mat4 model = glm::mat4(1.0f);
-            //? model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2) + (0.05f * xVal)), static_cast<float>(-yVal + (world_dimensions.y / 2) - (0.05f * yVal)),0.0f)); 
-
-            model = glm::translate(model, glm::vec3((Constant::chunk_size_x * (xVal + 1) - (Constant::chunk_size_x / 2)), (Constant::chunk_size_y * (yVal + 1) - (Constant::chunk_size_y / 2)), 1.0f));
-
-            // model = glm::translate(model, glm::vec3(static_cast<float>(xVal - (world_dimensions.x / 2)), static_cast<float>(-yVal + (world_dimensions.y / 2)),0.0f));
-
-            model = glm::scale(model, glm::vec3(128, 128, 1.0f));
-            //? model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)); 
-
-            // glm::mat4 view = glm::mat4(1.0f);
-            // // note that we're translating the scene in the reverse direction of where we want to move
-            // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -12.0f));
-
-            int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-            // int viewLoc = glGetUniformLocation(game_settings->default_shader, "view");
-            // glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera->GetView()));
-            int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
-            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+         int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
+         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+         int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
+         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
 
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-         }
+         glBindVertexArray(VAO);
+         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
       }
    }
 
-   //TODO Replace this with a better zoom
-   SDL_Rect zoomrect = world_render_rect;
-   zoomrect.w *= DEBUG_ZoomLevel;
-   zoomrect.h *= DEBUG_ZoomLevel;
+   //? //TODO Replace this with a better zoom
+   //? SDL_Rect zoomrect = world_render_rect;
+   //? zoomrect.w *= DEBUG_ZoomLevel;
+   //? zoomrect.h *= DEBUG_ZoomLevel;
 
    return true;
 }
