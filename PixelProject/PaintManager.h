@@ -192,13 +192,13 @@ public:
       }
 
       int modelLoc = glGetUniformLocation(used_shader_, "model");
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, background_image_id_);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(background_image_.transform.GetModel()));
+      // glActiveTexture(GL_TEXTURE0);
+      // glBindTexture(GL_TEXTURE_2D, background_image_id_);
+      // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(background_image_.transform.GetModel()));
       int projLoc = glGetUniformLocation(used_shader_, "projection");
-      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
-      glBindVertexArray(vao_);
-      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+      // glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
+      // glBindVertexArray(vao_);
+      // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
       glUseProgram(used_shader_);
       for (int i = 0; i < texture_count; i++)

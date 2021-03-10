@@ -59,6 +59,7 @@ int main(int argc, char** argv)
 
 void PrintInGameCommands()
 {
+   //TODO Need to clean these.
    printf("/--\t\tSome of these are likely wrong..\n");
    printf("/--\t\tCommands\n");
    printf("|- TAB\t\t- Change Pixel type\n");

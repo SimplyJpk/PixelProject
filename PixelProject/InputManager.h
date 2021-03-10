@@ -42,20 +42,14 @@ public:
    int MouseY() const { return mouse_y_; }
    IVec2 MousePosition() const { return mouse_pos_; }
 
-   InputManager();
-
-   InputManager(InputManager const&)
-   {
-   }
-
-   void operator=(InputManager const&) const
-   {
-   }
+   void operator=(InputManager const&) const { }
 
    bool IsShuttingDown() { return GetKeyDown(KeyCode::Escape); };
 protected:
    static inline bool IsValidKey(KeyCode& key_code);
 private:
+   InputManager();
+   InputManager(InputManager const&) { }
    static InputManager* instance_;
 
    const Uint8* keyboard_ = nullptr;
