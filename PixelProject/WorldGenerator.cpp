@@ -16,16 +16,16 @@ WorldGenerator::WorldGenerator()
 
 bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, Uint32* pixel_data)
 {
-   float* noiseSet = noise->GetSimplexFractalSet(static_cast<int>(world_position.y), static_cast<int>(world_position.x), 0, Constant::chunk_size_y, Constant::chunk_size_x, 1, 1);
+   auto* noiseSet = noise->GetSimplexFractalSet(static_cast<int>(world_position.y), static_cast<int>(world_position.x), 0, Constant::chunk_size_y, Constant::chunk_size_x, 1, 1);
    short index = 0;
-   for (int x = 0; x < Constant::chunk_size_x; x++)
+   for (short x = 0; x < Constant::chunk_size_x; x++)
    {
-      for (int y = 0; y < Constant::chunk_size_y; y++)
+      for (short y = 0; y < Constant::chunk_size_y; y++)
       {
          index++;
-         float noiseValue = noiseSet[index];
+         const auto noiseValue = noiseSet[index];
 
-         E_PixelType pixelType = E_PixelType::Space;
+         auto pixelType = E_PixelType::Space;
          if (noiseValue <= -0.25f)
             pixelType = E_PixelType::Ground;
          else if (noiseValue < 0.0f)
@@ -35,7 +35,7 @@ bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, Uint32* pixe
          else if (noiseValue > 0.5f && noiseValue < 0.54f)
             pixelType = E_PixelType::Gold;
 
-         Uint32 pixelColour = world_data->GetColorFromType(pixelType);
+         const auto pixelColour = world_data->GetColorFromType(pixelType);
          pixel_data[index] = pixelColour;
       }
    }

@@ -12,11 +12,11 @@
 class WorldGenerator
 {
 public:
-   FastNoiseSIMD* noise = nullptr;
+   static inline FastNoiseSIMD* noise = nullptr;
 
-   WorldDataHandler* world_data;
+   static inline WorldDataHandler* world_data = nullptr;
 
-   bool GenerateChunk(const glm::vec2& world_position, Uint32* pixel_data);
+   static bool GenerateChunk(const glm::vec2& world_position, Uint32* pixel_data);
 
    WorldGenerator();
 };
