@@ -58,10 +58,10 @@ void WorldSimulator::Start()
       }
    }
 
-   for (size_t i = 0; i < 100; i++)
-   {
-      is_processed_queue.push(is_processed_array_[i]);
-   }
+   //? for (size_t i = 0; i < world_dimensions.x * world_dimensions.y; i++)
+   //? {
+   //?    is_processed_queue.push(is_processed_array_[i]);
+   //? }
 
    //short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
    //short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
@@ -169,23 +169,25 @@ void WorldSimulator::FixedUpdate()
    }
    //TODO Remove above
 
-   int xStage, yStage;
+   uint8_t xStage, yStage;
    int chunkUpdates = 0;
 
    x_dir_ = (x_dir_ == 0 ? 1 : 0); // rng() % 2;
    y_dir_ = 1;
 
-   for (int x = 0; x < world_dimensions.x; x++)
+   for (uint16_t x = 0; x < world_dimensions.x; x++)
    {
-      for (int y = 0; y < world_dimensions.y; y++)
+      for (uint16_t y = 0; y < world_dimensions.y; y++)
       {
-         WorldChunk* accessedChunk = chunks[IVec2(x, y)];
-         bool* processedBools;
-         is_processed_queue.pop(processedBools);
-         is_chunk_processed[accessedChunk->position] = processedBools;
-         used_processed_queue.push(processedBools);
+         //? WorldChunk* accessedChunk = chunks[IVec2(x, y)];
+         //? bool* processedBools;
+         //? is_processed_queue.pop(processedBools);
+         is_chunk_processed[chunks[IVec2(x, y)]->position] = is_processed_array_[chunkUpdates];
+         chunkUpdates++;
+         //? used_processed_queue.push(processedBools);
       }
    }
+   chunkUpdates = 0;
 
    // Fill array with Update Orders for each pixel type. This is only called once per chunk per frame.
    world_data_handler->FillWithPixelUpdateOrders(chunk_direction_order);
@@ -278,12 +280,12 @@ void WorldSimulator::FixedUpdate()
                            // If the pixel is empty, or something beat us to update it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
 
-                           auto* pixel = world_data_handler->GetPixelFromPixelColour(localPixels[localIndex]);
+                           BasePixel* pixel = world_data_handler->GetPixelFromPixelColour(localPixels[localIndex]);
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
                            {
-                              int direction = pixelDirOrder[directionIndex];
+                              short direction = pixelDirOrder[directionIndex];
                               // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
                               if (direction == DIR_COUNT) break;
 
@@ -299,8 +301,8 @@ void WorldSimulator::FixedUpdate()
                               short neighbourIndex;
                               uint32_t pixelIndexChange = 0;
 
-                              short maxPixelRange = pixel->MaxUpdateRange();
-                              short borderRange = GetDistanceToBorder(x, y, direction);
+                              uint8_t maxPixelRange = pixel->MaxUpdateRange();
+                              uint8_t borderRange = GetDistanceToBorder(x, y, direction);
 
                               switch (piece)
                               {
@@ -430,13 +432,13 @@ void WorldSimulator::FixedUpdate()
       }
    }
 
-   while (!used_processed_queue.empty())
-   {
-      bool* data;
-      used_processed_queue.pop(data);
-      memset(data, false, Constant::chunk_total_size);
-      is_processed_queue.push(data);
-   }
+   //? while (!used_processed_queue.empty())
+   //? {
+   //?    bool* data;
+   //?    used_processed_queue.pop(data);
+   memset(is_processed_array_, false, Constant::chunk_total_size * world_dimensions.x * world_dimensions.y);
+   //?    is_processed_queue.push(data);
+   //? }
    //TODO Improve this?
    for (auto y = 0; y < world_dimensions.y; y++)
    {
@@ -447,7 +449,7 @@ void WorldSimulator::FixedUpdate()
    }
 }
 
-inline short WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction)
+inline uint8_t WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction)
 {
    switch (direction)
    {

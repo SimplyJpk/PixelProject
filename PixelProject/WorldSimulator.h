@@ -45,7 +45,7 @@ public:
 
    std::atomic<int> thread_pool_tasks = 0;
    asio::thread_pool thread_pool{ 32 };
-   const static int max_process_count = 100;
+   const static int max_process_count = Constant::world_size_x * Constant::world_size_y;
 
    lockfree::queue<bool*> is_processed_queue{ max_process_count };
 
@@ -162,7 +162,7 @@ public:
    bool Draw(Camera* camera) override;
 
 protected:
-   short GetDistanceToBorder(short x, short y, short direction);
+   uint8_t GetDistanceToBorder(short x, short y, short direction);
    // Ugly, can we improve this?
    short x_dir_ = -1, y_dir_ = 1;
 
