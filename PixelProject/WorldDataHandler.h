@@ -1,7 +1,7 @@
 #pragma once
-#include <unordered_map>
+#include "PixelTypeIncludes.h"
 
-#include "BasePixel.h"
+#include <unordered_map>
 #include <array>
 
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
@@ -15,6 +15,19 @@ public:
          instance_ = new WorldDataHandler();
       }
       return instance_;
+   }
+
+   WorldDataHandler()
+   {
+      AddPixelData(new SpacePixel());
+      AddPixelData(new GroundPixel());
+      AddPixelData(new SandPixel());
+      AddPixelData(new WaterPixel());
+      AddPixelData(new WoodPixel());
+      AddPixelData(new OilPixel());
+      AddPixelData(new FirePixel());
+      AddPixelData(new AcidPixel());
+      AddPixelData(new GoldPixel());
    }
 
    // Information from Pixel Colours
@@ -65,20 +78,18 @@ public:
       }
    }
 
-   WorldDataHandler() = default;;
-
    WorldDataHandler(WorldDataHandler const&)
    {
-   };
+   }
 
    void operator=(WorldDataHandler const&) const
    {
-   };
+   }
 private:
    static WorldDataHandler* instance_;
 
    short pixel_type_counter_ = 0;
-   std::array<BasePixel*, static_cast<short>(E_PixelType::COUNT)> pixel_type_list_;
+   std::array<BasePixel*, static_cast<short>(E_PixelType::COUNT)> pixel_type_list_{ nullptr };
    std::unordered_map<Uint32, BasePixel*> pixel_colour_map_;
    std::unordered_map<E_PixelType, BasePixel*> pixel_types_;
 };

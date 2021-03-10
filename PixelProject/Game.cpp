@@ -12,13 +12,6 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    g_window = gl_window;
 
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
-   // glMatrixMode(GL_PROJECTION);
-   // glLoadIdentity();
-   // float aspect = (float)settings->screen_size.x / (float)settings->screen_size.y;
-   // glOrtho(-aspect, aspect, -1, 1, -1, 1);
-
-   // glMatrixMode(GL_MODELVIEW);
-   // glLoadIdentity();
 
    if (!ShaderManager::Instance()->CompileShader("orthoWorld", ShaderType::Vertex, "shaders/orthoWorld.vert"))
       printf("Failed to generate Vertex Shader");
@@ -28,32 +21,20 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    defaultShader = ShaderManager::Instance()->CreateShaderProgram("orthoWorld", false);
    game_settings->default_shader = defaultShader;
 
-   //TODO Need to find a better place for this. This needs to be done before Paint Manager in instanced.
-   WorldDataHandler::Instance()->AddPixelData(new SpacePixel());
-   WorldDataHandler::Instance()->AddPixelData(new GroundPixel());
-   WorldDataHandler::Instance()->AddPixelData(new SandPixel());
-   WorldDataHandler::Instance()->AddPixelData(new WaterPixel());
-   WorldDataHandler::Instance()->AddPixelData(new WoodPixel());
-   WorldDataHandler::Instance()->AddPixelData(new OilPixel());
-   WorldDataHandler::Instance()->AddPixelData(new FirePixel());
-   WorldDataHandler::Instance()->AddPixelData(new AcidPixel());
-   WorldDataHandler::Instance()->AddPixelData(new GoldPixel());
-
    paint_manager = new PaintManager();
-
-   //TODO Needs to be updated to work with new renderer
-   //? game_settings->paint_manager->GeneratePixelTextures(renderer);
 
    // Initialize ImGUI
    gui_manager = new GuiManager(game_settings, g_window, g_context);
    gui_manager->SetPaintManager(paint_manager);
+
+
    //TODO Look into if FC_Font will still work with opengl?
    game_settings->font = nullptr;
    // Input
    input_manager = InputManager::Instance();
    // Camera
    main_cam.SetOrtho(0, game_settings->screen_size.x, game_settings->screen_size.y, 0);
-   //? main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
+   //x main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
 
    //TODO V This should probably be static, it doesn't really need to know what is going on in the world, only where it is.
    world_generator_ = new WorldGenerator();
@@ -82,6 +63,7 @@ void Game::Run()
    game_settings->stop_watch->AddTimer("Draw");
    game_settings->stop_watch->AddTimer("FrameTime");
    game_settings->stop_watch->AddTimer("CurrentFPS");
+   game_settings->stop_watch->AddTimer("Fixed_ms");
 
    game_settings->stop_watch->AddTimer("SlowestUpdate");
    game_settings->stop_watch->UpdateTime("SlowestUpdate", 0.0f);
@@ -111,10 +93,10 @@ void Game::Run()
          fixedRemainingTime -= game_settings->target_sand_update_time;
          // Prevents lockup of game during intensive updates, but should hopefully allow recovery.
          frameFixedStepCounter++;
+         game_settings->stop_watch->UpdateTime("Fixed_ms", static_cast<duration>(clock::now() - frameStart).count());
          if (frameFixedStepCounter >= game_settings->max_sand_updates_per_frame)
             break;
       }
-      game_settings->stop_watch->UpdateTime("Fixed_ms", static_cast<duration>(clock::now() - frameStart).count());
 
       //? ======
       //! Update
