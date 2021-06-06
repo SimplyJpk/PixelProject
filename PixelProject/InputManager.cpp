@@ -49,6 +49,7 @@ void InputManager::Update()
          keyboard_ = SDL_GetKeyboardState(nullptr);
          is_key_up_[event.key.keysym.scancode] = true;
          is_key_held_[event.key.keysym.scancode] = false;
+         break;
       case SDL_MOUSEMOTION:
          //TODO May need to remove the +1
          mouse_x_ = event.motion.x + 1;
