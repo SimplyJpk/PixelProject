@@ -1,5 +1,5 @@
 #pragma once
-#include "Vec2.h"
+#include "Math.h"
 
 namespace std
 {
@@ -15,16 +15,19 @@ namespace std
       {
          return a.x == b.x && a.y == b.y;
       }
+   };
 
-      //? This bad?
-      //? std::size_t operator()(const IVec2& vec) const
-      //? {
-      //? 		size_t res = 17;
-      //? 		//res = res * 31 + hash<char>()('X');
-      //? 		res = res * 31 + hash<int>()(vec.x);
-      //? 		res = res * 31 + hash<char>()('Y');
-      //? 		res = res * 31 + hash<int>()(vec.y);
-      //? 		return res;
-      //? }
+   template <>
+   struct hash<Vec2>
+   {
+      size_t operator()(const Vec2& k) const noexcept
+      {
+         return std::hash<float>()(k.x) ^ std::hash<float>()(k.y);
+      }
+
+      bool operator()(const Vec2& a, const Vec2& b) const noexcept
+      {
+         return a.x == b.x && a.y == b.y;
+      }
    };
 }
