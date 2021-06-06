@@ -1,4 +1,5 @@
 #include "WorldGenerator.h"
+
 using namespace PixelProject;
 
 WorldGenerator::WorldGenerator()
@@ -14,7 +15,7 @@ WorldGenerator::WorldGenerator()
    noise->SetFractalGain(0.1f);
 }
 
-bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, Uint32* pixel_data)
+bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, WorldChunk* world_chunk)
 {
    auto* noiseSet = noise->GetSimplexFractalSet(static_cast<int>(world_position.y), static_cast<int>(world_position.x), 0, Constant::chunk_size_y, Constant::chunk_size_x, 1, 1);
    short index = 0;
@@ -22,7 +23,6 @@ bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, Uint32* pixe
    {
       for (short y = 0; y < Constant::chunk_size_y; y++)
       {
-         index++;
          const auto noiseValue = noiseSet[index];
 
          auto pixelType = E_PixelType::Space;
@@ -35,8 +35,13 @@ bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, Uint32* pixe
          else if (noiseValue > 0.5f && noiseValue < 0.54f)
             pixelType = E_PixelType::Gold;
 
-         const auto pixelColour = world_data->GetColorFromType(pixelType);
-         pixel_data[index] = pixelColour;
+         BasePixel* pixel = world_data->GetPixelFromType(pixelType);
+
+         const auto pixelColour = pixel->GetRandomColour();
+         world_chunk->pixel_colour[index] = pixelColour;
+         // Set Index in Data
+         world_chunk->pixel_data[index] = pixel->pixel_index;
+         index++;
       }
    }
 

@@ -149,7 +149,7 @@ public:
    // std::vector<Uint32*> pixels;
    // std::vector<bool*> isProcessed;
 
-   void Pen(const IVec2& point, BasePixel* pixel_type, int size = 5);
+   void Pen(const IVec2& point, BasePixel* pixel_type, int size = 5, bool override_pixels = true);
 
    void Start() override;
    void Update() override;

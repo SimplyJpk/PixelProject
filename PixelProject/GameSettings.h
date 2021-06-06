@@ -2,7 +2,7 @@
 #include <gl/GLEW.h>
 
 #include "SDL_FontCache/SDL_FontCache.h"
-#include "Vec2.h"
+#include "Math.h"
 #include "DebugStopWatch.h"
 
 #include "ConfigFile.h"

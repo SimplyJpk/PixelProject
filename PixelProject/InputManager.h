@@ -1,6 +1,6 @@
 #pragma once
 #include "SDL.h"
-#include "Vec2.h"
+#include "Math.h"
 #include <backends/imgui_impl_sdl.h>
 #include <algorithm>
 #include <vector>

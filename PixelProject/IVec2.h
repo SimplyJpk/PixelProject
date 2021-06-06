@@ -69,7 +69,8 @@ inline IVec2 IVec2::operator-(const IVec2& other) const
    return *(new IVec2(this->x - other.x, this->y - other.y));
 }
 
-inline IVec2 IVec2::Lerp(IVec2 a, IVec2 b, float t)
-{
-   IVec2 result = a + (b - a) * t);
-}
+//TODO Complete lerp
+// inline IVec2 IVec2::Lerp(IVec2 a, IVec2 b, float t)
+// {
+//    IVec2 result = a + (b - a) * t);
+// }

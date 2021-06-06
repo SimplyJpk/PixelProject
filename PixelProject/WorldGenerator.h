@@ -8,6 +8,7 @@
 
 #include "PixelTypeIncludes.h"
 #include "WorldDataHandler.h"
+#include "WorldChunk.h"
 
 class WorldGenerator
 {
@@ -16,7 +17,7 @@ public:
 
    static inline WorldDataHandler* world_data = nullptr;
 
-   static bool GenerateChunk(const glm::vec2& world_position, Uint32* pixel_data);
+   static bool GenerateChunk(const glm::vec2& world_position, WorldChunk* world_chunk);
 
    WorldGenerator();
 };
