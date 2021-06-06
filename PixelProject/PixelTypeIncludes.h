@@ -9,3 +9,4 @@
 #include "FirePixel.h"
 #include "AcidPixel.h"
 #include "GoldPixel.h"
+#include "SteamPixel.h"

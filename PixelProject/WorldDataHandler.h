@@ -28,6 +28,7 @@ public:
       AddPixelData(new FirePixel());
       AddPixelData(new AcidPixel());
       AddPixelData(new GoldPixel());
+      AddPixelData(new SteamPixel());
    }
 
    // Information from Pixel Colours

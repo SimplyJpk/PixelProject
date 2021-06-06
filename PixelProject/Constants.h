@@ -99,6 +99,7 @@ enum class E_PixelType
    Fire,
    Acid,
    Gold,
+   Steam,
    COUNT
 };
 
