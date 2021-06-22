@@ -41,6 +41,7 @@ public:
    int MouseX() const { return mouse_x_; }
    int MouseY() const { return mouse_y_; }
    IVec2 MousePosition() const { return mouse_pos_; }
+   IVec2 LastMousePosition() const { return mouse_last_frame_pos_; }
 
    void operator=(InputManager const&) const { }
 
@@ -57,6 +58,7 @@ private:
 
    int mouse_x_ = 0, mouse_y_ = 0;
    IVec2 mouse_pos_ = IVec2::Zero();
+   IVec2 mouse_last_frame_pos_ = IVec2::Zero();
    IVec2 mouse_scroll_ = IVec2::Zero();
 
    bool is_movement_down_ = false;

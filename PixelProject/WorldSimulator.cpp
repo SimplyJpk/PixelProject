@@ -542,10 +542,23 @@ void WorldSimulator::UpdateInput()
 {
    InputManager* input = InputManager::Instance();
    const IVec2 mousePos = input->MousePosition();
+   const IVec2 lastFramePos = input->LastMousePosition();
+
 
    if (input->GetMouseButton(MouseLeft))
    {
-      Pen(mousePos, paint_manager->selected_pixel, DEBUG_PenSize);
+      //TODO Improve
+      float distance = IVec2::Distance(mousePos, lastFramePos);
+      int steps = (distance / DEBUG_PenSize) + 1;
+      for (int i = 0; i <= steps; i++)
+      {
+         IVec2 pixel = IVec2::Lerp(lastFramePos, mousePos, (1.0f / steps) * i);
+         Pen(pixel, paint_manager->selected_pixel, DEBUG_PenSize);
+      }
+   }
+   if (input->GetMouseButton(MouseMiddle))
+   {
+      Pen(mousePos, paint_manager->selected_pixel, DEBUG_PenSize, false);
    }
    if (input->GetMouseButton(MouseRight))
    {

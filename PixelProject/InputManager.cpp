@@ -54,6 +54,7 @@ void InputManager::Update()
          //TODO May need to remove the +1
          mouse_x_ = event.motion.x + 1;
          mouse_y_ = event.motion.y + 1;
+         mouse_last_frame_pos_ = mouse_pos_;
          mouse_pos_ = IVec2(mouse_x_, mouse_y_);
          break;
       case SDL_MOUSEBUTTONDOWN:
