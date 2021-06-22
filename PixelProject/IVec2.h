@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 /// <summary>
 /// Container class that has 2 ints
 /// </summary>
@@ -16,6 +17,12 @@ public:
    {
       this->x = x;
       this->y = y;
+   }
+
+   template <class Archive>
+   void serialize(Archive& archive)
+   {
+      archive(x, y);
    }
 
    IVec2 operator +(const IVec2& other) const;
@@ -40,11 +47,8 @@ public:
    static IVec2 Up() { return IVec2(0, 1); };
    static IVec2 Down() { return IVec2(0, -1); };
 
-   template <class Archive>
-   void serialize(Archive& archive)
-   {
-      archive(x, y);
-   }
+   static IVec2 Lerp(IVec2 a, IVec2 b, float t);
+   static float Distance(IVec2 a, IVec2 b);
 };
 
 inline IVec2 IVec2::operator=(const IVec2 other)
@@ -59,6 +63,17 @@ inline IVec2 IVec2::operator*(const float rhs) const
    return *(new IVec2(static_cast<int>(this->x * rhs), static_cast<int>(this->y * rhs)));
 }
 
+inline IVec2 IVec2::Lerp(IVec2 a, IVec2 b, float t)
+{
+   IVec2 result = a + (b - a) * t;
+   return result;
+}
+
+inline float IVec2::Distance(IVec2 a, IVec2 b)
+{
+   return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2));
+}
+
 inline IVec2 IVec2::operator+(const IVec2& other) const
 {
    return *(new IVec2(this->x + other.x, this->y + other.y));
@@ -68,9 +83,3 @@ inline IVec2 IVec2::operator-(const IVec2& other) const
 {
    return *(new IVec2(this->x - other.x, this->y - other.y));
 }
-
-//TODO Complete lerp
-// inline IVec2 IVec2::Lerp(IVec2 a, IVec2 b, float t)
-// {
-//    IVec2 result = a + (b - a) * t);
-// }

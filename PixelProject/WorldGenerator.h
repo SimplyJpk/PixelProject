@@ -7,6 +7,7 @@
 #include "lib/FastNoiseSIMD/FastNoiseSIMD.h"
 
 #include "PixelTypeIncludes.h"
+#include "WorldChunk.h"
 #include "WorldDataHandler.h"
 #include "WorldChunk.h"
 

@@ -23,6 +23,9 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
 
    paint_manager = new PaintManager();
 
+   // Generate Uniform Data for rendering, this has to be done after paint_manager currently due to ordering.
+   WorldDataHandler::Instance()->SetUniformData(defaultShader);
+   
    // Initialize ImGUI
    gui_manager = new GuiManager(game_settings, g_window, g_context);
    gui_manager->SetPaintManager(paint_manager);

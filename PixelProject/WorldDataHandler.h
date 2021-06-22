@@ -3,6 +3,11 @@
 
 #include <unordered_map>
 #include <array>
+#include <gl/GLEW.h>
+
+
+#include "ColourUtility.h"
+#include "StringUtility.h"
 
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
 class WorldDataHandler
@@ -59,6 +64,11 @@ public:
       }
    }
 
+   Uint32 GetNewPixelOfType(const E_PixelType type)
+   {
+      return pixel_types_[type]->GetNewPixel();
+   }
+
 
    void AddPixelData(BasePixel* pixel)
    {
@@ -77,6 +87,25 @@ public:
          }
          pixel_colour_map_.insert(std::make_pair(pixel->type_colours[i], pixel));
       }
+   }
+
+   void SetUniformData(GLuint program)
+   {
+      glUseProgram(program);
+      GLint myLoc;
+      
+      for (int i = 0; i < pixel_type_counter_; i++)
+      {
+         auto pixel = pixel_type_list_[i];
+         std::string locationString = Utility::string_format("u_Pixels[%i].colour_count", pixel->pixel_index);
+         myLoc = glGetUniformLocation(program, locationString.c_str());
+         glProgramUniform1i(program, myLoc, pixel->colour_count);
+         for (int j = 0; j < pixel->colour_count; j++)
+         {
+            glProgramUniform4fv(program, myLoc+(j+1), 4, pixel->render_colours[j]);
+         }
+      }
+      //TODO Continue here
    }
 
    WorldDataHandler(WorldDataHandler const&)

@@ -299,6 +299,7 @@
     <ClInclude Include="boost\threadpool.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChunkDirection.h" />
+    <ClInclude Include="ColourUtility.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="DebugStopWatch.h" />
     <ClInclude Include="FirePixel.h" />
@@ -309,9 +310,11 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="ISerializable.h" />
+    <ClInclude Include="IVec2.h" />
     <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD.h" />
     <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.h" />
     <ClInclude Include="lib\XoshiroCpp.hpp" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="OilPixel.h" />
     <ClInclude Include="PaintManager.h" />
     <ClInclude Include="GameObject.h" />
@@ -321,6 +324,7 @@
     <ClInclude Include="BasePixel.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="PixelTypeIncludes.h" />
+    <ClInclude Include="PixelUtil.h" />
     <ClInclude Include="RectTransform.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
@@ -329,6 +333,7 @@
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SteamPixel.h" />
+    <ClInclude Include="StringUtility.h" />
     <ClInclude Include="TextureUtility.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VectorHelper.h" />
@@ -347,6 +352,10 @@
     <None Include="packages.config" />
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.vert" />
+    <None Include="shaders\orthoUI.frag" />
+    <None Include="shaders\orthoUI.vert" />
+    <None Include="shaders\orthoWorld.frag" />
+    <None Include="shaders\orthoWorld.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

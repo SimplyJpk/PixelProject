@@ -36,11 +36,9 @@ bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, WorldChunk* 
             pixelType = E_PixelType::Gold;
 
          BasePixel* pixel = world_data->GetPixelFromType(pixelType);
-
          const auto pixelColour = pixel->GetRandomColour();
-         world_chunk->pixel_colour[index] = pixelColour;
          // Set Index in Data
-         world_chunk->pixel_data[index] = pixel->pixel_index;
+         world_chunk->pixel_data[index] = pixel->GetNewPixel();
          index++;
       }
    }

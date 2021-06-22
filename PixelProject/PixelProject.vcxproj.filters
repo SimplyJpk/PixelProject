@@ -356,6 +356,24 @@
     <ClInclude Include="GoldPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
+    <ClInclude Include="StringUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ColourUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelUtil.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="SteamPixel.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="IVec2.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -364,6 +382,18 @@
       <Filter>Resource Files\shaders</Filter>
     </None>
     <None Include="shaders\default.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\orthoUI.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\orthoUI.vert">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\orthoWorld.frag">
+      <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\orthoWorld.vert">
       <Filter>Resource Files\shaders</Filter>
     </None>
   </ItemGroup>

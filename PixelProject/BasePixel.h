@@ -6,6 +6,8 @@
 #include "lib/XoshiroCpp.hpp"
 #include <random>
 
+#include "ColourUtility.h"
+
 using namespace PixelProject;
 using namespace XoshiroCpp;
 
@@ -33,11 +35,21 @@ public:
       return pixel_update_order_[chunk_order_counter_];
    }
 
+   void GenerateColours()
+   {
+      for (int i = 0; i < colour_count; i++)
+      {
+         Utility::HexTo4F(type_colours[i], render_colours[i]);
+      }
+   }
+
    short pixel_index = -1;
    short colour_count = 0;
 
    Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : rng() % (colour_count))]; }
    Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
+
+   float render_colours[Constant::pixel_max_colour_count][4] = { 0.0f };
 
    virtual inline int8_t MaxUpdateRange() { return 1; }
 
@@ -57,6 +69,11 @@ public:
    virtual int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
    // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+
+   virtual Uint32 GetNewPixel()
+   {
+      return pixel_index;
+   }
 
 protected:
    ~BasePixel() = default;

@@ -78,6 +78,8 @@ public:
       {
          Uint32* textureInfo = new Uint32[pixel_texture_size * pixel_texture_size]{0x00000000};
          BasePixel* pixel = world_data_->GetPixelFromIndex(index);
+         // Generate colours for in-game colours, not UI
+         pixel->GenerateColours();
          for (int y = Top; y <= Bottom; ++y)
          {
             for (int x = Left; x <= Right; ++x)
