@@ -19,7 +19,7 @@ namespace PixelProject::Constant
    constexpr short world_size_y = 5;
 
    // Max different colours that a PixelType can be
-   constexpr int8_t pixel_max_colour_count = 10;
+   constexpr int8_t pixel_max_colour_count = 4;
    // Max different pixel direction orders that a PixelType can have
    constexpr int8_t pixel_max_pixel_update_order = 4;
 
