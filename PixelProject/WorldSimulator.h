@@ -83,6 +83,8 @@ public:
    float DEBUG_ZoomLevel = 1;
 
    GLuint map_textures;
+   GLuint map_noiseTexture;
+   Uint8* map_noiseTextureData;
    unsigned int VBO;
    unsigned int VAO;
    unsigned int EBO;

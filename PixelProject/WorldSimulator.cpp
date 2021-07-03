@@ -85,6 +85,19 @@ void WorldSimulator::Start()
          world_generator->GenerateChunk(glm::vec2(x * Constant::chunk_size_x, y * Constant::chunk_size_y), chunks[IVec2(x, y)]);
       }
    }
+
+   // Build Noise texture
+   glActiveTexture(GL_TEXTURE1);
+   glGenTextures(1, &map_noiseTexture);
+   glBindTexture(GL_TEXTURE_2D, 1);
+   
+   map_noiseTextureData = new Uint8[Constant::chunk_total_size]{0};
+   for (size_t i = 0; i < Constant::chunk_total_size; i++)
+   {
+      map_noiseTextureData[i] = rng() % 4;
+   }
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, map_noiseTextureData);
+   glUniform1i(glGetUniformLocation(game_settings->default_shader, "textureIndex"), 1);
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size, const bool override_pixels)

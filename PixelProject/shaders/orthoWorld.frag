@@ -6,6 +6,7 @@ in vec2 TexCoord;
 
 // texture samplers
 uniform sampler2D ourTexture;
+uniform sampler2D textureIndex;
 
 struct PixelData 
 {
@@ -21,5 +22,7 @@ void main()
 		int value = int(floatBitsToUint(texture2D(ourTexture, TexCoord).r));
 		// int index = value & 0000000000001111;
 
-		FragColor = u_Pixels[value].colours[u_Pixels[value].colour_count-1];
+		int noiseIndex = int(floatBitsToUint(texture2D(textureIndex, TexCoord).r));
+
+		FragColor = u_Pixels[value].colours[noiseIndex % (u_Pixels[value].colour_count)];
 }
