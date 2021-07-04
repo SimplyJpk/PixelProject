@@ -1,12 +1,13 @@
 #pragma once
 #include <SDL.h>
-#include "ChunkDirection.h"
 #include "Math.h"
 
 #include <vector>
 
 #include "ISerializable.h"
 #include "Constants.h"
+
+#include "ChunkSupport.h"
 
 using namespace PixelProject;
 

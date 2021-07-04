@@ -115,6 +115,12 @@
     <Filter Include="Header Files\lib\noise">
       <UniqueIdentifier>{aa2eb5a2-3474-40b3-8a46-8e5c68da2be6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\World\Chunk">
+      <UniqueIdentifier>{95b29b2e-71cb-450e-8447-806d124aa051}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\World\Chunk">
+      <UniqueIdentifier>{6822041c-5e20-4b7d-a936-292236461871}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -124,9 +130,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WorldSimulator.cpp">
-      <Filter>Source Files\World</Filter>
-    </ClCompile>
-    <ClCompile Include="WorldChunk.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
@@ -192,6 +195,9 @@
     <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp">
       <Filter>Source Files\lib\noise</Filter>
     </ClCompile>
+    <ClCompile Include="WorldChunk.cpp">
+      <Filter>Source Files\World\Chunk</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h">
@@ -199,9 +205,6 @@
     </ClInclude>
     <ClInclude Include="Vec2.h">
       <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldChunk.h">
-      <Filter>Header Files\World</Filter>
     </ClInclude>
     <ClInclude Include="WorldSimulator.h">
       <Filter>Header Files\World</Filter>
@@ -232,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="WaterPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
-    </ClInclude>
-    <ClInclude Include="ChunkDirection.h">
-      <Filter>Header Files\World\Utility</Filter>
     </ClInclude>
     <ClInclude Include="PaintManager.h">
       <Filter>Header Files\Input</Filter>
@@ -373,6 +373,12 @@
     </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldChunk.h">
+      <Filter>Header Files\World\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="ChunkSupport.h">
+      <Filter>Header Files\World\Chunk</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

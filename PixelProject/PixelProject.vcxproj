@@ -298,7 +298,7 @@
     <ClInclude Include="BitWise.h" />
     <ClInclude Include="boost\threadpool.hpp" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="ChunkDirection.h" />
+    <ClInclude Include="ChunkSupport.h" />
     <ClInclude Include="ColourUtility.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="DebugStopWatch.h" />

@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL.h>
 
-#include "ChunkDirection.h"
+#include "ChunkSupport.h"
 #include "Constants.h"
 #include "lib/XoshiroCpp.hpp"
 #include <random>
