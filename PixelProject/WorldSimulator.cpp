@@ -704,7 +704,7 @@ bool WorldSimulator::Draw(Camera* camera)
 
          glm::mat4 model = glm::mat4(1.0f);
          glm::vec3 modelPosition = glm::vec3(
-            -xOffset + (((xVal - xChunkStart) + 1) * Constant::chunk_size_x) - (Constant::chunk_size_x / 2) + xVal,
+            -xOffset + (((xVal - xChunkStart) + 1) * Constant::chunk_size_x) - (Constant::chunk_size_x / 2) + xVal, // + xVal is for fake grid TODO make a proper visual grid
             -yOffset + (((yVal - yChunkStart) + 1) * Constant::chunk_size_y) - (Constant::chunk_size_y / 2) + yVal,
             1.0f
          );
