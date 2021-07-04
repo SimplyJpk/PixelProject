@@ -27,7 +27,7 @@ public:
 
    IVec2 operator +(const IVec2& other) const;
    IVec2 operator -(const IVec2& other) const;
-   IVec2 operator =(const IVec2 other);
+   IVec2& operator =(const IVec2& other);
    IVec2 operator *(const float rhs) const;
 
    bool operator==(const IVec2& other) const
@@ -51,7 +51,7 @@ public:
    static float Distance(IVec2 a, IVec2 b);
 };
 
-inline IVec2 IVec2::operator=(const IVec2 other)
+inline IVec2& IVec2::operator=(const IVec2& other)
 {
    this->x = other.x;
    this->y = other.y;
