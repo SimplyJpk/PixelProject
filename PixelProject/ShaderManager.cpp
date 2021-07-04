@@ -1,14 +1,9 @@
 #include "ShaderManager.h"
 
-ShaderManager* ShaderManager::instance_ = nullptr;
-
-ShaderManager::ShaderManager() = default;
-
-ShaderManager* ShaderManager::Instance()
+ShaderManager& ShaderManager::Instance()
 {
-   if (!instance_)
-      instance_ = new ShaderManager();
-   return instance_;
+   static ShaderManager instance;
+   return instance;
 }
 
 int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sources)

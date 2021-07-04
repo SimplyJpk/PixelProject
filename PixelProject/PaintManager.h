@@ -120,9 +120,9 @@ public:
    void GeneratePixelTextures(GameSettings* game_settings)
    {
       // Create our shader
-      ShaderManager::Instance()->CompileShader("orthoUI", GL_VERTEX_SHADER, "shaders/orthoUI.vert");
-      ShaderManager::Instance()->CompileShader("orthoUI", GL_FRAGMENT_SHADER, "shaders/orthoUI.frag");
-      used_shader_ = ShaderManager::Instance()->CreateShaderProgram("orthoUI", false);
+      ShaderManager::Instance().CompileShader("orthoUI", GL_VERTEX_SHADER, "shaders/orthoUI.vert");
+      ShaderManager::Instance().CompileShader("orthoUI", GL_FRAGMENT_SHADER, "shaders/orthoUI.frag");
+      used_shader_ = ShaderManager::Instance().CreateShaderProgram("orthoUI", false);
 
       //TODO Need to complete some sort of UI background/border/box?
       glGenTextures(1, &background_image_id_);

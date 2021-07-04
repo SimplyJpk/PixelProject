@@ -14,7 +14,7 @@ constexpr short shader_types_count = 6;
 class ShaderManager
 {
 public:
-   static ShaderManager* Instance();
+   static ShaderManager& Instance();
 
    int CreateShaderProgram(const char* shader_name, bool delete_sources = true);
    
@@ -27,9 +27,10 @@ public:
    inline void UseProgram(const char* program_name);
    inline void UseProgram(const GLint program_id);
 
-   ShaderManager();
-   ShaderManager(ShaderManager const&) = default;
-   void operator=(ShaderManager const&) const { }
+   ShaderManager(const ShaderManager&) = delete;
+   ShaderManager(ShaderManager&&) = delete;
+   void operator=(const ShaderManager&) = delete;
+   void operator=(ShaderManager&&) = delete;
 
    enum ShaderTypes : GLint
    {
@@ -42,6 +43,9 @@ public:
    };
 
 private:
+   ShaderManager() = default;
+   ~ShaderManager() = default;
+
    // Simple Converter to change a GL_Shader index to local array indexable value.
    static int GetShaderIndex(const GLint gl_shader_type)
    {
@@ -67,7 +71,5 @@ private:
 
    // Used to simplify 
    std::unordered_map<const char*, int[shader_types_count]> shader_map_;
-
-   static ShaderManager* instance_;
 };
 
