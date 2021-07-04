@@ -214,21 +214,21 @@ void WorldSimulator::FixedUpdate()
    // Update the world in a checker pattern
    for (auto i = 0; i < 4; i++)
    {
-         switch (i)
-         {
-         case 0: xStage = 0;
-            yStage = 0;
-            break;
-         case 1: xStage = 1;
-            yStage = 1;
-            break;
-         case 2: xStage = 1;
-            yStage = 0;
-            break;
-         case 3: xStage = 0;
-            yStage = 1;
-            break;
-         }
+      switch (i)
+      {
+      case 0: xStage = 0;
+         yStage = 0;
+         break;
+      case 1: xStage = 1;
+         yStage = 1;
+         break;
+      case 2: xStage = 1;
+         yStage = 0;
+         break;
+      case 3: xStage = 0;
+         yStage = 1;
+         break;
+      }
 
       for (auto xChunk = xStage; xChunk < world_dimensions.x; xChunk += 2)
       {
