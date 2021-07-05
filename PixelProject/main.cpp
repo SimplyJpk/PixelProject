@@ -13,11 +13,10 @@
 #include <iostream>
 
 void PrintInGameCommands();
-bool CreateWindowAndContext(GameSettings* settings);
+bool CreateWindowAndContext(GameSettings& settings);
 
 SDL_GLContext g_context;
 SDL_Window* g_window;
-Game* game;
 
 int main(int argc, char** argv)
 {
@@ -34,22 +33,21 @@ int main(int argc, char** argv)
    PrintInGameCommands();
 
    // Generate our game settings with the Serialized config file
-   GameSettings* settings = new GameSettings();
-   settings->LoadSettings(config);
-   settings->stop_watch = new DebugStopWatch();
+   GameSettings settings;
+   settings.LoadSettings(config);
 
    if (!CreateWindowAndContext(settings))
       success = false;
 
-   game = new Game();
-   if (!success || !game->Initialize(&g_context, g_window, settings))
+   Game game;
+   if (!success || !game.Initialize(&g_context, g_window, &settings))
    {
       printf("PixelProject failed to Initialize");
       success = false;
    }
    else
    {
-      game->Run();
+      game.Run();
    }
 
    SDL_DestroyWindow(g_window);
@@ -85,14 +83,14 @@ void PrintInGameCommands()
    printf("|- Period\t- Draw at Mouse\n");
 }
 
-bool CreateWindowAndContext(GameSettings* settings)
+bool CreateWindowAndContext(GameSettings& settings)
 {
    bool success = true;
 
    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
    g_window = SDL_CreateWindow(
       "Pixel Project", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-      settings->screen_size.x, settings->screen_size.y,
+      settings.screen_size.x, settings.screen_size.y,
       SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
    );
 

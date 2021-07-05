@@ -61,17 +61,17 @@ void Game::Run()
    typedef std::chrono::duration<float, std::milli> duration;
 
    //? Debug Info
-   game_settings->stop_watch->AddTimer("Update_ms");
-   game_settings->stop_watch->AddTimer("Update_micro_avg");
-   game_settings->stop_watch->AddTimer("Draw");
-   game_settings->stop_watch->AddTimer("FrameTime");
-   game_settings->stop_watch->AddTimer("CurrentFPS");
-   game_settings->stop_watch->AddTimer("Fixed_ms");
+   game_settings->stop_watch.AddTimer("Update_ms");
+   game_settings->stop_watch.AddTimer("Update_micro_avg");
+   game_settings->stop_watch.AddTimer("Draw");
+   game_settings->stop_watch.AddTimer("FrameTime");
+   game_settings->stop_watch.AddTimer("CurrentFPS");
+   game_settings->stop_watch.AddTimer("Fixed_ms");
 
-   game_settings->stop_watch->AddTimer("SlowestUpdate");
-   game_settings->stop_watch->UpdateTime("SlowestUpdate", 0.0f);
-   game_settings->stop_watch->AddTimer("FastestUpdate");
-   game_settings->stop_watch->UpdateTime("FastestUpdate", 1000.0f);
+   game_settings->stop_watch.AddTimer("SlowestUpdate");
+   game_settings->stop_watch.UpdateTime("SlowestUpdate", 0.0f);
+   game_settings->stop_watch.AddTimer("FastestUpdate");
+   game_settings->stop_watch.UpdateTime("FastestUpdate", 1000.0f);
 
    auto deltaClock = clock::now();
    double deltaTime = 0.0;
@@ -96,7 +96,7 @@ void Game::Run()
          fixedRemainingTime -= game_settings->target_sand_update_time;
          // Prevents lockup of game during intensive updates, but should hopefully allow recovery.
          frameFixedStepCounter++;
-         game_settings->stop_watch->UpdateTime("Fixed_ms", static_cast<duration>(clock::now() - frameStart).count());
+         game_settings->stop_watch.UpdateTime("Fixed_ms", static_cast<duration>(clock::now() - frameStart).count());
          if (frameFixedStepCounter >= game_settings->max_sand_updates_per_frame)
             break;
       }
@@ -116,18 +116,18 @@ void Game::Run()
       //? main_cam->Update();
 
       //? Debug Info
-      game_settings->stop_watch->UpdateTime("Update_ms", static_cast<duration>(clock::now() - frameStart).count());
+      game_settings->stop_watch.UpdateTime("Update_ms", static_cast<duration>(clock::now() - frameStart).count());
       static float average = 0.f;
       auto nanoTime = static_cast<std::chrono::nanoseconds>(clock::now() - frameStart).count() / 1000;
       average += nanoTime;
       static int microUpdate = 0;
-      if (nanoTime > game_settings->stop_watch->GetTime("SlowestUpdate"))
-         game_settings->stop_watch->UpdateTime("SlowestUpdate", nanoTime);
-      if (nanoTime < game_settings->stop_watch->GetTime("FastestUpdate"))
-         game_settings->stop_watch->UpdateTime("FastestUpdate", nanoTime);
+      if (nanoTime > game_settings->stop_watch.GetTime("SlowestUpdate"))
+         game_settings->stop_watch.UpdateTime("SlowestUpdate", nanoTime);
+      if (nanoTime < game_settings->stop_watch.GetTime("FastestUpdate"))
+         game_settings->stop_watch.UpdateTime("FastestUpdate", nanoTime);
 
       if (microUpdate >= 12) {
-         game_settings->stop_watch->UpdateTime("Update_micro_avg", average / (microUpdate + 1));
+         game_settings->stop_watch.UpdateTime("Update_micro_avg", average / (microUpdate + 1));
          average = 0.f;
          microUpdate = 0;
       }
@@ -148,17 +148,17 @@ void Game::Run()
       paint_manager->DrawPaintGUI(&main_cam);
       gui_manager->FinishGuiFrame();
 
-      game_settings->stop_watch->UpdateTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
+      game_settings->stop_watch.UpdateTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
 
       SDL_GL_SwapWindow(g_window);
 
       //? Debug Info
-      game_settings->stop_watch->UpdateTime("FrameTime", static_cast<duration>(clock::now() - frameStart).count());
+      game_settings->stop_watch.UpdateTime("FrameTime", static_cast<duration>(clock::now() - frameStart).count());
 
       frameCounter++;
       if (static_cast<duration>(clock::now() - secondCounter).count() > 1000)
       {
-         game_settings->stop_watch->UpdateTime("CurrentFPS", frameCounter);
+         game_settings->stop_watch.UpdateTime("CurrentFPS", frameCounter);
          secondCounter = clock::now();
          frameCounter = 0;
       }

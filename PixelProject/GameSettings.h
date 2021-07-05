@@ -13,7 +13,8 @@ struct GameSettings
    GLint default_shader;
    FC_Font* font = nullptr;
 
-   DebugStopWatch* stop_watch = nullptr;
+   //TODO Move or remove this later
+   DebugStopWatch stop_watch;
 
    // Temp for Debug
    IVec2 virtual_mouse = IVec2(PixelProject::Constant::chunk_size_x / 2, PixelProject::Constant::chunk_size_y / 2);
