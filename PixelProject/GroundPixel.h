@@ -4,11 +4,12 @@
 class GroundPixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Ground; }
+   E_PixelType GetType() override { return E_PixelType::Ground; }
+   std::string Name() override { return "Ground"; }
+   bool IsUpdateable() override { return false; }
 
    GroundPixel()
    {
-      name = "Ground";
       colour_count = 3;
       // Browns
       type_colours[0] = 0x964b00FF;
@@ -18,7 +19,5 @@ public:
       pixel_update_order_count_ = 0;
       InsertPixelUpdateOrder(0, std::vector<short>() = {});
    }
-
-   bool IsUpdateable() override { return false; }
 private:
 };
