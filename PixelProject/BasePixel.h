@@ -14,11 +14,9 @@ using namespace XoshiroCpp;
 class BasePixel
 {
 public:
-   virtual E_PixelType GetType() { return E_PixelType::UNDEFINED; }
-   virtual const char* Name() { return name; }
-   virtual bool IsUpdateable() { return true; }
-
-   const char* name = "UNKNOWN";
+   virtual E_PixelType GetType() = 0;
+   virtual std::string Name() = 0;
+   virtual bool IsUpdateable() = 0;
 
    inline static Xoshiro256PlusPlus rng;
 
@@ -76,7 +74,8 @@ public:
    }
 
 protected:
-   ~BasePixel() = default;
+   virtual ~BasePixel() = default;
+
    short chunk_order_counter_ = 0;
    // A very messy solution to help with pixel order processing
    short pixel_update_order_count_ = 1;
