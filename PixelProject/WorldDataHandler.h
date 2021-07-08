@@ -7,6 +7,7 @@
 
 
 #include "ColourUtility.h"
+#include "PixelDataMasks.h"
 #include "StringUtility.h"
 
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
@@ -93,7 +94,8 @@ public:
    {
       glUseProgram(program);
       GLint myLoc;
-      
+
+      // Set PixelData
       for (int i = 0; i < pixel_type_counter_; i++)
       {
          auto pixel = pixel_type_list_[i];
@@ -105,7 +107,14 @@ public:
             glProgramUniform4fv(program, myLoc+(j+1), 4, pixel->render_colours[j]);
          }
       }
-      //TODO Continue here
+
+      // Set MaskData
+      myLoc = glGetUniformLocation(program, "u_PixelMask.index");
+      glProgramUniform1ui(program, myLoc, pixel_index_bits);
+      myLoc = glGetUniformLocation(program, "u_PixelMask.lifetime");
+      glProgramUniform1ui(program, myLoc, pixel_lifetime_bits);
+      myLoc = glGetUniformLocation(program, "u_PixelMask.pixel_behaviour_bits");
+      glProgramUniform1ui(program, myLoc, pixel_index_bits);
    }
 
    WorldDataHandler(WorldDataHandler const&)
