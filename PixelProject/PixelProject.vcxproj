@@ -279,6 +279,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="WorldChunk.cpp" />
     <ClCompile Include="WorldDataHandler.cpp" />
@@ -329,6 +330,7 @@
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Sprite.h" />

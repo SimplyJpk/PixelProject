@@ -198,6 +198,9 @@
     <ClCompile Include="WorldChunk.cpp">
       <Filter>Source Files\World\Chunk</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h">
@@ -379,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="ChunkSupport.h">
       <Filter>Header Files\World\Chunk</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
