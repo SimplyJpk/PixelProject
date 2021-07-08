@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 #include "IO.h"
+#include "Shader.h"
+
 using namespace PixelProject;
 
 //TODO Way to combine shaders of different names.
@@ -17,7 +19,11 @@ public:
    static ShaderManager& Instance();
 
    int CreateShaderProgram(const char* shader_name, bool delete_sources = true);
-   
+
+   bool ShaderFromText(GLenum type, const char* src);
+   bool ShaderFromFile(GLenum type, const std::string fileName);
+   bool ShaderCompiledFile(GLenum type, const std::string fileName);
+
    bool CompileShader(const char* shader_name, const int shader_type, const std::string path);
    bool CompileShader(const char* shader_name, const int shader_type, const char* path);
 
@@ -42,9 +48,6 @@ public:
       Compute = GL_COMPUTE_SHADER
    };
 
-private:
-   ShaderManager() = default;
-   ~ShaderManager() = default;
 
    // Simple Converter to change a GL_Shader index to local array indexable value.
    static int GetShaderIndex(const GLint gl_shader_type)
@@ -66,10 +69,16 @@ private:
       return -1;
    }
 
+private:
+   ShaderManager() = default;
+   ~ShaderManager() = default;
+
    std::unordered_map<const char*, GLint> program_id_;
    std::unordered_map<GLint, const char*> program_name_;
 
+   std::map < std::string, Shader*> new_shader_map_;
+
    // Used to simplify 
-   std::unordered_map<const char*, int[shader_types_count]> shader_map_;
+   std::unordered_map<std::string, int[shader_types_count]> shader_map_;
 };
 
