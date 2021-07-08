@@ -380,6 +380,9 @@
     <ClInclude Include="ChunkSupport.h">
       <Filter>Header Files\World\Chunk</Filter>
     </ClInclude>
+    <ClInclude Include="PixelDataMasks.h">
+      <Filter>Header Files\World\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

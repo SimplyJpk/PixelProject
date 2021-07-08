@@ -323,6 +323,7 @@
     <ClInclude Include="MemoryUsage.h" />
     <ClInclude Include="BasePixel.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="PixelDataMasks.h" />
     <ClInclude Include="PixelTypeIncludes.h" />
     <ClInclude Include="PixelUtil.h" />
     <ClInclude Include="RectTransform.h" />
