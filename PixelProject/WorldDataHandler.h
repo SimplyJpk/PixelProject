@@ -38,7 +38,7 @@ public:
 
    // Information from Pixel Colours
    // Returns the name of a PixelType from a Pixel Colour
-   const char* GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
+   std::string GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
    // Returns the BasePixel based on the pixel colour passed in
    inline BasePixel* GetPixelFromPixelColour(const Uint32 pixel) { return pixel_colour_map_[pixel]; }
 
@@ -51,7 +51,7 @@ public:
    // Information from PixelType (Enum)
    BasePixel* GetPixelFromType(const E_PixelType type) { return pixel_types_[type]; }
    // Returns the name of a PixelType from the PixelType passed in
-   const char* GetPixelName(const E_PixelType type) { return pixel_types_[type]->Name(); }
+   std::string GetPixelName(const E_PixelType type) { return pixel_types_[type]->Name(); }
 
    // Returns the number of main pixel types that exist in the game
    int PixelTypeCount() const { return pixel_type_counter_; }
