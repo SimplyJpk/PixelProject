@@ -70,9 +70,9 @@ public:
 
    void DrawFrameData()
    {
-      ImGui::Begin("Frame Data");
+      settings_->stop_watch.DrawGroupData("Frame Data");
 
-      ImGui::Text(settings_->stop_watch.GetData().c_str());
+      ImGui::Begin("Frame Data");
 
       ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
       ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
