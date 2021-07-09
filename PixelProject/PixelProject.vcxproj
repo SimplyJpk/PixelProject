@@ -333,6 +333,7 @@
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SteamPixel.h" />
+    <ClInclude Include="StopWatchData.h" />
     <ClInclude Include="StringUtility.h" />
     <ClInclude Include="TextureUtility.h" />
     <ClInclude Include="Transform.h" />
