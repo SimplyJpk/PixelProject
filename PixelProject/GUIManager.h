@@ -23,7 +23,10 @@ public:
 
    void SetPaintManager(PaintManager* painter) {paint_manager_ = painter; }
 
-   float plotData[100];
+   static constexpr short plot_data_size = 400;
+
+   float plotMemoryData[plot_data_size]{ 0 };
+   float plotCPUData[plot_data_size]{0};
 
    GuiManager(GameSettings* settings, SDL_Window* window, SDL_GLContext* context)
    {
@@ -48,9 +51,9 @@ public:
 #endif
       g_window = window;
 
-      for(int i = 0; i < 100; i++)
+      for(int i = 0; i < plot_data_size; i++)
       {
-         plotData[i] = static_cast<float>(mem_usage.ReturnMemoryUsed());
+         plotMemoryData[i] = static_cast<float>(mem_usage.ReturnMemoryUsed() / 1000.0f);
       }
    }
 
@@ -77,23 +80,40 @@ public:
       ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
       ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
 
-      static int delayCounter = 0;
-      delayCounter++;
-      static float minMax[2];
-      if (delayCounter > 10)
+      static int counterCPU = 0;
+      static int delayCounterCPU = 0;
+      static float CPUAverage = 0.0f;
+      CPUAverage += settings_->stop_watch.GetTime("NanoUpdate");
+      
+      delayCounterCPU++;
+      if (delayCounterCPU > 4)
       {
-         delayCounter -= 10;
-         static int counter = 0;
-         counter++;
-         if (counter >= 100)
-            counter = 0;
-         plotData[counter] = mem_usage.ReturnMemoryUsed() / 1000.0f;
-         if (plotData[counter] < minMax[0])
-            minMax[0] = plotData[counter];
-         if (plotData[counter] > minMax[1])
-            minMax[1] = plotData[counter];
+         delayCounterCPU -=4;
+
+         plotCPUData[counterCPU] = CPUAverage / 4.0f;
+         CPUAverage = 0.0f;
+         counterCPU++;
+         if (counterCPU >= plot_data_size)
+            counterCPU = 0;
       }
-      ImGui::PlotLines("Memory: ", plotData, 100, 0, 0, minMax[0], minMax[1], ImVec2(200, 50));
+
+      ImGui::Text("CPU Usage");
+      ImGui::PlotLines("", plotCPUData, plot_data_size, 0, 0, 0, 8000, ImVec2(ImGui::GetColumnWidth(), 50));
+
+
+      static int delayCounterMemory = 0;
+      delayCounterMemory++;
+      if (delayCounterMemory > 4)
+      {
+         delayCounterMemory -= 4;
+         static int counterMemory = 0;
+         counterMemory++;
+         if (counterMemory >= plot_data_size)
+            counterMemory = 0;
+         plotMemoryData[counterMemory] = mem_usage.ReturnMemoryUsed() / 1000.0f;
+      }
+      ImGui::Text("Memory Usage");
+      ImGui::PlotLines("",plotMemoryData, plot_data_size, 0, 0, 50000, 100000, ImVec2(ImGui::GetColumnWidth(), 50));
 
       ImGui::End();
    }
@@ -121,6 +141,6 @@ public:
    }
 
 private:
-   PaintManager* paint_manager_;
+   PaintManager* paint_manager_{};
    GameSettings* settings_;
 };

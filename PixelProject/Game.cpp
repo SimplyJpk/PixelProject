@@ -131,6 +131,8 @@ void Game::Run()
       }
       else { microUpdate++; }
 
+      stop_watch.UpdateTime("NanoUpdate", nanoTime);
+
       auto drawStart = clock::now();
 
       //? ======
