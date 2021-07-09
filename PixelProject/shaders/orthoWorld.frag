@@ -14,15 +14,26 @@ struct PixelData
 		vec4[4] colours;
 };
 
+struct MaskData
+{
+		uint index;
+		uint lifetime;
+		uint behaviour;
+};
+
 uniform PixelData[10] u_Pixels;
+uniform MaskData u_PixelMask;
 
 void main()
 {
 		// FragColor = texture(ourTexture, TexCoord);
-		int value = int(floatBitsToUint(texture2D(ourTexture, TexCoord).r));
+		uint value = uint(floatBitsToUint(texture2D(ourTexture, TexCoord).r));
 		// int index = value & 0000000000001111;
+
+		uint pixelType = (u_PixelMask.index & value);
+
 
 		int noiseIndex = int(floatBitsToUint(texture2D(textureIndex, TexCoord).r));
 
-		FragColor = u_Pixels[value].colours[noiseIndex % (u_Pixels[value].colour_count)];
+		FragColor = u_Pixels[pixelType].colours[noiseIndex % (u_Pixels[value].colour_count)];
 }

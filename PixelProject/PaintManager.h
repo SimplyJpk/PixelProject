@@ -27,7 +27,7 @@ public:
 
    //? const Uint32* GetPixelTexture(const short index) const { return pixel_icons[index]; }
 
-   const char* SelectedPixelName() const { return selected_pixel->Name(); }
+   std::string SelectedPixelName() const { return selected_pixel->Name(); }
 
    void UpdateInput()
    {

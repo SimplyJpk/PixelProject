@@ -6,11 +6,12 @@
 class FirePixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Fire; }
+   E_PixelType GetType() override { return E_PixelType::Fire; }
+   std::string Name() override { return "Fire"; }
+   bool IsUpdateable() override { return true; }
 
    FirePixel()
    {
-      name = "Fire";
       colour_count = 3;
       // Browns
       type_colours[0] = 0xE25822FF;
