@@ -121,6 +121,9 @@
     <Filter Include="Source Files\World\Chunk">
       <UniqueIdentifier>{6822041c-5e20-4b7d-a936-292236461871}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Debug\Data">
+      <UniqueIdentifier>{03c71e0a-aed1-4fc5-8184-d5c53819082b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -380,6 +383,8 @@
     <ClInclude Include="ChunkSupport.h">
       <Filter>Header Files\World\Chunk</Filter>
     </ClInclude>
+    <ClInclude Include="StopWatchData.h">
+      <Filter>Header Files\Debug\Data</Filter>
     <ClInclude Include="PixelDataMasks.h">
       <Filter>Header Files\World\Utility</Filter>
     </ClInclude>
