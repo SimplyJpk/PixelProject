@@ -14,28 +14,7 @@
 class WorldDataHandler
 {
 public:
-   static WorldDataHandler* Instance()
-   {
-      if (!instance_)
-      {
-         instance_ = new WorldDataHandler();
-      }
-      return instance_;
-   }
-
-   WorldDataHandler()
-   {
-      AddPixelData(new SpacePixel());
-      AddPixelData(new GroundPixel());
-      AddPixelData(new SandPixel());
-      AddPixelData(new WaterPixel());
-      AddPixelData(new WoodPixel());
-      AddPixelData(new OilPixel());
-      AddPixelData(new FirePixel());
-      AddPixelData(new AcidPixel());
-      AddPixelData(new GoldPixel());
-      AddPixelData(new SteamPixel());
-   }
+   static WorldDataHandler& Instance();
 
    // Information from Pixel Colours
    // Returns the name of a PixelType from a Pixel Colour
@@ -117,15 +96,26 @@ public:
       glProgramUniform1ui(program, myLoc, pixel_index_bits);
    }
 
-   WorldDataHandler(WorldDataHandler const&)
-   {
-   }
+   WorldDataHandler(const WorldDataHandler&) = delete;
+   WorldDataHandler(WorldDataHandler&&) = delete;
+   void operator=(const WorldDataHandler&) = delete;
+   void operator=(WorldDataHandler&&) = delete;
 
-   void operator=(WorldDataHandler const&) const
-   {
-   }
 private:
-   static WorldDataHandler* instance_;
+   WorldDataHandler()
+   {
+      AddPixelData(new SpacePixel());
+      AddPixelData(new GroundPixel());
+      AddPixelData(new SandPixel());
+      AddPixelData(new WaterPixel());
+      AddPixelData(new WoodPixel());
+      AddPixelData(new OilPixel());
+      AddPixelData(new FirePixel());
+      AddPixelData(new AcidPixel());
+      AddPixelData(new GoldPixel());
+      AddPixelData(new SteamPixel());
+   }
+   ~WorldDataHandler() = default;
 
    short pixel_type_counter_ = 0;
    std::array<BasePixel*, static_cast<short>(E_PixelType::COUNT)> pixel_type_list_{ nullptr };

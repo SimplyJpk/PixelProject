@@ -66,7 +66,7 @@ public:
    const int max_active_chunks = 12;
 
    GameSettings* game_settings;
-   WorldDataHandler* world_data_handler;
+   WorldDataHandler& world_data_handler = WorldDataHandler::Instance();
    WorldGenerator* world_generator;
    PaintManager* paint_manager;
 
@@ -115,7 +115,6 @@ public:
       max_render_box = IVec2(game_settings->screen_size.x + (Constant::chunk_size_x * 2),
          game_settings->screen_size.y + (Constant::chunk_size_y * 2));
 
-      world_data_handler = WorldDataHandler::Instance();
       world_generator = world_generator_;
 
       glGenVertexArrays(1, &VAO);
