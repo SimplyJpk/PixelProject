@@ -34,10 +34,10 @@ public:
       auto* input = InputManager::Instance();
       if (input->GetKeyDown(KeyCode::Tab))
       {
-         if (selected_pixel->pixel_index == world_data_->PixelTypeCount() - 1)
-            selected_pixel = world_data_->GetPixelFromIndex(1);
+         if (selected_pixel->pixel_index == world_data_.PixelTypeCount() - 1)
+            selected_pixel = world_data_.GetPixelFromIndex(1);
          else
-            selected_pixel = world_data_->GetPixelFromIndex(selected_pixel->pixel_index + 1);
+            selected_pixel = world_data_.GetPixelFromIndex(selected_pixel->pixel_index + 1);
       }
 
       IVec2 mousePos = InputManager::Instance()->MousePosition();
@@ -52,7 +52,7 @@ public:
             if (mousePos.x > bounds.x && mousePos.x < bounds.z &&
                mousePos.y > bounds.y && mousePos.y < bounds.w)
             {
-               selected_pixel = world_data_->GetPixelFromIndex(index);
+               selected_pixel = world_data_.GetPixelFromIndex(index);
                break;
             }
          }
@@ -61,9 +61,8 @@ public:
 
    PaintManager()
    {
-      world_data_ = WorldDataHandler::Instance();
       //TODO Init this somewhere else, this could force instant ordering problems.
-      selected_pixel = world_data_->GetPixelFromIndex(1);
+      selected_pixel = world_data_.GetPixelFromIndex(1);
 
       int size = pixel_texture_size / 2;
       int point = pixel_texture_size / 2;
@@ -77,7 +76,7 @@ public:
       for (int index = 0; index < texture_count; index++)
       {
          Uint32* textureInfo = new Uint32[pixel_texture_size * pixel_texture_size]{0x00000000};
-         BasePixel* pixel = world_data_->GetPixelFromIndex(index);
+         BasePixel* pixel = world_data_.GetPixelFromIndex(index);
          // Generate colours for in-game colours, not UI
          pixel->GenerateColours();
          for (int y = Top; y <= Bottom; ++y)
@@ -228,7 +227,7 @@ public:
 private:
    GameSettings* game_settings_;
 
-   WorldDataHandler* world_data_ = nullptr;
+   WorldDataHandler& world_data_ = WorldDataHandler::Instance();
 
    Sprite background_image_;
    Sprite pixel_sprites_[static_cast<int>(E_PixelType::COUNT)];

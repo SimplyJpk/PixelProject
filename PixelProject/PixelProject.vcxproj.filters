@@ -383,10 +383,11 @@
     <ClInclude Include="ChunkSupport.h">
       <Filter>Header Files\World\Chunk</Filter>
     </ClInclude>
-    <ClInclude Include="StopWatchData.h">
-      <Filter>Header Files\Debug\Data</Filter>
     <ClInclude Include="PixelDataMasks.h">
       <Filter>Header Files\World\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="StopWatchData.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

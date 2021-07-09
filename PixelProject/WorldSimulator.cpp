@@ -173,7 +173,7 @@ void WorldSimulator::FixedUpdate()
    DEBUG_FrameCounter++;
    if (DEBUG_DropSand)
    {
-      BasePixel* sandPixel = world_data_handler->GetPixelFromIndex(3);
+      BasePixel* sandPixel = world_data_handler.GetPixelFromIndex(3);
       const short maxSandColours = sandPixel->colour_count;
       for (int x = 0; x < world_dimensions.x; x++)
       {
@@ -209,7 +209,7 @@ void WorldSimulator::FixedUpdate()
    chunkUpdates = 0;
 
    // Fill array with Update Orders for each pixel type. This is only called once per chunk per frame.
-   world_data_handler->FillWithPixelUpdateOrders(chunk_direction_order);
+   world_data_handler.FillWithPixelUpdateOrders(chunk_direction_order);
 
    // Update the world in a checker pattern
    for (auto i = 0; i < 4; i++)
@@ -316,7 +316,7 @@ void WorldSimulator::FixedUpdate()
                            // If the pixel is empty, or something beat us to update it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
 
-                           BasePixel* pixel = world_data_handler->GetPixelFromIndex(Utility::GetType(localPixels[localIndex]));
+                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(Utility::GetType(localPixels[localIndex]));
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
@@ -385,7 +385,7 @@ void WorldSimulator::FixedUpdate()
                                     neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                               }
 
-                              auto* pixelNeighbour = world_data_handler->GetPixelFromIndex(Utility::GetType(neighbourPixels[neighbourIndex]));
+                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(Utility::GetType(neighbourPixels[neighbourIndex]));
 #ifdef DEBUG_GAME
                               if (pixelNeighbour == nullptr) {
                                  printf("WARNING: pixelNeighbour returned NULL\n");
@@ -414,18 +414,18 @@ void WorldSimulator::FixedUpdate()
 
 
                               case E_LogicResults::FirstReturnPixel:
-                                 localPixels[localIndex] = world_data_handler->GetNewPixelOfType(returnPixels[0]);
+                                 localPixels[localIndex] = world_data_handler.GetNewPixelOfType(returnPixels[0]);
                                  isProcessed[localIndex] = true;
                                  break;
                               case E_LogicResults::SecondReturnPixel:
-                                 neighbourPixels[neighbourIndex] = world_data_handler->GetNewPixelOfType(returnPixels[1]);
+                                 neighbourPixels[neighbourIndex] = world_data_handler.GetNewPixelOfType(returnPixels[1]);
                                  neighbourIsProcessed[neighbourIndex] = true;
                                  break;
                               case E_LogicResults::DualReturnPixel:
-                                 localPixels[localIndex] = world_data_handler->GetNewPixelOfType(returnPixels[0]);
+                                 localPixels[localIndex] = world_data_handler.GetNewPixelOfType(returnPixels[0]);
                                  isProcessed[localIndex] = true;
 
-                                 neighbourPixels[neighbourIndex] = world_data_handler->GetNewPixelOfType(returnPixels[1]);
+                                 neighbourPixels[neighbourIndex] = world_data_handler.GetNewPixelOfType(returnPixels[1]);
                                  neighbourIsProcessed[neighbourIndex] = true;
                                  break;
                               case E_LogicResults::NoChange:
@@ -549,7 +549,7 @@ void WorldSimulator::UpdateInput()
    }
    if (input->GetMouseButton(MouseRight))
    {
-      Pen(mousePos, world_data_handler->GetPixelFromIndex(0), DEBUG_PenSize);
+      Pen(mousePos, world_data_handler.GetPixelFromIndex(0), DEBUG_PenSize);
    }
    if (input->GetMouseButton(MouseMiddle))
    {
@@ -594,11 +594,11 @@ void WorldSimulator::UpdateInput()
    }
    if (input->GetKeyDown(KeyCode::Period))
    {
-      Pen(mousePos, world_data_handler->GetPixelFromType(E_PixelType::Water), 1);
+      Pen(mousePos, world_data_handler.GetPixelFromType(E_PixelType::Water), 1);
    }
    if (input->GetKeyDown(KeyCode::Comma))
    {
-      Pen(game_settings->virtual_mouse, world_data_handler->GetPixelFromType(E_PixelType::Water), 1);
+      Pen(game_settings->virtual_mouse, world_data_handler.GetPixelFromType(E_PixelType::Water), 1);
    }
    //TODO Editing Settings, bad
    if (input->GetKeyDown(KeyCode::F))
@@ -813,7 +813,7 @@ void WorldSimulator::DebugDrawPixelRange()
 
    const short pixelIndex = (pixelPos.y * Constant::chunk_size_x) + pixelPos.x;
 
-   world_data_handler->FillWithPixelUpdateOrders(chunk_direction_order);
+   world_data_handler.FillWithPixelUpdateOrders(chunk_direction_order);
 
    BasePixel* pixel = paint_manager->selected_pixel;
    short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange();
