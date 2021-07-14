@@ -7,38 +7,18 @@
 
 
 #include "ColourUtility.h"
+#include "PixelDataMasks.h"
 #include "StringUtility.h"
 
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
 class WorldDataHandler
 {
 public:
-   static WorldDataHandler* Instance()
-   {
-      if (!instance_)
-      {
-         instance_ = new WorldDataHandler();
-      }
-      return instance_;
-   }
-
-   WorldDataHandler()
-   {
-      AddPixelData(new SpacePixel());
-      AddPixelData(new GroundPixel());
-      AddPixelData(new SandPixel());
-      AddPixelData(new WaterPixel());
-      AddPixelData(new WoodPixel());
-      AddPixelData(new OilPixel());
-      AddPixelData(new FirePixel());
-      AddPixelData(new AcidPixel());
-      AddPixelData(new GoldPixel());
-      AddPixelData(new SteamPixel());
-   }
+   static WorldDataHandler& Instance();
 
    // Information from Pixel Colours
    // Returns the name of a PixelType from a Pixel Colour
-   const char* GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
+   std::string GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
    // Returns the BasePixel based on the pixel colour passed in
    inline BasePixel* GetPixelFromPixelColour(const Uint32 pixel) { return pixel_colour_map_[pixel]; }
 
@@ -51,7 +31,7 @@ public:
    // Information from PixelType (Enum)
    BasePixel* GetPixelFromType(const E_PixelType type) { return pixel_types_[type]; }
    // Returns the name of a PixelType from the PixelType passed in
-   const char* GetPixelName(const E_PixelType type) { return pixel_types_[type]->Name(); }
+   std::string GetPixelName(const E_PixelType type) { return pixel_types_[type]->Name(); }
 
    // Returns the number of main pixel types that exist in the game
    int PixelTypeCount() const { return pixel_type_counter_; }
@@ -93,7 +73,8 @@ public:
    {
       glUseProgram(program);
       GLint myLoc;
-      
+
+      // Set PixelData
       for (int i = 0; i < pixel_type_counter_; i++)
       {
          auto pixel = pixel_type_list_[i];
@@ -105,18 +86,36 @@ public:
             glProgramUniform4fv(program, myLoc+(j+1), 4, pixel->render_colours[j]);
          }
       }
-      //TODO Continue here
+
+      // Set MaskData
+      myLoc = glGetUniformLocation(program, "u_PixelMask.index");
+      glProgramUniform1ui(program, myLoc, pixel_index_bits);
+      myLoc = glGetUniformLocation(program, "u_PixelMask.lifetime");
+      glProgramUniform1ui(program, myLoc, pixel_lifetime_bits);
+      myLoc = glGetUniformLocation(program, "u_PixelMask.pixel_behaviour_bits");
+      glProgramUniform1ui(program, myLoc, pixel_index_bits);
    }
 
-   WorldDataHandler(WorldDataHandler const&)
-   {
-   }
+   WorldDataHandler(const WorldDataHandler&) = delete;
+   WorldDataHandler(WorldDataHandler&&) = delete;
+   void operator=(const WorldDataHandler&) = delete;
+   void operator=(WorldDataHandler&&) = delete;
 
-   void operator=(WorldDataHandler const&) const
-   {
-   }
 private:
-   static WorldDataHandler* instance_;
+   WorldDataHandler()
+   {
+      AddPixelData(new SpacePixel());
+      AddPixelData(new GroundPixel());
+      AddPixelData(new SandPixel());
+      AddPixelData(new WaterPixel());
+      AddPixelData(new WoodPixel());
+      AddPixelData(new OilPixel());
+      AddPixelData(new FirePixel());
+      AddPixelData(new AcidPixel());
+      AddPixelData(new GoldPixel());
+      AddPixelData(new SteamPixel());
+   }
+   ~WorldDataHandler() = default;
 
    short pixel_type_counter_ = 0;
    std::array<BasePixel*, static_cast<short>(E_PixelType::COUNT)> pixel_type_list_{ nullptr };

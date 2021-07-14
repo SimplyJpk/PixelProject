@@ -4,11 +4,12 @@
 class SandPixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Sand; }
+   E_PixelType GetType() override { return E_PixelType::Sand; }
+   std::string Name() override { return "Sand"; }
+   bool IsUpdateable() override { return true; }
 
    SandPixel()
    {
-      name = "Sand";
       colour_count = 3;
       // Yellows
       type_colours[0] = 0xE2D9AEFF;
@@ -27,7 +28,7 @@ protected:
    int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
    int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
 private:
-   inline int8_t Logic(const E_PixelType type)
+   int8_t Logic(const E_PixelType type)
    {
       switch (type)
       {

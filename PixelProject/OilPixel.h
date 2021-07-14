@@ -6,11 +6,12 @@
 class OilPixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Oil; }
+   E_PixelType GetType() override { return E_PixelType::Oil; }
+   std::string Name() override { return "Oil"; }
+   bool IsUpdateable() override { return true; }
 
    OilPixel()
    {
-      name = "Oil";
       colour_count = 3;
       // Browns
       type_colours[0] = 0x373A36FF;

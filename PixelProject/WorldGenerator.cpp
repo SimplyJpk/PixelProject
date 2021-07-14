@@ -4,7 +4,6 @@ using namespace PixelProject;
 
 WorldGenerator::WorldGenerator()
 {
-   world_data = WorldDataHandler::Instance();
    noise = FastNoiseSIMD::NewFastNoiseSIMD();
    noise->SetNoiseType(FastNoiseSIMD::SimplexFractal);
    noise->SetFrequency(0.025f);
@@ -35,7 +34,7 @@ bool WorldGenerator::GenerateChunk(const glm::vec2& world_position, WorldChunk* 
          else if (noiseValue > 0.5f && noiseValue < 0.54f)
             pixelType = E_PixelType::Gold;
 
-         BasePixel* pixel = world_data->GetPixelFromType(pixelType);
+         BasePixel* pixel = world_data.GetPixelFromType(pixelType);
          const auto pixelColour = pixel->GetRandomColour();
          // Set Index in Data
          world_chunk->pixel_data[index] = pixel->GetNewPixel();
