@@ -83,21 +83,24 @@ public:
       static int counterCPU = 0;
       static int delayCounterCPU = 0;
       static float CPUAverage = 0.0f;
+
       CPUAverage += settings_->stop_watch.GetTime("NanoUpdate");
       
       delayCounterCPU++;
       if (delayCounterCPU > 4)
       {
+         counterCPU++;
+         if (counterCPU >= plot_data_size)
+            counterCPU = 0;
+
          delayCounterCPU -=4;
 
          plotCPUData[counterCPU] = CPUAverage / 4.0f;
          CPUAverage = 0.0f;
-         counterCPU++;
-         if (counterCPU >= plot_data_size)
-            counterCPU = 0;
       }
 
       ImGui::Text("CPU Usage");
+      ImGui::Text("CPU Short: %0.3f", plotCPUData[counterCPU]);
       ImGui::PlotLines("", plotCPUData, plot_data_size, 0, 0, 0, 8000, ImVec2(ImGui::GetColumnWidth(), 50));
 
 
