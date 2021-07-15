@@ -4,7 +4,7 @@
 #include <glm/vec2.hpp>
 #include "Constants.h"
 
-#include "lib/FastNoiseSIMD/FastNoiseSIMD.h"
+#include "FastNoiseSIMD/FastNoiseSIMD.h"
 
 #include "PixelTypeIncludes.h"
 #include "WorldChunk.h"
