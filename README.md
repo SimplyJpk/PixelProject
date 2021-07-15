@@ -17,7 +17,7 @@
  - FastNoiseSIMD [GitHub](https://github.com/Auburn/FastNoiseSIMD)
  - imgui v1.79 [GitHub](https://github.com/ocornut/imgui)
  
-Gif of project from Launch on 9th July 2021
+Gif of project from 9th July 2021
 ![image](https://user-images.githubusercontent.com/8342701/125050297-336f5900-e0e5-11eb-8247-a91476321cf0.gif)
  
 ## Contributing
