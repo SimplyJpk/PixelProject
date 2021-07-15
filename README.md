@@ -20,3 +20,5 @@ Gif of project from Launch on 9th July 2021
 
  Inspired by Noita.
  
+Contributing
+Issues stating problems or feature requests are welcome, as are pull requests and any code contributions.
