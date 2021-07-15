@@ -64,23 +64,11 @@
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{03a16b45-cbf7-4615-89c1-7ef79a49a7f3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ImGUI">
-      <UniqueIdentifier>{f28b432e-ad37-47e0-a679-66e5e35657e5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Interfaces">
       <UniqueIdentifier>{5967561a-fdea-4afa-8837-f3d0d3fee2aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Utility">
       <UniqueIdentifier>{d35935b2-2719-464c-aa83-9b67d198afb6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ImGUI\backend">
-      <UniqueIdentifier>{97ecf3ce-88fe-470a-9032-46de460a711f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ImGUI">
-      <UniqueIdentifier>{c1fda097-ed07-4594-b534-b7703971d9c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ImGUI\backend">
-      <UniqueIdentifier>{92dc24d5-c29e-439a-8e53-a8938d5861bc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Shaders">
       <UniqueIdentifier>{28bacf43-fda2-4718-89a8-a2acfe5e8e2c}</UniqueIdentifier>
@@ -103,18 +91,6 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{74a1b28c-6da7-43df-97f7-329b560affcc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\lib">
-      <UniqueIdentifier>{9c78580f-774d-47e0-bb16-937e1b338134}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\lib\noise">
-      <UniqueIdentifier>{0e62d222-8a50-4be0-b2f6-2fddbfbedc40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\lib">
-      <UniqueIdentifier>{97fa7dc8-8089-441b-9210-7602fcac637d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\lib\noise">
-      <UniqueIdentifier>{aa2eb5a2-3474-40b3-8a46-8e5c68da2be6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\World\Chunk">
       <UniqueIdentifier>{95b29b2e-71cb-450e-8447-806d124aa051}</UniqueIdentifier>
     </Filter>
@@ -123,6 +99,24 @@
     </Filter>
     <Filter Include="Header Files\Debug\Data">
       <UniqueIdentifier>{03c71e0a-aed1-4fc5-8184-d5c53819082b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib">
+      <UniqueIdentifier>{2c90945c-c6b8-45af-a623-a08fe5566903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\ImGUI">
+      <UniqueIdentifier>{9307618b-0ee3-4dfc-bf05-93f049cf2724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib">
+      <UniqueIdentifier>{2f5b34eb-c78d-4073-82af-647a4d316d33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib\ImGUI">
+      <UniqueIdentifier>{51cfb093-430e-4529-8fbf-a8a6f9ba4b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Lib\FastNoise">
+      <UniqueIdentifier>{4bef726d-34e1-4324-aea6-1607b754ffa1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Lib\FastNoise">
+      <UniqueIdentifier>{a8e4a9bd-82a0-4a30-a96d-0ffc3ec6e22a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -144,27 +138,6 @@
     <ClCompile Include="WorldDataHandler.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_demo.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_draw.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_tables.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\imgui_widgets.cpp">
-      <Filter>Source Files\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\ImGUI\backend</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_sdl.cpp">
-      <Filter>Source Files\ImGUI\backend</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -177,29 +150,47 @@
     <ClCompile Include="WorldGenerator.cpp">
       <Filter>Source Files\World</Filter>
     </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx512.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_neon.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse2.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp">
-      <Filter>Source Files\lib\noise</Filter>
-    </ClCompile>
     <ClCompile Include="WorldChunk.cpp">
       <Filter>Source Files\World\Chunk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\imgui-master\imgui.cpp">
+      <Filter>Source Files\Lib\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\imgui-master\backends\imgui_impl_sdl.cpp">
+      <Filter>Source Files\Lib\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\imgui-master\imgui_draw.cpp">
+      <Filter>Source Files\Lib\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\imgui-master\imgui_tables.cpp">
+      <Filter>Source Files\Lib\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\imgui-master\imgui_widgets.cpp">
+      <Filter>Source Files\Lib\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\imgui-master\backends\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\Lib\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_avx2.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_avx512.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_internal.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_neon.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_sse2.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp">
+      <Filter>Source Files\Lib\FastNoise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -296,30 +287,6 @@
     <ClInclude Include="BitWise.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_sdl.h">
-      <Filter>Header Files\ImGUI\backend</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\backends\imgui_impl_opengl3.h">
-      <Filter>Header Files\ImGUI\backend</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imconfig.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imgui_internal.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_rectpack.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_textedit.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Libraries\imgui-master\imstb_truetype.h">
-      <Filter>Header Files\ImGUI</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -346,15 +313,6 @@
     </ClInclude>
     <ClInclude Include="WorldGenerator.h">
       <Filter>Header Files\World</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD.h">
-      <Filter>Header Files\lib\noise</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\FastNoiseSIMD\FastNoiseSIMD_internal.h">
-      <Filter>Header Files\lib\noise</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\XoshiroCpp.hpp">
-      <Filter>Header Files\lib</Filter>
     </ClInclude>
     <ClInclude Include="GoldPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
@@ -388,6 +346,33 @@
     </ClInclude>
     <ClInclude Include="StopWatchData.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\backends\imgui_impl_sdl.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\imgui.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\imconfig.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\imgui_internal.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\imstb_rectpack.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\imstb_textedit.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\imgui-master\imstb_truetype.h">
+      <Filter>Header Files\Lib\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_internal.h">
+      <Filter>Header Files\Lib\FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD.h">
+      <Filter>Header Files\Lib\FastNoise</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

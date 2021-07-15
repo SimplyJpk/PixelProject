@@ -3,7 +3,7 @@
 
 #include "ChunkSupport.h"
 #include "Constants.h"
-#include "lib/XoshiroCpp.hpp"
+#include "XoshiroCpp.hpp"
 #include <random>
 
 #include "ColourUtility.h"
