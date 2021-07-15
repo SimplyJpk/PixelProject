@@ -1,6 +1,6 @@
 # PixelProject
  A fairly small pixel/falling-sand based project that might become a game of sorts, mostly for learning and refreshing my c++.
- 
+
  Inspired after playing Noita and watching the [GDC video](https://www.youtube.com/watch?v=prXuyMCgbTc) presented by the developers.
  
  ## Build
