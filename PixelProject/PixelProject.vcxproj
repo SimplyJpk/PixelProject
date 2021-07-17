@@ -278,6 +278,7 @@
     <ClCompile Include="lib\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
@@ -327,6 +328,7 @@
     <ClInclude Include="PixelTypeIncludes.h" />
     <ClInclude Include="PixelUtil.h" />
     <ClInclude Include="RectTransform.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
