@@ -4,11 +4,12 @@
 class GoldPixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Gold; }
+   E_PixelType GetType() override { return E_PixelType::Gold; }
+   std::string Name() override { return "Gold"; }
+   bool IsUpdateable() override { return true; }
 
    GoldPixel()
    {
-      name = "Gold";
       colour_count = 2;
       // Browns
       type_colours[0] = 0xFFD700FF;

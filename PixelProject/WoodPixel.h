@@ -4,11 +4,12 @@
 class WoodPixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Wood; }
+   E_PixelType GetType() override { return E_PixelType::Wood; }
+   std::string Name() override { return "Wood"; }
+   bool IsUpdateable() override { return false; }
 
    WoodPixel()
    {
-      name = "Wood";
       colour_count = 3;
       // Browns
       type_colours[0] = 0x421010FF;
@@ -18,8 +19,6 @@ public:
       pixel_update_order_count_ = 0;
       InsertPixelUpdateOrder(0, std::vector<short>() = {});
    }
-
-   bool IsUpdateable() override { return false; }
 
 private:
 };

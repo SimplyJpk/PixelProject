@@ -4,7 +4,7 @@
 #include <glm/vec2.hpp>
 #include "Constants.h"
 
-#include "lib/FastNoiseSIMD/FastNoiseSIMD.h"
+#include "FastNoiseSIMD/FastNoiseSIMD.h"
 
 #include "PixelTypeIncludes.h"
 #include "WorldChunk.h"
@@ -16,7 +16,7 @@ class WorldGenerator
 public:
    static inline FastNoiseSIMD* noise = nullptr;
 
-   static inline WorldDataHandler* world_data = nullptr;
+   static inline WorldDataHandler& world_data = WorldDataHandler::Instance();
 
    static bool GenerateChunk(const glm::vec2& world_position, WorldChunk* world_chunk);
 

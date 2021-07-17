@@ -4,11 +4,12 @@
 class WaterPixel : public BasePixel
 {
 public:
-   virtual E_PixelType GetType() override { return E_PixelType::Water; }
+   E_PixelType GetType() override { return E_PixelType::Water; }
+   std::string Name() override { return "Water"; }
+   bool IsUpdateable() override { return true; }
 
    WaterPixel()
    {
-      name = "Water";
       colour_count = 3;
       // Browns
       type_colours[0] = 0x0000FFFF;
