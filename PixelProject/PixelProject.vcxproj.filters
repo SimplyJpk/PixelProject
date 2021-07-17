@@ -352,6 +352,7 @@
     </ClInclude>
     <ClInclude Include="RenderTarget.h">
       <Filter>Header Files\Rendering</Filter>
+	</ClInclude>
     <ClInclude Include="PixelDataMasks.h">
       <Filter>Header Files\World\Utility</Filter>
     </ClInclude>
