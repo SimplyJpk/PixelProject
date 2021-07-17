@@ -20,18 +20,21 @@ public:
 
    int CreateShaderProgram(const char* shader_name, bool delete_sources = true);
 
-   bool ShaderFromText(GLenum type, const char* src);
-   bool ShaderFromFile(GLenum type, const std::string fileName);
-   bool ShaderCompiledFile(GLenum type, const std::string fileName);
+   bool ShaderFromText(GLenum type, std::string name, const char* src);
+   bool ShaderFromFile(GLenum type, std::string name, const std::string fileName);
+   bool ShaderCompiledFile(GLenum type, std::string name, const std::string fileName);
 
    bool CompileShader(const char* shader_name, const int shader_type, const std::string path);
    bool CompileShader(const char* shader_name, const int shader_type, const char* path);
+
+   Shader& GetShader(GLint program_id);
+   Shader& GetShader(std::string program_name);
 
    GLint GetProgramID(const char* program_name);
    const char* GetProgramName(const GLint program_id);
 
    inline void UseProgram(const char* program_name);
-   inline void UseProgram(const GLint program_id);
+   static inline void UseProgram(const GLint program_id);
 
    ShaderManager(const ShaderManager&) = delete;
    ShaderManager(ShaderManager&&) = delete;
@@ -76,9 +79,9 @@ private:
    std::unordered_map<const char*, GLint> program_id_;
    std::unordered_map<GLint, const char*> program_name_;
 
-   std::map < std::string, Shader*> new_shader_map_;
+   std::map < std::string, Shader*> linked_shaders_;
 
    // Used to simplify 
-   std::unordered_map<std::string, int[shader_types_count]> shader_map_;
+   std::unordered_map<std::string, int[shader_types_count]> shader_contents_map_;
 };
 

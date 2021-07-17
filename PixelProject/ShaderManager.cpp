@@ -8,21 +8,21 @@ ShaderManager& ShaderManager::Instance()
 
 int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sources)
 {
-   GLuint program = glCreateProgram();
-   auto shaderArray = shader_map_[shader_name];
-   int shaders_added = 0;
+   const GLuint program = glCreateProgram();
+   const auto shaderArray = shader_contents_map_[shader_name];
+   int shadersAdded = 0;
    for (int i = 0; i < shader_types_count; i++)
    {
       if (shaderArray[i] != 0)
       {
          glAttachShader(program, shaderArray[i]);
-         shaders_added++;
+         shadersAdded++;
       }
    }
    // Link our program
    glLinkProgram(program);
    GLint isLinked = 0;
-   glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+   glGetProgramiv(program, GL_LINK_STATUS, static_cast<int*>(&isLinked));
    if (isLinked == GL_FALSE)
    {
       GLint maxLength = 0;
@@ -44,13 +44,18 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
                glDeleteShader(shaderArray[i]);
             }
          }
-         shader_map_.erase(shader_name);
+         shader_contents_map_.erase(shader_name);
       }
       return - 1;
    }
-   printf("Shader Program '%s' Generated using %i modules\n", shader_name, shaders_added);
+   printf("Shader Program '%s' Generated using %i modules\n", shader_name, shadersAdded);
    program_id_[shader_name] = program;
    program_name_[program] = shader_name;
+
+   // Add to linked Shaders
+   Shader* shader = new Shader(program);
+   linked_shaders_[shader_name] = shader;
+
    //TODO Tidy this with above #1
    if (delete_sources)
       {
@@ -61,7 +66,7 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
                glDeleteShader(shaderArray[i]);
             }
          }
-         shader_map_.erase(shader_name);
+         shader_contents_map_.erase(shader_name);
       }
    return program;
 }
@@ -89,6 +94,25 @@ bool ShaderManager::CompileShader(const char* shader_name, const int shader_type
 {
    return CompileShader(shader_name, shader_type, std::string(path));
 }
+
+Shader& ShaderManager::GetShader(GLint program_id)
+{
+   std::unordered_map<int, const char*>::iterator i;
+   if ((i = program_name_.find(program_id)) != program_name_.end())
+   {
+      return GetShader(i->second);
+   }
+   //TODO Do we really want to throw? Maybe we should have some default error shader we can fall on. ie; all purple
+   printf("Shader with id '%i' does not exist!\n", program_id);
+   throw;
+}
+
+Shader& ShaderManager::GetShader(const std::string program_name)
+{
+   const auto value = linked_shaders_.find(program_name);
+   return *value->second;
+}
+
 bool ShaderManager::CompileShader(const char* shader_name, const int shader_type, const std::string path)
 {
    GLuint shader = glCreateShader(shader_type);
@@ -120,7 +144,7 @@ bool ShaderManager::CompileShader(const char* shader_name, const int shader_type
    }
    else
    {
-      shader_map_[shader_name][GetShaderIndex(shader_type)] = shader;
+      shader_contents_map_[shader_name][GetShaderIndex(shader_type)] = shader;
 
       return true;
    }

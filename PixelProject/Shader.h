@@ -11,15 +11,13 @@
 class Shader
 {
 public:
-   Shader();
-   virtual ~Shader();
+   Shader(GLuint program_id);
 
-   void CreateAndLink();
+   void UseProgram() const;
 
    GLuint GetProgramID() const;
-
-   int GetUniformLocation(const char* name);
+   GLuint GetUniformLocation(const std::string& name);
 private:
    GLuint program_;
-   std::map<std::string, GLuint> _uniformLocations;
+   std::map<std::string, GLuint> uniform_locations_;
 };
