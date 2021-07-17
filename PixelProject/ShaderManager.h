@@ -20,8 +20,8 @@ public:
 
    int CreateShaderProgram(const char* shader_name, bool delete_sources = true);
 
-   bool ShaderFromText(GLenum type, std::string name, const char* src);
-   bool ShaderFromFile(GLenum type, std::string name, const std::string fileName);
+   bool ShaderFromText(GLenum type, const std::string& name, const char* src);
+   bool ShaderFromFile(GLenum type, const std::string& name, const std::string fileName);
    bool ShaderCompiledFile(GLenum type, std::string name, const std::string fileName);
 
    bool CompileShader(const char* shader_name, const int shader_type, const std::string path);

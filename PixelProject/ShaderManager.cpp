@@ -71,6 +71,49 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
    return program;
 }
 
+bool ShaderManager::ShaderFromText(GLenum type, const std::string& name, const char* src)
+{
+   if (type == 0)
+   {
+      std::printf("Error creating shader.\n");
+      return false;
+   }
+   GLuint shader = glCreateShader(type);
+   const GLchar* codeArray[] = { src };
+   glShaderSource(shader, 1, codeArray, nullptr);
+   // Compile
+   glCompileShader(shader);
+   // Check to confirm
+   GLint result;
+   glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+   if (GL_FALSE == result) {
+      printf("Shader compilation failed!\nSource: %s", name.c_str());
+      // Get and print the info log
+      GLint logLen;
+      glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+      if (logLen > 0) {
+         std::string log(logLen, ' ');
+         GLsizei written;
+         glGetShaderInfoLog(shader, logLen, &written, &log[0]);
+         printf("Shader log: %s", log.c_str());
+      }
+      glDeleteShader(shader);
+   }
+   else
+   {
+      shader_contents_map_[name][GetShaderIndex(type)] = shader;
+      return true;
+   }
+   return false;
+}
+
+bool ShaderManager::ShaderFromFile(GLenum type, const std::string& name, const std::string fileName)
+{
+   // Get Shader Code so we can compile it
+   const std::string shaderCode = IO::get_file_contents(fileName);
+   return ShaderFromText(type, name, shaderCode.c_str());
+}
+
 GLint ShaderManager::GetProgramID(const char* program_name)
 {
    return program_id_[program_name];
