@@ -18,20 +18,18 @@ class ShaderManager
 public:
    static ShaderManager& Instance();
 
-   int CreateShaderProgram(const char* shader_name, bool delete_sources = true);
+   int CreateShaderProgram(const std::string& shader_name, bool delete_sources = true);
 
    bool ShaderFromText(GLenum type, const std::string& name, const char* src);
    bool ShaderFromFile(GLenum type, const std::string& name, const std::string fileName);
+   //TODO Implement
    bool ShaderCompiledFile(GLenum type, std::string name, const std::string fileName);
-
-   bool CompileShader(const char* shader_name, const int shader_type, const std::string path);
-   bool CompileShader(const char* shader_name, const int shader_type, const char* path);
 
    Shader& GetShader(GLint program_id);
    Shader& GetShader(std::string program_name);
 
    GLint GetProgramID(const char* program_name);
-   const char* GetProgramName(const GLint program_id);
+   std::string GetProgramName(const GLint program_id);
 
    inline void UseProgram(const char* program_name);
    static inline void UseProgram(const GLint program_id);
@@ -76,8 +74,8 @@ private:
    ShaderManager() = default;
    ~ShaderManager() = default;
 
-   std::unordered_map<const char*, GLint> program_id_;
-   std::unordered_map<GLint, const char*> program_name_;
+   std::unordered_map<std::string, GLint> program_id_;
+   std::unordered_map<GLint, std::string> program_name_;
 
    std::map < std::string, Shader*> linked_shaders_;
 
