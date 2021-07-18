@@ -6,9 +6,11 @@
 class RenderTarget
 {
 public:
-	 // Constructor to initilise a RenderTarget with screensize or size provided
+	 // Constructor to initilise a RenderTarget with size provided
 	 RenderTarget(unsigned int width, unsigned int height);
 	 ~RenderTarget() = default;
+
+	 void SetShader(Shader* shader);
 
 	 // Bind RenderTarget, can choose not to clear
 	 void BindRenderTarget(bool clear = true) const;
@@ -21,7 +23,7 @@ protected:
 	 void SetupVertex();
 
 	 // Shader of the PostProcess
-	 Shader* m_PostShader = nullptr;
+	 Shader* post_shader_ = nullptr;
 private:
 	 // Kernal State of the Shader
 	 unsigned int kernal_state_ = 1;

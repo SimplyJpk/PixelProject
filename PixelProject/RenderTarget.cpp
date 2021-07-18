@@ -12,8 +12,11 @@ RenderTarget::RenderTarget(const unsigned int width, const unsigned int height)
 	 SetupBuffer(width, height);
 	 // Setup Vertex Buffer
 	 SetupVertex();
+}
 
-	 // m_PostShader = new Shader("./shaders/rendertarget/vertex.shader", "./shaders/rendertarget/fragment.shader");
+void RenderTarget::SetShader(Shader* shader)
+{
+	 post_shader_ = shader;
 }
 
 // Bind the Render Target so we can draw to it, Option to clear as bool, default clears
@@ -38,16 +41,17 @@ void RenderTarget::DrawTargetQuad(const int x, const int y, const bool clear) co
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 	 // Use a different shader to the RenderTarget Shader
-	 glUseProgram(m_PostShader->GetProgramID());
+	 post_shader_->UseProgram();
+
 	 // Set active texture of FBO
 	 glActiveTexture(GL_TEXTURE0);
 	 glBindTexture(GL_TEXTURE_2D, fbo_texture_);
 
 	 // RenderTarget Shader
-	 int loc = glGetUniformLocation(m_PostShader->GetProgramID(), "target");
+	 int loc = post_shader_->GetUniformLocation("target");
 	 glUniform1i(loc, 0);
 	 // Set Kernal
-	 loc = glGetUniformLocation(m_PostShader->GetProgramID(), "KernalState");
+	 loc = post_shader_->GetUniformLocation("KernalState");
 	 glUniform1i(loc, kernal_state_);
 
 	 glBindVertexArray(vao_);
