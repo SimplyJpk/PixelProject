@@ -30,7 +30,7 @@ class Game
    WorldGenerator* world_generator_;
    FlyCamera main_cam;
 
-   GLint defaultShader;
+   Shader* defaultShader = nullptr;
 
 public:
    bool Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings);

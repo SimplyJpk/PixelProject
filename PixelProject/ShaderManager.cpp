@@ -6,7 +6,7 @@ ShaderManager& ShaderManager::Instance()
    return instance;
 }
 
-int ShaderManager::CreateShaderProgram(const std::string& shader_name, bool delete_sources)
+Shader* ShaderManager::CreateShaderProgram(const std::string& shader_name, bool delete_sources)
 {
    const GLuint program = glCreateProgram();
    const auto shaderArray = shader_contents_map_[shader_name];
@@ -46,7 +46,7 @@ int ShaderManager::CreateShaderProgram(const std::string& shader_name, bool dele
          }
          shader_contents_map_.erase(shader_name);
       }
-      return - 1;
+      return nullptr;
    }
    printf("Shader Program '%s' Generated using %i modules\n", shader_name.c_str(), shadersAdded);
    program_id_[shader_name.c_str()] = program;
@@ -68,7 +68,7 @@ int ShaderManager::CreateShaderProgram(const std::string& shader_name, bool dele
          }
          shader_contents_map_.erase(shader_name);
       }
-   return program;
+   return shader;
 }
 
 bool ShaderManager::ShaderFromText(GLenum type, const std::string& name, const char* src)
