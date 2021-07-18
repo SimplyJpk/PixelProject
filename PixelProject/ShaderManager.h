@@ -18,7 +18,7 @@ class ShaderManager
 public:
    static ShaderManager& Instance();
 
-   int CreateShaderProgram(const std::string& shader_name, bool delete_sources = true);
+   Shader* CreateShaderProgram(const std::string& shader_name, bool delete_sources = true);
 
    bool ShaderFromText(GLenum type, const std::string& name, const char* src);
    bool ShaderFromFile(GLenum type, const std::string& name, const std::string fileName);
@@ -39,16 +39,25 @@ public:
    void operator=(const ShaderManager&) = delete;
    void operator=(ShaderManager&&) = delete;
 
+   enum class ShaderMask : uint8_t
+   {
+      Vertex = 1 << 0,
+      Fragment = 1 << 1,
+      Geometry = 1 << 2,
+      TessEval = 1 << 3,
+      TessControl = 1 << 4,
+      Compute = 1 << 5,
+   };
+
    enum ShaderTypes : GLint
    {
       Vertex = GL_VERTEX_SHADER,
       Fragment = GL_FRAGMENT_SHADER,
       Geometry = GL_GEOMETRY_SHADER,
-      TessellationEval = GL_TESS_EVALUATION_SHADER,
-      TessellationControl = GL_TESS_CONTROL_SHADER,
+      TessEval = GL_TESS_EVALUATION_SHADER,
+      TessControl = GL_TESS_CONTROL_SHADER,
       Compute = GL_COMPUTE_SHADER
    };
-
 
    // Simple Converter to change a GL_Shader index to local array indexable value.
    static int GetShaderIndex(const GLint gl_shader_type)
