@@ -359,6 +359,8 @@
     <None Include="shaders\orthoUI.vert" />
     <None Include="shaders\orthoWorld.frag" />
     <None Include="shaders\orthoWorld.vert" />
+    <None Include="shaders\rendertarget\default.frag" />
+    <None Include="shaders\rendertarget\default.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
