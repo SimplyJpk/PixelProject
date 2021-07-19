@@ -1,5 +1,7 @@
 #include "Game.h"
 
+#include "RenderTarget.h"
+
 typedef ShaderManager::ShaderTypes ShaderType;
 
 bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings)
@@ -13,9 +15,17 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
 
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
 
-   if (!ShaderManager::Instance().CompileShader("orthoWorld", ShaderType::Vertex, "shaders/orthoWorld.vert"))
+   // Render Target Shader, we do this first
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "renderTarget", "shaders/rendertarget/default.vert"))
+      printf("Failed to generate RenderTarget Vertex Shader");
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "renderTarget", "shaders/rendertarget/default.frag"))
+      printf("Failed to generate RenderTarget Frag Shader");
+   ShaderManager::Instance().CreateShaderProgram("renderTarget", false);
+
+   // World Shaders
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "orthoWorld", "shaders/orthoWorld.vert"))
       printf("Failed to generate Vertex Shader");
-   if (!ShaderManager::Instance().CompileShader("orthoWorld", ShaderType::Fragment, "shaders/orthoWorld.frag"))
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "orthoWorld", "shaders/orthoWorld.frag"))
       printf("Failed to generate Frag Shader");
 
    defaultShader = ShaderManager::Instance().CreateShaderProgram("orthoWorld", false);
@@ -80,6 +90,9 @@ void Game::Run()
    auto secondCounter = clock::now();
    int frameCounter = 0;
 
+   RenderTarget renderTarget(game_settings->screen_size.x, game_settings->screen_size.y);
+   renderTarget.SetShader(&ShaderManager::Instance().GetShader("renderTarget"));
+
    while (!input_manager->IsShuttingDown())
    {
       deltaTime = static_cast<duration>(clock::now() - deltaClock).count();
@@ -103,6 +116,12 @@ void Game::Run()
       //! Update
       input_manager->Update();
       if (input_manager->IsShuttingDown()) break;
+
+      //TODO maybe don't leave this here
+      if (input_manager->GetKeyDown(KeyCode::U))
+         renderTarget.kernal_state++;
+      else if (input_manager->GetKeyDown(KeyCode::I))
+         renderTarget.kernal_state--;
 
       main_cam.Update(deltaTime);
 
@@ -141,6 +160,8 @@ void Game::Run()
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       gui_manager->NewGuiFrame();
 
+      renderTarget.BindRenderTarget();
+
       world_sim->Draw(&main_cam);
       // Draw some stock GUI with ImGUI
       gui_manager->DrawGui();
@@ -149,6 +170,8 @@ void Game::Run()
       gui_manager->FinishGuiFrame();
 
       stop_watch.UpdateTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
+
+      renderTarget.DrawTargetQuad(0, 0);
 
       SDL_GL_SwapWindow(g_window);
 

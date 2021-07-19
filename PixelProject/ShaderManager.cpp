@@ -6,23 +6,23 @@ ShaderManager& ShaderManager::Instance()
    return instance;
 }
 
-int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sources)
+Shader* ShaderManager::CreateShaderProgram(const std::string& shader_name, bool delete_sources)
 {
-   GLuint program = glCreateProgram();
-   auto shaderArray = shader_map_[shader_name];
-   int shaders_added = 0;
+   const GLuint program = glCreateProgram();
+   const auto shaderArray = shader_contents_map_[shader_name];
+   int shadersAdded = 0;
    for (int i = 0; i < shader_types_count; i++)
    {
       if (shaderArray[i] != 0)
       {
          glAttachShader(program, shaderArray[i]);
-         shaders_added++;
+         shadersAdded++;
       }
    }
    // Link our program
    glLinkProgram(program);
    GLint isLinked = 0;
-   glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+   glGetProgramiv(program, GL_LINK_STATUS, static_cast<int*>(&isLinked));
    if (isLinked == GL_FALSE)
    {
       GLint maxLength = 0;
@@ -44,13 +44,18 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
                glDeleteShader(shaderArray[i]);
             }
          }
-         shader_map_.erase(shader_name);
+         shader_contents_map_.erase(shader_name);
       }
-      return - 1;
+      return nullptr;
    }
-   printf("Shader Program '%s' Generated using %i modules\n", shader_name, shaders_added);
-   program_id_[shader_name] = program;
+   printf("Shader Program '%s' Generated using %i modules\n", shader_name.c_str(), shadersAdded);
+   program_id_[shader_name.c_str()] = program;
    program_name_[program] = shader_name;
+
+   // Add to linked Shaders
+   Shader* shader = new Shader(program);
+   linked_shaders_[shader_name] = shader;
+
    //TODO Tidy this with above #1
    if (delete_sources)
       {
@@ -61,52 +66,28 @@ int ShaderManager::CreateShaderProgram(const char* shader_name, bool delete_sour
                glDeleteShader(shaderArray[i]);
             }
          }
-         shader_map_.erase(shader_name);
+         shader_contents_map_.erase(shader_name);
       }
-   return program;
+   return shader;
 }
 
-GLint ShaderManager::GetProgramID(const char* program_name)
+bool ShaderManager::ShaderFromText(GLenum type, const std::string& name, const char* src)
 {
-   return program_id_[program_name];
-}
-
-const char* ShaderManager::GetProgramName(const GLint program_id)
-{
-   return program_name_[program_id];
-}
-
-inline void ShaderManager::UseProgram(const char* program_name)
-{
-   glUseProgram(program_id_[program_name]);
-}
-inline void ShaderManager::UseProgram(const GLint program_id)
-{
-   glUseProgram(program_id);
-}
-
-bool ShaderManager::CompileShader(const char* shader_name, const int shader_type, const char* path)
-{
-   return CompileShader(shader_name, shader_type, std::string(path));
-}
-bool ShaderManager::CompileShader(const char* shader_name, const int shader_type, const std::string path)
-{
-   GLuint shader = glCreateShader(shader_type);
-   if (0 == shader_type) {
+   if (type == 0)
+   {
       std::printf("Error creating shader.\n");
       return false;
    }
-   // Get Shader Code so we can compile it
-   const std::string shaderCode = IO::get_file_contents(path);
-   const GLchar* codeArray[] = { shaderCode.c_str() };
+   GLuint shader = glCreateShader(type);
+   const GLchar* codeArray[] = { src };
    glShaderSource(shader, 1, codeArray, nullptr);
    // Compile
-   glCompileShader( shader );
+   glCompileShader(shader);
    // Check to confirm
    GLint result;
    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
    if (GL_FALSE == result) {
-      printf("Shader compilation failed!\nSource: %s", path.c_str());
+      printf("Shader compilation failed!\nSource: %s", name.c_str());
       // Get and print the info log
       GLint logLen;
       glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
@@ -120,9 +101,52 @@ bool ShaderManager::CompileShader(const char* shader_name, const int shader_type
    }
    else
    {
-      shader_map_[shader_name][GetShaderIndex(shader_type)] = shader;
-
+      shader_contents_map_[name][GetShaderIndex(type)] = shader;
       return true;
    }
    return false;
+}
+
+bool ShaderManager::ShaderFromFile(GLenum type, const std::string& name, const std::string fileName)
+{
+   // Get Shader Code so we can compile it
+   const std::string shaderCode = IO::get_file_contents(fileName);
+   return ShaderFromText(type, name, shaderCode.c_str());
+}
+
+GLint ShaderManager::GetProgramID(const char* program_name)
+{
+   return program_id_[program_name];
+}
+
+std::string ShaderManager::GetProgramName(const GLint program_id)
+{
+   return program_name_[program_id];
+}
+
+inline void ShaderManager::UseProgram(const char* program_name)
+{
+   glUseProgram(program_id_[program_name]);
+}
+inline void ShaderManager::UseProgram(const GLint program_id)
+{
+   glUseProgram(program_id);
+}
+
+Shader& ShaderManager::GetShader(GLint program_id)
+{
+   std::unordered_map<int, std::string>::iterator i;
+   if ((i = program_name_.find(program_id)) != program_name_.end())
+   {
+      return GetShader(i->second);
+   }
+   //TODO Do we really want to throw? Maybe we should have some default error shader we can fall on. ie; all purple
+   printf("Shader with id '%i' does not exist!\n", program_id);
+   throw;
+}
+
+Shader& ShaderManager::GetShader(const std::string program_name)
+{
+   const auto value = linked_shaders_.find(program_name);
+   return *value->second;
 }

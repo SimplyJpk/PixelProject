@@ -8,6 +8,7 @@
 
 #include "ColourUtility.h"
 #include "PixelDataMasks.h"
+#include "Shader.h"
 #include "StringUtility.h"
 
 //TODO Should this be a singleton? or a static class? The contained information shouldn't change.
@@ -69,31 +70,31 @@ public:
       }
    }
 
-   void SetUniformData(GLuint program)
+   void SetUniformData(Shader* program)
    {
-      glUseProgram(program);
+      program->UseProgram();
       GLint myLoc;
-
+      int programID = program->GetProgramID();
       // Set PixelData
       for (int i = 0; i < pixel_type_counter_; i++)
       {
          auto pixel = pixel_type_list_[i];
          std::string locationString = Utility::string_format("u_Pixels[%i].colour_count", pixel->pixel_index);
-         myLoc = glGetUniformLocation(program, locationString.c_str());
-         glProgramUniform1i(program, myLoc, pixel->colour_count);
+         myLoc = program->GetUniformLocation(locationString);
+         glProgramUniform1i(programID, myLoc, pixel->colour_count);
          for (int j = 0; j < pixel->colour_count; j++)
          {
-            glProgramUniform4fv(program, myLoc+(j+1), 4, pixel->render_colours[j]);
+            glProgramUniform4fv(programID, myLoc+(j+1), 4, pixel->render_colours[j]);
          }
       }
 
       // Set MaskData
-      myLoc = glGetUniformLocation(program, "u_PixelMask.index");
-      glProgramUniform1ui(program, myLoc, pixel_index_bits);
-      myLoc = glGetUniformLocation(program, "u_PixelMask.lifetime");
-      glProgramUniform1ui(program, myLoc, pixel_lifetime_bits);
-      myLoc = glGetUniformLocation(program, "u_PixelMask.pixel_behaviour_bits");
-      glProgramUniform1ui(program, myLoc, pixel_index_bits);
+      myLoc = program->GetUniformLocation("u_PixelMask.index");
+      glProgramUniform1ui(programID, myLoc, pixel_index_bits);
+      myLoc = program->GetUniformLocation("u_PixelMask.lifetime");
+      glProgramUniform1ui(programID, myLoc, pixel_lifetime_bits);
+      myLoc = program->GetUniformLocation("u_PixelMask.pixel_behaviour_bits");
+      glProgramUniform1ui(programID, myLoc, pixel_index_bits);
    }
 
    WorldDataHandler(const WorldDataHandler&) = delete;

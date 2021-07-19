@@ -277,7 +277,9 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="WorldChunk.cpp" />
     <ClCompile Include="WorldDataHandler.cpp" />
@@ -324,9 +326,11 @@
     <ClInclude Include="PixelTypeIncludes.h" />
     <ClInclude Include="PixelUtil.h" />
     <ClInclude Include="RectTransform.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Sprite.h" />
@@ -355,6 +359,8 @@
     <None Include="shaders\orthoUI.vert" />
     <None Include="shaders\orthoWorld.frag" />
     <None Include="shaders\orthoWorld.vert" />
+    <None Include="shaders\rendertarget\default.frag" />
+    <None Include="shaders\rendertarget\default.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

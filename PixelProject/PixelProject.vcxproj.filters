@@ -118,6 +118,9 @@
     <Filter Include="Source Files\Lib\FastNoise">
       <UniqueIdentifier>{a8e4a9bd-82a0-4a30-a96d-0ffc3ec6e22a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\shaders\rendertarget">
+      <UniqueIdentifier>{19982399-f592-44bf-a0e2-d43140076bef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -191,6 +194,12 @@
     </ClCompile>
     <ClCompile Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD_sse41.cpp">
       <Filter>Source Files\Lib\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget.cpp">
+      <Filter>Source Files\Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -341,6 +350,12 @@
     <ClInclude Include="ChunkSupport.h">
       <Filter>Header Files\World\Chunk</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
     <ClInclude Include="PixelDataMasks.h">
       <Filter>Header Files\World\Utility</Filter>
     </ClInclude>
@@ -395,6 +410,12 @@
     </None>
     <None Include="shaders\orthoWorld.vert">
       <Filter>Resource Files\shaders</Filter>
+    </None>
+    <None Include="shaders\rendertarget\default.frag">
+      <Filter>Resource Files\shaders\rendertarget</Filter>
+    </None>
+    <None Include="shaders\rendertarget\default.vert">
+      <Filter>Resource Files\shaders\rendertarget</Filter>
     </None>
   </ItemGroup>
 </Project>
