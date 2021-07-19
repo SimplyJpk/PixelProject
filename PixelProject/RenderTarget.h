@@ -12,6 +12,9 @@ public:
 
 	 void SetShader(Shader* shader);
 
+	 // Kernal State of the Shader
+	 unsigned int kernal_state = 1;
+
 	 // Bind RenderTarget, can choose not to clear
 	 void BindRenderTarget(bool clear = true) const;
 	 // Draw The render Target and position it on screen
@@ -25,9 +28,6 @@ protected:
 	 // Shader of the PostProcess
 	 Shader* post_shader_ = nullptr;
 private:
-	 // Kernal State of the Shader
-	 unsigned int kernal_state_ = 1;
-
 	 unsigned int fbo_;
 	 unsigned int fbo_texture_;
 	 unsigned int fbo_depth_;

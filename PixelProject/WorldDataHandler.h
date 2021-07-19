@@ -80,7 +80,7 @@ public:
       {
          auto pixel = pixel_type_list_[i];
          std::string locationString = Utility::string_format("u_Pixels[%i].colour_count", pixel->pixel_index);
-         myLoc = program->GetUniformLocation(locationString.c_str());
+         myLoc = program->GetUniformLocation(locationString);
          glProgramUniform1i(programID, myLoc, pixel->colour_count);
          for (int j = 0; j < pixel->colour_count; j++)
          {

@@ -97,7 +97,8 @@ void WorldSimulator::Start()
       map_noiseTextureData[i] = rng() % 4;
    }
    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, map_noiseTextureData);
-   glUniform1i(game_settings->default_shader->GetUniformLocation("textureIndex"), 1);
+   GLuint textureIndex = game_settings->default_shader->GetUniformLocation("textureIndex");
+   glUniform1i(textureIndex, 1);
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size, const bool override_pixels)
@@ -689,6 +690,10 @@ bool WorldSimulator::Draw(Camera* camera)
    game_settings->default_shader->UseProgram();
    int modelLoc = game_settings->default_shader->GetUniformLocation("model");
    int projLoc = game_settings->default_shader->GetUniformLocation("projection");
+
+   // Make sure it can see our noise texture
+   //TODO this may die? Not sure why or when I should set this if ever
+   glBindTexture(GL_TEXTURE_2D, 1);
 
    for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {

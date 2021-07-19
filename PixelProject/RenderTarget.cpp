@@ -52,7 +52,7 @@ void RenderTarget::DrawTargetQuad(const int x, const int y, const bool clear) co
 	 glUniform1i(loc, 0);
 	 // Set Kernal
 	 loc = post_shader_->GetUniformLocation("KernalState");
-	 glUniform1i(loc, kernal_state_);
+	 glUniform1i(loc, kernal_state);
 
 	 glBindVertexArray(vao_);
 	 glDrawArrays(GL_TRIANGLES, 0, 6);
