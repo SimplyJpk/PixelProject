@@ -8,9 +8,11 @@
 #include "ConfigFile.h"
 
 #include "Constants.h"
+#include "Shader.h"
+
 struct GameSettings
 {
-   GLint default_shader;
+   Shader* default_shader;
    FC_Font* font = nullptr;
 
    //TODO Move or remove this later

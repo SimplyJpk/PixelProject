@@ -75,8 +75,8 @@ void WorldSimulator::Start()
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, chunks[IVec2(0, 0)]->pixel_data);
 
-   glUseProgram(game_settings->default_shader);
-   glUniform1i(glGetUniformLocation(game_settings->default_shader, "ourTexture"), 0);
+   game_settings->default_shader->UseProgram();
+   glUniform1i(game_settings->default_shader->GetUniformLocation("ourTexture"), 0);
 
    for (int x = 0; x < world_dimensions.x; x++)
    {
@@ -97,7 +97,7 @@ void WorldSimulator::Start()
       map_noiseTextureData[i] = rng() % 4;
    }
    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, map_noiseTextureData);
-   glUniform1i(glGetUniformLocation(game_settings->default_shader, "textureIndex"), 1);
+   glUniform1i(game_settings->default_shader->GetUniformLocation("textureIndex"), 1);
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size, const bool override_pixels)
@@ -686,6 +686,10 @@ bool WorldSimulator::Draw(Camera* camera)
    if (camPos.y < 0)
       yChunkStart += 1;
 
+   game_settings->default_shader->UseProgram();
+   int modelLoc = game_settings->default_shader->GetUniformLocation("model");
+   int projLoc = game_settings->default_shader->GetUniformLocation("projection");
+
    for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {
       for (int yVal = yChunkStart; yVal < yChunkEnd; yVal++)
@@ -694,8 +698,6 @@ bool WorldSimulator::Draw(Camera* camera)
          // Chunk doesn't exist, we don't render
          if (worldChunk == chunks.end())
             continue;
-
-         glUseProgram(game_settings->default_shader);
          
          glActiveTexture(GL_TEXTURE0);
          glBindTexture(GL_TEXTURE_2D, map_textures);
@@ -712,9 +714,7 @@ bool WorldSimulator::Draw(Camera* camera)
 
          model = glm::scale(model, glm::vec3(128, 128, 1.0f));
 
-         int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-         int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
          glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
 

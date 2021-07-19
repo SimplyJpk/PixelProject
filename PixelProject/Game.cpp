@@ -13,10 +13,17 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
 
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
 
-   if (!ShaderManager::Instance().CompileShader("orthoWorld", ShaderType::Vertex, "shaders/orthoWorld.vert"))
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "orthoWorld", "shaders/orthoWorld.vert"))
       printf("Failed to generate Vertex Shader");
-   if (!ShaderManager::Instance().CompileShader("orthoWorld", ShaderType::Fragment, "shaders/orthoWorld.frag"))
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "orthoWorld", "shaders/orthoWorld.frag"))
       printf("Failed to generate Frag Shader");
+
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "renderTarget", "shaders/rendertarget/default.vert"))
+      printf("Failed to generate RenderTarget Vertex Shader");
+   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "renderTarget", "shaders/rendertarget/default.frag"))
+      printf("Failed to generate RenderTarget Frag Shader");
+
+
 
    defaultShader = ShaderManager::Instance().CreateShaderProgram("orthoWorld", false);
    game_settings->default_shader = defaultShader;
