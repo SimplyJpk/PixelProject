@@ -32,6 +32,6 @@ GLuint Shader::GetUniformLocation(const std::string& name)
    }
    // Complain that it doesn't exist
    //TODO Throw? What is best to handle this?
-   printf("Invalid Uniform: '%s' does not exist", name.c_str());
+   printf("Invalid Uniform: '%s' does not exist.\n", name.c_str());
    return -1;
 }
