@@ -2,8 +2,6 @@
 
 #include "RenderTarget.h"
 
-typedef ShaderManager::ShaderTypes ShaderType;
-
 bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings)
 {
    glEnable(GL_BLEND);
@@ -15,20 +13,15 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
 
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
 
-   // Render Target Shader, we do this first
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "renderTarget", "shaders/rendertarget/default.vert"))
-      printf("Failed to generate RenderTarget Vertex Shader");
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "renderTarget", "shaders/rendertarget/default.frag"))
-      printf("Failed to generate RenderTarget Frag Shader");
+   // Render Target / Post Processing
+   if (!ShaderManager::Instance().ShaderFromFiles(MVertex | MFragment, "renderTarget", "shaders/rendertarget/default"))
+      printf("Failed to generate RenderTarget Shader\n");
    ShaderManager::Instance().CreateShaderProgram("renderTarget", false);
-
    // World Shaders
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "orthoWorld", "shaders/orthoWorld.vert"))
-      printf("Failed to generate Vertex Shader");
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "orthoWorld", "shaders/orthoWorld.frag"))
-      printf("Failed to generate Frag Shader");
-
+   if (!ShaderManager::Instance().ShaderFromFiles(MVertex | MFragment, "orthoWorld", "shaders/orthoWorld"))
+      printf("Failed to generate orthoWorld Shader\n");
    defaultShader = ShaderManager::Instance().CreateShaderProgram("orthoWorld", false);
+
    game_settings->default_shader = defaultShader;
 
    paint_manager = new PaintManager();
@@ -163,6 +156,10 @@ void Game::Run()
       renderTarget.BindRenderTarget();
 
       world_sim->Draw(&main_cam);
+
+      // Draw our World before we draw GUI over it
+      renderTarget.DrawTargetQuad(0, 0);
+
       // Draw some stock GUI with ImGUI
       gui_manager->DrawGui();
 
@@ -171,7 +168,6 @@ void Game::Run()
 
       stop_watch.UpdateTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
 
-      renderTarget.DrawTargetQuad(0, 0);
 
       SDL_GL_SwapWindow(g_window);
 

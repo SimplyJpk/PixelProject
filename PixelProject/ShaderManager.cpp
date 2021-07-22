@@ -107,11 +107,17 @@ bool ShaderManager::ShaderFromText(GLenum type, const std::string& name, const c
    return false;
 }
 
-bool ShaderManager::ShaderFromFile(GLenum type, const std::string& name, const std::string fileName)
+bool ShaderManager::ShaderFromFile(ShaderTypes type, const std::string& name, const std::string fileName)
 {
    // Get Shader Code so we can compile it
    const std::string shaderCode = IO::get_file_contents(fileName);
-   return ShaderFromText(type, name, shaderCode.c_str());
+   return ShaderFromText(static_cast<GLenum>(type), name, shaderCode.c_str());
+}
+bool ShaderManager::ShaderFromFile(GLint index, const std::string& name, const std::string fileName)
+{
+   // Get Shader Code so we can compile it
+   const std::string shaderCode = IO::get_file_contents(fileName);
+   return ShaderFromText(gl_enum_from_index_[index], name, shaderCode.c_str());
 }
 
 GLint ShaderManager::GetProgramID(const char* program_name)
@@ -131,6 +137,27 @@ inline void ShaderManager::UseProgram(const char* program_name)
 inline void ShaderManager::UseProgram(const GLint program_id)
 {
    glUseProgram(program_id);
+}
+
+bool ShaderManager::ShaderFromFiles(uint8_t shader_mask, const std::string& name, const std::string fileName)
+{
+   int shaders_loaded = 0;
+   int index = 5;
+   int stride = ShaderMask::BitMaskMax;
+   // We loop through our possible shaders and load any that we've been asked to load
+   while (stride > 0)
+   {
+      if (stride & shader_mask)
+      {
+         if (ShaderFromFile(index, name, fileName + "." + shader_end_[index]))
+            shaders_loaded++;
+      }
+      stride >>= 1;
+      index--;
+   }
+   if (shaders_loaded > 0)
+      return true;
+   return false;
 }
 
 Shader& ShaderManager::GetShader(GLint program_id)
