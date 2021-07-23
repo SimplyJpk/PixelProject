@@ -88,13 +88,26 @@ public:
          }
       }
 
+      //TODO Automate? Make this better?
       // Set MaskData
       myLoc = program->GetUniformLocation("u_PixelMask.index");
-      glProgramUniform1ui(programID, myLoc, pixel_index_bits);
+      glProgramUniform1ui(programID, myLoc, GetPixelIndexBits());
       myLoc = program->GetUniformLocation("u_PixelMask.lifetime");
-      glProgramUniform1ui(programID, myLoc, pixel_lifetime_bits);
+      glProgramUniform1ui(programID, myLoc, GetPixelLifetimeBits());
       myLoc = program->GetUniformLocation("u_PixelMask.pixel_behaviour_bits");
-      glProgramUniform1ui(programID, myLoc, pixel_index_bits);
+      glProgramUniform1ui(programID, myLoc, GetPixelBehaviourBits());
+      myLoc = program->GetUniformLocation("u_PixelMask.pixel_light_bits");
+      glProgramUniform1ui(programID, myLoc, GetPixelLightBits());
+
+      // Set MaskData
+      myLoc = program->GetUniformLocation("u_PixelBitOffset.index");
+      glProgramUniform1ui(programID, myLoc, GetPixelIndexDepth());
+      myLoc = program->GetUniformLocation("u_PixelBitOffset.lifetime");
+      glProgramUniform1ui(programID, myLoc, GetPixelLifetimeDepth());
+      myLoc = program->GetUniformLocation("u_PixelBitOffset.pixel_behaviour_bits");
+      glProgramUniform1ui(programID, myLoc, GetPixelBehaviourDepth());
+      myLoc = program->GetUniformLocation("u_PixelBitOffset.pixel_light_bits");
+      glProgramUniform1ui(programID, myLoc, GetPixelLightDepth());
    }
 
    WorldDataHandler(const WorldDataHandler&) = delete;

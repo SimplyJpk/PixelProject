@@ -19,10 +19,12 @@ struct MaskData
 		uint index;
 		uint lifetime;
 		uint behaviour;
+		uint light;
 };
 
 uniform PixelData[10] u_Pixels;
 uniform MaskData u_PixelMask;
+uniform MaskData u_PixelBitOffset;
 
 void main()
 {
