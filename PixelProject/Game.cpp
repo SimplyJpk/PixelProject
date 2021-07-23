@@ -14,14 +14,12 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
 
    // Render Target / Post Processing
-   if (!ShaderManager::Instance().ShaderFromFiles(MVertex | MFragment, "renderTarget", "shaders/rendertarget/default"))
-      printf("Failed to generate RenderTarget Shader\n");
-   ShaderManager::Instance().CreateShaderProgram("renderTarget", false);
-   // World Shaders
-   if (!ShaderManager::Instance().ShaderFromFiles(MVertex | MFragment, "orthoWorld", "shaders/orthoWorld"))
-      printf("Failed to generate orthoWorld Shader\n");
-   defaultShader = ShaderManager::Instance().CreateShaderProgram("orthoWorld", false);
+   ShaderManager::Instance().CreateShaderProgramFromFiles(
+      MVertex | MFragment, "renderTarget", "shaders/rendertarget/default");
 
+   // World Shaders
+   defaultShader = ShaderManager::Instance().CreateShaderProgramFromFiles(
+      MVertex | MFragment, "orthoWorld", "shaders/orthoWorld");
    game_settings->default_shader = defaultShader;
 
    paint_manager = new PaintManager();

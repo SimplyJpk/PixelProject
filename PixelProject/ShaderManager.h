@@ -40,6 +40,8 @@ public:
    static ShaderManager& Instance();
 
    Shader* CreateShaderProgram(const std::string& shader_name, bool delete_sources = true);
+   Shader* CreateShaderProgramFromFiles(uint8_t shader_mask, const std::string& name, const std::string fileName);
+
 
    bool ShaderFromText(GLenum type, const std::string& name, const char* src);
    bool ShaderFromFile(GLint index, const std::string& name, const std::string fileName);

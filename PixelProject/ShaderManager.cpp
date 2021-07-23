@@ -71,6 +71,17 @@ Shader* ShaderManager::CreateShaderProgram(const std::string& shader_name, bool 
    return shader;
 }
 
+Shader* ShaderManager::CreateShaderProgramFromFiles(uint8_t shader_mask, const std::string& name,
+   const std::string fileName)
+{
+   if (ShaderFromFiles(shader_mask, name, fileName))
+   {
+      return CreateShaderProgram(name, false);
+   }
+   printf("Failed to Create shader '%s'\n", name.c_str());
+   return nullptr;
+}
+
 bool ShaderManager::ShaderFromText(GLenum type, const std::string& name, const char* src)
 {
    if (type == 0)
