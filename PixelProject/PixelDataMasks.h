@@ -1,8 +1,45 @@
 #pragma once
 #include <SDL_stdinc.h>
 
-constexpr Uint32 pixel_index_bits            = 0b0000'0000'0000'0000'0000'0000'0001'1111;
+namespace PMaskData
+{
+   /// <summary> Range: 0 - 31 [5 Bits]</summary>
+   constexpr Uint32 index_bits = 0b0000'0000'0000'0000'0000'0000'0001'1111;
+   constexpr uint8_t index_count = 5;
+   constexpr uint8_t index_depth = 0 + 1;
 
-constexpr Uint32 pixel_lifetime_bits         = 0b1111'1100'0000'0000'0000'0000'0000'0000;
+   /// <summary> Range: 0 - 63 [6 Bits]</summary>
+   constexpr Uint32 lifetime_bits = 0b1111'1100'0000'0000'0000'0000'0000'0000;
+   constexpr uint8_t lifetime_count = 6;
+   constexpr uint8_t lifetime_depth = 26 + 1;
 
-constexpr Uint32 pixel_behaviour_bits        = 0b0000'0011'1100'0000'0000'0000'0000'0000;
+   /// <summary> Range: 0 - 15 [4 Bits]</summary>
+   constexpr Uint32 behaviour_bits = 0b0000'0011'1100'0000'0000'0000'0000'0000;
+   constexpr uint8_t behaviour_count = 4;
+   constexpr uint8_t behaviour_depth = 22 + 1;
+
+   /// <summary> Range: 0 - 8 [3 Bits]</summary>
+   constexpr Uint32 light_bits = 0b0000'0000'0000'0000'0000'0000'1110'0000;
+   constexpr uint8_t light_count = 3;
+   constexpr uint8_t light_depth = 5 + 1;
+}
+
+inline uint8_t GetP_Index(const Uint32 pixel)
+{
+   return (((1 << PMaskData::index_count) - 1) & ((pixel & PMaskData::index_bits) >> (PMaskData::index_depth - 1)));
+}
+
+inline uint8_t GetP_Lifetime(const Uint32 pixel)
+{
+   return (((1 << PMaskData::lifetime_count) - 1) & ((pixel & PMaskData::lifetime_bits) >> (PMaskData::lifetime_depth - 1)));
+}
+
+inline uint8_t GetP_BehaviourBits(const Uint32 pixel)
+{
+   return (((1 << PMaskData::behaviour_count) - 1) & ((pixel & PMaskData::behaviour_bits) >> (PMaskData::behaviour_depth - 1)));
+}
+
+inline uint8_t GetP_LightBits(const Uint32 pixel)
+{
+   return (((1 << PMaskData::light_count) - 1) & ((pixel & PMaskData::light_bits) >> (PMaskData::light_depth - 1)));
+}

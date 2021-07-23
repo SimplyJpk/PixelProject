@@ -1,7 +1,6 @@
 #include "WorldSimulator.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "PixelUtil.h"
 #include "stb_image.h"
 
 void WorldSimulator::Start()
@@ -316,8 +315,7 @@ void WorldSimulator::FixedUpdate()
 
                            // If the pixel is empty, or something beat us to update it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
-
-                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(Utility::GetType(localPixels[localIndex]));
+                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(GetP_Index(localPixels[localIndex]));
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
@@ -386,7 +384,7 @@ void WorldSimulator::FixedUpdate()
                                     neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                               }
 
-                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(Utility::GetType(neighbourPixels[neighbourIndex]));
+                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(GetP_Index(neighbourPixels[neighbourIndex]));
 #ifdef DEBUG_GAME
                               if (pixelNeighbour == nullptr) {
                                  printf("WARNING: pixelNeighbour returned NULL\n");

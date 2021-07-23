@@ -324,7 +324,6 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="PixelDataMasks.h" />
     <ClInclude Include="PixelTypeIncludes.h" />
-    <ClInclude Include="PixelUtil.h" />
     <ClInclude Include="RectTransform.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SandPixel.h" />

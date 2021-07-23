@@ -332,9 +332,6 @@
     <ClInclude Include="ColourUtility.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="PixelUtil.h">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="SteamPixel.h">
       <Filter>Header Files\World\Pixels</Filter>
     </ClInclude>
