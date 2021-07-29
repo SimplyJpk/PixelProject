@@ -121,6 +121,9 @@
     <Filter Include="Resource Files\shaders\rendertarget">
       <UniqueIdentifier>{19982399-f592-44bf-a0e2-d43140076bef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\shaders\post">
+      <UniqueIdentifier>{979328da-75d2-4d36-8192-aebe2b445950}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -413,6 +416,18 @@
     </None>
     <None Include="shaders\rendertarget\default.vert">
       <Filter>Resource Files\shaders\rendertarget</Filter>
+    </None>
+    <None Include="shaders\post\bloom.vert">
+      <Filter>Resource Files\shaders\post</Filter>
+    </None>
+    <None Include="shaders\post\blur.frag">
+      <Filter>Resource Files\shaders\post</Filter>
+    </None>
+    <None Include="shaders\post\blur.vert">
+      <Filter>Resource Files\shaders\post</Filter>
+    </None>
+    <None Include="shaders\post\bloom.frag">
+      <Filter>Resource Files\shaders\post</Filter>
     </None>
   </ItemGroup>
 </Project>
