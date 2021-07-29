@@ -49,6 +49,13 @@ public:
 
    int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
 
+   Uint32 GetNewPixel() override
+   {
+      constexpr Uint32 lightLevel = 7 << GetPixelLightDepth();
+
+      return lightLevel | pixel_index;
+   }
+
 private:
    inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
    {

@@ -18,5 +18,10 @@ public:
       InsertPixelUpdateOrder(0, std::vector<short>() = {});
    }
 
+   Uint32 GetNewPixel() override
+   {
+      return pixel_index;
+   }
+
 private:
 };

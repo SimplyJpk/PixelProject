@@ -19,5 +19,12 @@ public:
       pixel_update_order_count_ = 0;
       InsertPixelUpdateOrder(0, std::vector<short>() = {});
    }
+
+   Uint32 GetNewPixel() override
+   {
+      constexpr Uint32 lightLevel = 5 << GetPixelLightDepth();
+
+      return lightLevel | pixel_index;
+   }
 private:
 };
