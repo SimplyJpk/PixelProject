@@ -389,6 +389,12 @@
     <ClInclude Include="..\Includes\FastNoiseSIMD\FastNoiseSIMD.h">
       <Filter>Header Files\Lib\FastNoise</Filter>
     </ClInclude>
+    <ClInclude Include="GLErrorCallback.h">
+      <Filter>Header Files\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleUtility.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

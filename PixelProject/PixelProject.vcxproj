@@ -306,6 +306,7 @@
     <ClInclude Include="ChunkSupport.h" />
     <ClInclude Include="ColourUtility.h" />
     <ClInclude Include="ConfigFile.h" />
+    <ClInclude Include="ConsoleUtility.h" />
     <ClInclude Include="DebugStopWatch.h" />
     <ClInclude Include="FirePixel.h" />
     <ClInclude Include="FlyCamera.h" />
@@ -318,6 +319,7 @@
     <ClInclude Include="IVec2.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="OilPixel.h" />
+    <ClInclude Include="GLErrorCallback.h" />
     <ClInclude Include="PaintManager.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GroundPixel.h" />
