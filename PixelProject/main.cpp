@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+#include "GLErrorCallback.h"
+
 void PrintInGameCommands();
 bool CreateWindowAndContext(GameSettings& settings);
 
@@ -48,6 +50,7 @@ int main(int argc, char** argv)
    }
    else
    {
+      GLErrorCallback::LinkCallback(true);
       game.Run();
    }
 
