@@ -94,9 +94,9 @@ public:
       glProgramUniform1ui(programID, myLoc, GetPixelIndexBits());
       myLoc = program->GetUniformLocation("u_PixelMask.lifetime");
       glProgramUniform1ui(programID, myLoc, GetPixelLifetimeBits());
-      myLoc = program->GetUniformLocation("u_PixelMask.pixel_behaviour_bits");
+      myLoc = program->GetUniformLocation("u_PixelMask.behaviour");
       glProgramUniform1ui(programID, myLoc, GetPixelBehaviourBits());
-      myLoc = program->GetUniformLocation("u_PixelMask.pixel_light_bits");
+      myLoc = program->GetUniformLocation("u_PixelMask.light");
       glProgramUniform1ui(programID, myLoc, GetPixelLightBits());
 
       // Set MaskData
@@ -104,9 +104,9 @@ public:
       glProgramUniform1ui(programID, myLoc, GetPixelIndexDepth());
       myLoc = program->GetUniformLocation("u_PixelBitOffset.lifetime");
       glProgramUniform1ui(programID, myLoc, GetPixelLifetimeDepth());
-      myLoc = program->GetUniformLocation("u_PixelBitOffset.pixel_behaviour_bits");
+      myLoc = program->GetUniformLocation("u_PixelBitOffset.behaviour");
       glProgramUniform1ui(programID, myLoc, GetPixelBehaviourDepth());
-      myLoc = program->GetUniformLocation("u_PixelBitOffset.pixel_light_bits");
+      myLoc = program->GetUniformLocation("u_PixelBitOffset.light");
       glProgramUniform1ui(programID, myLoc, GetPixelLightDepth());
    }
 
