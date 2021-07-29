@@ -53,7 +53,7 @@ Shader* ShaderManager::CreateShaderProgram(const std::string& shader_name, bool 
    program_name_[program] = shader_name;
 
    // Add to linked Shaders
-   Shader* shader = new Shader(program);
+   Shader* shader = new Shader(program, shader_name);
    linked_shaders_[shader_name] = shader;
 
    //TODO Tidy this with above #1
