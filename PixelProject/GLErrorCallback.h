@@ -15,7 +15,7 @@ public:
       use_colour = useColour;
 
       // GL_DEBUG_OUTPUT - much faster
-      // GL_DEBUG_OUTPUT_SYNCHRONUS - can be stacktraced
+      // GL_DEBUG_OUTPUT_SYNCHRONOUS - can be stacktraced
       glEnable(GL_DEBUG_OUTPUT);
       glDebugMessageCallback(MessageCallback, 0);
    }
@@ -29,10 +29,9 @@ public:
          const GLchar* message,
          const void* userParam)
    {
-
-      std::string source_ = GetErrorName(source);
-      std::string type_ = GetErrorType(type);
-      std::string severity_ = GetErrorSeverity(severity);
+      const std::string source_ = GetErrorName(source);
+      const std::string type_ = GetErrorType(type);
+      const std::string severity_ = GetErrorSeverity(severity);
 
       static char error_message[400];
 
