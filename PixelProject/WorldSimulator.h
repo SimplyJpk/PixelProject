@@ -1,17 +1,16 @@
 #pragma once
+#include <SDKDDKVer.h>
 
 #include <boost/lockfree/queue.hpp>
 #include <boost/asio/thread_pool.hpp>
 #include <boost/thread/win32/mutex.hpp>
 #include <boost/asio/post.hpp>
 
-#include <vector>
 #include <iostream>
 #include <unordered_map>
 
 #include "PaintManager.h"
 #include <SDL.h>
-#include "Vec2.h"
 #include "VecHash.h"
 #include "GameObject.h"
 #include "GameSettings.h"
@@ -26,9 +25,6 @@
 #include <SDL_opengl.h>
 
 #include <GL/glu.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "TextureUtility.h"
 #include "WorldGenerator.h"

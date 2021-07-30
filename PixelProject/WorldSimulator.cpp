@@ -1,8 +1,5 @@
 #include "WorldSimulator.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 void WorldSimulator::Start()
 {
    // Generate our chunks and the pixel data
@@ -15,8 +12,6 @@ void WorldSimulator::Start()
          WorldChunk* newChunk = new WorldChunk(chunkIndex);
          // Add chunk to map
          chunks.insert(std::make_pair(chunkIndex, newChunk));
-         //x worldChunks.push_back(newChunk);
-         // newChunk->pixels = new Uint32[chunk_total_size]{ 0 };
          is_chunk_processed[chunkIndex] = nullptr;
       }
    }
@@ -58,25 +53,13 @@ void WorldSimulator::Start()
       }
    }
 
-   //? for (size_t i = 0; i < world_dimensions.x * world_dimensions.y; i++)
-   //? {
-   //?    is_processed_queue.push(is_processed_array_[i]);
-   //? }
-
-   //short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
-   //short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
-
-   // map_textures = new GLuint[yDim * xDim];
    glGenTextures(1, &map_textures);
    glBindTexture(GL_TEXTURE_2D, map_textures);
 
    TextureUtility::SetTexParams();
 
    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, chunks[IVec2(0, 0)]->pixel_data);
-
    game_settings->default_shader->UseProgram();
-   glUniform1i(game_settings->default_shader->GetUniformLocation("ourTexture"), 0);
-
    for (int x = 0; x < world_dimensions.x; x++)
    {
       for (int y = 0; y < world_dimensions.y; y++)
@@ -96,8 +79,6 @@ void WorldSimulator::Start()
       map_noiseTextureData[i] = rng() % 4;
    }
    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, map_noiseTextureData);
-   GLuint textureIndex = game_settings->default_shader->GetUniformLocation("textureIndex");
-   glUniform1i(textureIndex, 1);
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size, const bool override_pixels)

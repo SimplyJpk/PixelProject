@@ -123,20 +123,6 @@ public:
       used_shader_ = ShaderManager::Instance().CreateShaderProgram("orthoUI", false);
 
       //TODO Need to complete some sort of UI background/border/box?
-      glGenTextures(1, &background_image_id_);
-      glBindTexture(GL_TEXTURE_2D, background_image_id_);
-      TextureUtility::SetTexParams();
-      int width, height, nrChannels;
-      unsigned char* data = stbi_load("./Textures/board.png", &width, &height, &nrChannels, 0);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-
-      used_shader_->UseProgram();
-      glUniform1i(used_shader_->GetUniformLocation("ourTexture"), 0);
-      background_image_.SetTextureID(background_image_id_);
-      background_image_.SetSprite((Uint32*)data);
-      background_image_.transform.SetPosition(glm::vec3(260, 260, 1.0f));
-      background_image_.transform.SetScale(glm::vec3(width,height, 1.0f));
 
       // Generate Textures for PixelTypes
       glGenTextures(texture_count, pixel_texture_id_);
@@ -146,9 +132,6 @@ public:
          TextureUtility::SetTexParams();
 
          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixel_texture_size, pixel_texture_size, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixel_sprites_[i].GetSprite());
-
-         used_shader_->UseProgram();
-         glUniform1i(used_shader_->GetUniformLocation("ourTexture"), 0);
 
          // Setup structure for future use
          pixel_sprites_[i].SetTextureID(pixel_texture_id_[i]);
