@@ -70,9 +70,9 @@ Texture::Texture(const char* filePath)
       format_ = TextureFormat::UNKNOWN;
       break;
    }
-
    file_name_ = filePath;
 
+   loaded_pixels_ = texture;
    TextureUtility::SetTexParams(GL_TEXTURE_2D);
    glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -81,15 +81,3 @@ void Texture::Bind() const
 {
    glBindTexture(GL_TEXTURE_2D, texture_id_);
 }
-
-template <typename T>
-void Texture::UpdateTextureData(T data)
-{
-   Bind();
-   //TODO this has to be the ugliest thing ever
-#define SHORT_FORMAT(TYPE) format_data_types[static_cast<int>(format_)][static_cast<int>(TYPE)]
-
-   glTexImage2D(SHORT_FORMAT(TextureFormatData::Target), 0, SHORT_FORMAT(TextureFormatData::InternalFormat), width_, height_, 0, SHORT_FORMAT(TextureFormatData::Format), SHORT_FORMAT(TextureFormatData::Type), data);
-
-#undef SHORT_FORMAT
-};

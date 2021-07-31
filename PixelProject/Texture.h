@@ -27,8 +27,18 @@ public:
    }
 
    void Bind() const;
-   template<typename T>
-   void UpdateTextureData(T data);
+
+   template<typename T = void*>
+   void UpdateTextureData(T data)
+   {
+      Bind();
+      //TODO this has to be the ugliest thing ever
+#define SHORT_FORMAT(TYPE) format_data_types[static_cast<int>(format_)][static_cast<int>(TYPE)]
+
+      glTexImage2D(SHORT_FORMAT(TextureFormatData::Target), 0, SHORT_FORMAT(TextureFormatData::InternalFormat), width_, height_, 0, SHORT_FORMAT(TextureFormatData::Format), SHORT_FORMAT(TextureFormatData::Type), data);
+
+#undef SHORT_FORMAT
+   }
 
    GLuint GetHandle() const
    {
