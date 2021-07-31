@@ -1,18 +1,12 @@
 #pragma once
+#include <SDL_stdinc.h>
 #include <GL/glew.h>
 #include <stb_image.h>
 #include <string>
 
 #include "ConsoleUtility.h"
+#include "TextureFormatData.h"
 #include "TextureUtility.h"
-
-enum class TextureFormat : unsigned int {
-   UNKNOWN = 0,
-   RED = 1,
-   RG,
-   RGB,
-   RGBA
-};
 
 //TODO All Texture formats using Unsigned Byte? This may complicate if we do something using more than byte format?
 
@@ -33,6 +27,8 @@ public:
    }
 
    void Bind() const;
+   template<typename T>
+   void UpdateTextureData(T data);
 
    GLuint GetHandle() const
    {
@@ -55,7 +51,6 @@ public:
       return file_name_;
    }
 
-
 private:
    GLuint texture_id_;
    int width_;
@@ -65,4 +60,3 @@ private:
    std::string file_name_;
    unsigned char* loaded_pixels_ = nullptr;
 };
-

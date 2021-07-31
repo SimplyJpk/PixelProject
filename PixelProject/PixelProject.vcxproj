@@ -346,6 +346,7 @@
     <ClInclude Include="StopWatchData.h" />
     <ClInclude Include="StringUtility.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureFormatData.h" />
     <ClInclude Include="TextureUtility.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="VectorHelper.h" />

@@ -10,8 +10,11 @@ Texture::Texture(const int width, const int height, const TextureFormat format)
    glBindTexture(GL_TEXTURE_2D, texture_id_);
 
    switch (format) {
-   case TextureFormat::RED:
+   case TextureFormat::RED_SMALL:
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width_, height_, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+      break;
+   case TextureFormat::RED_LARGE:
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, width_, height_, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
       break;
    case TextureFormat::RG:
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width_, height_, 0, GL_RG, GL_UNSIGNED_BYTE, nullptr);
@@ -44,7 +47,7 @@ Texture::Texture(const char* filePath)
    switch (comp)
    {
    case STBI_grey:
-      format_ = TextureFormat::RED;
+      format_ = TextureFormat::RED_SMALL;
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width_, height_,
          0, GL_RED, GL_UNSIGNED_BYTE, texture);
       break;
@@ -78,3 +81,15 @@ void Texture::Bind() const
 {
    glBindTexture(GL_TEXTURE_2D, texture_id_);
 }
+
+template <typename T>
+void Texture::UpdateTextureData(T data)
+{
+   Bind();
+   //TODO this has to be the ugliest thing ever
+#define SHORT_FORMAT(TYPE) format_data_types[static_cast<int>(format_)][static_cast<int>(TYPE)]
+
+   glTexImage2D(SHORT_FORMAT(TextureFormatData::Target), 0, SHORT_FORMAT(TextureFormatData::InternalFormat), width_, height_, 0, SHORT_FORMAT(TextureFormatData::Format), SHORT_FORMAT(TextureFormatData::Type), data);
+
+#undef SHORT_FORMAT
+};
