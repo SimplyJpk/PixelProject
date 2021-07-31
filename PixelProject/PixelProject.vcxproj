@@ -287,6 +287,7 @@
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="WorldChunk.cpp" />
     <ClCompile Include="WorldDataHandler.cpp" />
     <ClCompile Include="WorldGenerator.cpp" />

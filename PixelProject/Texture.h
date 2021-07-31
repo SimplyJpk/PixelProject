@@ -1,12 +1,12 @@
 #pragma once
-#include <gl/GLEW.h>
+#include <GL/glew.h>
 #include <stb_image.h>
 #include <string>
 
 #include "ConsoleUtility.h"
 #include "TextureUtility.h"
 
-enum TextureFormat : unsigned int {
+enum class TextureFormat : unsigned int {
    UNKNOWN = 0,
    RED = 1,
    RG,
@@ -14,53 +14,15 @@ enum TextureFormat : unsigned int {
    RGBA
 };
 
+//TODO All Texture formats using Unsigned Byte? This may complicate if we do something using more than byte format?
+
 class Texture
 {
 public:
+   // Creates an empty texture
+   Texture(const int width, const int height, const TextureFormat format);
    // Load an image and use as a texture, should support most general extensions
-   Texture(const char* filePath = nullptr)
-   {
-      int comp;
-      unsigned char* texture = stbi_load(filePath, &width_, &height_, &comp, STBI_default);
-
-      if (!texture)
-      {
-         ConsoleUtility::PrintText("TEXTURE: Failed to load Texture", ConsoleColour::Yellow);
-      }
-      glGenTextures(1, &texture_id_);
-      glBindTexture(GL_TEXTURE_2D, texture_id_);
-
-      switch (comp)
-      {
-      case STBI_grey:
-         format_ = RED;
-         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width_, height_,
-            0, GL_RED, GL_UNSIGNED_BYTE, texture);
-         break;
-      case STBI_grey_alpha:
-         format_ = RG;
-         glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width_, height_,
-            0, GL_RG, GL_UNSIGNED_BYTE, texture);
-         break;
-      case STBI_rgb:
-         format_ = RGB;
-         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_,
-            0, GL_RGB, GL_UNSIGNED_BYTE, texture);
-         break;
-      case STBI_rgb_alpha:
-         format_ = RGBA;
-         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, texture);
-         break;
-      default:
-         format_ = UNKNOWN;
-         break;
-      }
-
-      file_name_ = filePath;
-
-      TextureUtility::SetTexParams(GL_TEXTURE_2D);
-   }
+   Texture(const char* filePath = nullptr);
 
    ~Texture()
    {
@@ -70,17 +32,36 @@ public:
          stbi_image_free(loaded_pixels_);
    }
 
-   GLuint GetHandle()
+   void Bind() const;
+
+   GLuint GetHandle() const
    {
       return texture_id_;
    }
+   int GetHeight() const
+   {
+      return height_;
+   }
+   int GetWidth() const
+   {
+      return width_;
+   }
+   TextureFormat GetFormat() const
+   {
+      return static_cast<TextureFormat>(format_);
+   }
+   std::string GetFileName() const
+   {
+      return file_name_;
+   }
+
 
 private:
    GLuint texture_id_;
    int width_;
    int height_;
 
-   unsigned int format_ = TextureFormat::UNKNOWN;
+   TextureFormat format_ = TextureFormat::UNKNOWN;
    std::string file_name_;
    unsigned char* loaded_pixels_ = nullptr;
 };
