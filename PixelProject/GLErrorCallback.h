@@ -35,7 +35,7 @@ public:
 
       static char error_message[400];
 
-      sprintf_s(error_message, sizeof(error_message), "GL CALLBACK: %s type = 0x%s, severity = 0x%s, message = %s\n", source_.c_str(), type_.c_str(), severity_.c_str(), message);
+      sprintf_s(error_message, sizeof(error_message), "GL CALLBACK: %s type = %s, severity = %s, message = %s\n", source_.c_str(), type_.c_str(), severity_.c_str(), message);
       if (use_colour)
          ConsoleUtility::PrintText(error_message, GetErrorColour(severity));
       else
@@ -63,7 +63,7 @@ public:
       }
    }
 
-   static std::string GetErrorType(GLenum type)
+   static std::string GetErrorType(const GLenum type)
    {
       switch (type)
       {
@@ -86,7 +86,7 @@ public:
       }
    }
 
-   static std::string GetErrorSeverity(GLenum severity)
+   static std::string GetErrorSeverity(const GLenum severity)
    {
       switch (severity)
       {

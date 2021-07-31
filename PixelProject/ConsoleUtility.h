@@ -24,34 +24,28 @@ enum ConsoleColour
 static class ConsoleUtility
 {
 public:
-   inline static HANDLE ConsoleHandle = nullptr;
-   inline static ConsoleColour DefaultColour = ConsoleColour::BrightWhite;
-
-   //TODO Make this better? Shouldn't have to check this every time
-   static void SetHandle()
+   static HANDLE GetHandle()
    {
-      if (ConsoleHandle == nullptr)
-         ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+      static HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+      return handle;
    }
+   static const ConsoleColour DefaultColour = ConsoleColour::BrightWhite;
 
-   static void PrintText(char* text, const ConsoleColour colour = DefaultColour)
+   static void PrintText(const char* text, const ConsoleColour colour = ConsoleColour::BrightWhite)
    {
-      SetHandle();
-      SetConsoleTextAttribute(ConsoleHandle, colour);
+      SetConsoleTextAttribute(GetHandle(), colour);
       std::cout << text;
-      SetConsoleTextAttribute(ConsoleHandle, DefaultColour);
+      SetConsoleTextAttribute(GetHandle(), DefaultColour);
    }
 
    static void SetColour(const ConsoleColour colour)
    {
-      SetHandle();
-      SetConsoleTextAttribute(ConsoleHandle, colour);
+      SetConsoleTextAttribute(GetHandle(), colour);
    }
 
    static void ResetColour()
    {
-      SetHandle();
-      SetConsoleTextAttribute(ConsoleHandle, DefaultColour);
+      SetConsoleTextAttribute(GetHandle(), DefaultColour);
    }
 
 };
