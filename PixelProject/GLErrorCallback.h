@@ -9,11 +9,12 @@ class GLErrorCallback
 public:
 
    inline static bool use_colour = false;
+   inline static GLenum ignore_message_type = GL_DEBUG_SEVERITY_NOTIFICATION;
 
-   static void LinkCallback(bool useColour = false)
+   static void LinkCallback(bool useColour = false, GLenum ignore_below = GL_DEBUG_SEVERITY_NOTIFICATION)
    {
       use_colour = useColour;
-
+      ignore_message_type = ignore_below;
       // GL_DEBUG_OUTPUT - much faster
       // GL_DEBUG_OUTPUT_SYNCHRONOUS - can be stacktraced
       glEnable(GL_DEBUG_OUTPUT);
@@ -29,6 +30,9 @@ public:
          const GLchar* message,
          const void* userParam)
    {
+      if (severity <= ignore_message_type)
+         return;
+
       const std::string source_ = GetErrorName(source);
       const std::string type_ = GetErrorType(type);
       const std::string severity_ = GetErrorSeverity(severity);
