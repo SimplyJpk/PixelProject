@@ -14,6 +14,9 @@
 
 #include "GLErrorCallback.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 void PrintInGameCommands();
 bool CreateWindowAndContext(GameSettings& settings);
 
@@ -114,7 +117,7 @@ bool CreateWindowAndContext(GameSettings& settings)
       {
          printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
       }
-      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+      glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
    }
    // Init glew, has to be done after context
    GLenum err = glewInit();
