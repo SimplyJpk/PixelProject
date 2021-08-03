@@ -11,7 +11,7 @@
  
  If you need to upgrade libraries, replace the required files inside the PixelProject/Includes and PixelProject/lib folders.
  
- - SDL2 v2.0.12 [libsdl.org](https://www.libsdl.org/)
+ - SDL2 v2.0.14 [libsdl.org](https://www.libsdl.org/)
  - SDL2_ttf [libsdl.org](https://www.libsdl.org/projects/SDL_ttf/)
  - glew32s v2.1.0 [glew.sourceforge.net](http://glew.sourceforge.net/) [GitHub](https://github.com/nigels-com/glew)
  - FastNoiseSIMD [GitHub](https://github.com/Auburn/FastNoiseSIMD)

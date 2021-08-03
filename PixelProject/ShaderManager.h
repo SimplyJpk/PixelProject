@@ -9,6 +9,27 @@
 
 using namespace PixelProject;
 
+enum ShaderMask : uint8_t
+{
+   MVertex = 1 << 0,
+   MFragment = 1 << 1,
+   MGeometry = 1 << 2,
+   MTessEval = 1 << 3,
+   MTessControl = 1 << 4,
+   MCompute = 1 << 5,
+   BitMaskMax = MCompute
+};
+
+enum class ShaderTypes : GLint
+{
+   Vertex = GL_VERTEX_SHADER,
+   Fragment = GL_FRAGMENT_SHADER,
+   Geometry = GL_GEOMETRY_SHADER,
+   TessEval = GL_TESS_EVALUATION_SHADER,
+   TessControl = GL_TESS_CONTROL_SHADER,
+   Compute = GL_COMPUTE_SHADER
+};
+
 //TODO Way to combine shaders of different names.
 
 //TODO any way to make this only visible to this class?
@@ -19,11 +40,17 @@ public:
    static ShaderManager& Instance();
 
    Shader* CreateShaderProgram(const std::string& shader_name, bool delete_sources = true);
+   Shader* CreateShaderProgramFromFiles(uint8_t shader_mask, const std::string& name, const std::string fileName);
+
 
    bool ShaderFromText(GLenum type, const std::string& name, const char* src);
-   bool ShaderFromFile(GLenum type, const std::string& name, const std::string fileName);
+   bool ShaderFromFile(GLint index, const std::string& name, const std::string fileName);
+   bool ShaderFromFile(ShaderTypes type, const std::string& name, const std::string fileName);
+
    //TODO Implement
    bool ShaderCompiledFile(GLenum type, std::string name, const std::string fileName);
+
+   bool ShaderFromFiles(uint8_t shader_mask, const std::string& name, const std::string fileName);
 
    Shader& GetShader(GLint program_id);
    Shader& GetShader(std::string program_name);
@@ -38,26 +65,6 @@ public:
    ShaderManager(ShaderManager&&) = delete;
    void operator=(const ShaderManager&) = delete;
    void operator=(ShaderManager&&) = delete;
-
-   enum class ShaderMask : uint8_t
-   {
-      Vertex = 1 << 0,
-      Fragment = 1 << 1,
-      Geometry = 1 << 2,
-      TessEval = 1 << 3,
-      TessControl = 1 << 4,
-      Compute = 1 << 5,
-   };
-
-   enum ShaderTypes : GLint
-   {
-      Vertex = GL_VERTEX_SHADER,
-      Fragment = GL_FRAGMENT_SHADER,
-      Geometry = GL_GEOMETRY_SHADER,
-      TessEval = GL_TESS_EVALUATION_SHADER,
-      TessControl = GL_TESS_CONTROL_SHADER,
-      Compute = GL_COMPUTE_SHADER
-   };
 
    // Simple Converter to change a GL_Shader index to local array indexable value.
    static int GetShaderIndex(const GLint gl_shader_type)
@@ -82,6 +89,10 @@ public:
 private:
    ShaderManager() = default;
    ~ShaderManager() = default;
+
+   GLenum gl_enum_from_index_[6] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER, GL_TESS_EVALUATION_SHADER, GL_TESS_CONTROL_SHADER, GL_COMPUTE_SHADER };
+
+   std::vector<std::string> shader_end_ = { "vert", "frag", "geom", "tesse", "tessc", "comp" };
 
    std::unordered_map<std::string, GLint> program_id_;
    std::unordered_map<GLint, std::string> program_name_;

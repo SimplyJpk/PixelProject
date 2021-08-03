@@ -1,5 +1,4 @@
 //TODO Clean this up a bit
-#define GLEW_STATIC
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -12,6 +11,11 @@
 #include "Game.h"
 
 #include <iostream>
+
+#include "GLErrorCallback.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 void PrintInGameCommands();
 bool CreateWindowAndContext(GameSettings& settings);
@@ -48,6 +52,7 @@ int main(int argc, char** argv)
    }
    else
    {
+      GLErrorCallback::LinkCallback(true);
       game.Run();
    }
 
@@ -112,7 +117,7 @@ bool CreateWindowAndContext(GameSettings& settings)
       {
          printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
       }
-      glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+      glClearColor(0.01f, 0.01f, 0.01f, 1.0f);
    }
    // Init glew, has to be done after context
    GLenum err = glewInit();

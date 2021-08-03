@@ -2,8 +2,6 @@
 
 #include "RenderTarget.h"
 
-typedef ShaderManager::ShaderTypes ShaderType;
-
 bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings)
 {
    glEnable(GL_BLEND);
@@ -15,27 +13,41 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
 
    glViewport(0, 0, settings->screen_size.x, settings->screen_size.y);
 
-   // Render Target Shader, we do this first
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "renderTarget", "shaders/rendertarget/default.vert"))
-      printf("Failed to generate RenderTarget Vertex Shader");
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "renderTarget", "shaders/rendertarget/default.frag"))
-      printf("Failed to generate RenderTarget Frag Shader");
-   ShaderManager::Instance().CreateShaderProgram("renderTarget", false);
+   // Bloom Combine Shader
+   Shader* bloom = ShaderManager::Instance().CreateShaderProgramFromFiles(
+      MVertex | MFragment, "bloom", "shaders/post/bloom");
+   bloom->UseProgram();
+   glUniform1i(bloom->GetUniformLocation("scene"), 0);
+   glUniform1i(bloom->GetUniformLocation("bloomBlur"), 1);
+   glUniform3f(bloom->GetUniformLocation("ambientLight"), 0.1f, 0.1f, 0.1f);
+
+   // Blur Shader
+   Shader* blur = ShaderManager::Instance().CreateShaderProgramFromFiles(
+      MVertex | MFragment, "blur", "shaders/post/blur");
+   blur->UseProgram();
+   glUniform1i(blur->GetUniformLocation("image"), 0);
+
+   // Render Target / Post Processing
+   ShaderManager::Instance().CreateShaderProgramFromFiles(
+      MVertex | MFragment, "renderTarget", "shaders/rendertarget/default");
 
    // World Shaders
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Vertex, "orthoWorld", "shaders/orthoWorld.vert"))
-      printf("Failed to generate Vertex Shader");
-   if (!ShaderManager::Instance().ShaderFromFile(ShaderType::Fragment, "orthoWorld", "shaders/orthoWorld.frag"))
-      printf("Failed to generate Frag Shader");
+   defaultShader = ShaderManager::Instance().CreateShaderProgramFromFiles(
+      MVertex | MFragment, "orthoWorld", "shaders/orthoWorld");
+   //? glUniform1i(defaultShader->GetUniformLocation("FragColor"), 0);
+   //? glUniform1i(defaultShader->GetUniformLocation("BrightColor"), 1);
 
-   defaultShader = ShaderManager::Instance().CreateShaderProgram("orthoWorld", false);
    game_settings->default_shader = defaultShader;
 
    paint_manager = new PaintManager();
 
    // Generate Uniform Data for rendering, this has to be done after paint_manager currently due to ordering.
    WorldDataHandler::Instance().SetUniformData(defaultShader);
-   
+
+   defaultShader->UseProgram();
+   glUniform1i(defaultShader->GetUniformLocation("ourTexture"), 0);
+   glUniform1i(defaultShader->GetUniformLocation("noiseTextureIndex"), 1);
+
    // Initialize ImGUI
    gui_manager = new GuiManager(game_settings, g_window, g_context);
    gui_manager->SetPaintManager(paint_manager);
@@ -163,6 +175,10 @@ void Game::Run()
       renderTarget.BindRenderTarget();
 
       world_sim->Draw(&main_cam);
+
+      // Draw our World before we draw GUI over it
+      renderTarget.DrawTargetQuad(0, 0);
+
       // Draw some stock GUI with ImGUI
       gui_manager->DrawGui();
 
@@ -171,7 +187,6 @@ void Game::Run()
 
       stop_watch.UpdateTime("Draw", static_cast<duration>(clock::now() - drawStart).count());
 
-      renderTarget.DrawTargetQuad(0, 0);
 
       SDL_GL_SwapWindow(g_window);
 
@@ -185,7 +200,6 @@ void Game::Run()
          secondCounter = clock::now();
          frameCounter = 0;
       }
-
    }
 
    //TODO Should do some cleanup for destruction?

@@ -83,7 +83,7 @@ void InputManager::Update()
          mouse_scroll_.y = event.wheel.y;
          break;
       case SDL_QUIT:
-         // TODO Should do something for this
+         //TODO Should do something for this
          break;
       default:
          break;

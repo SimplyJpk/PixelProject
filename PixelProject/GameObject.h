@@ -28,11 +28,11 @@ public:
    {
    };
 
-   //x TODO this could probably be made into its own interface?
+   //TODO this could probably be made into its own interface?
    //x  virtual void SubscribeInputs(InputHandler* inputHandler) {};
    //x  virtual void UpdateInput(const int eventType, const SDL_Event* _event) { };
 
    //TODO Move this into a renderer class?
-   // TODO Hopefully temp draw method?
+   //TODO Hopefully temp draw method?
    virtual bool Draw(Camera* camera) { return false; };
 };
