@@ -11,6 +11,7 @@
 #include "InputManager.h"
 #include "ShaderManager.h"
 #include "Sprite.h"
+#include "Texture.h"
 #include "TextureUtility.h"
 
 //TODO Namespace for this?
@@ -23,9 +24,6 @@ public:
    BasePixel* selected_pixel = nullptr;
 
    const short texture_count = static_cast<int>(E_PixelType::COUNT);
-   //? SDL_Texture* pixel_texture[static_cast<int>(E_PixelType::COUNT)];
-
-   //? const Uint32* GetPixelTexture(const short index) const { return pixel_icons[index]; }
 
    std::string SelectedPixelName() const { return selected_pixel->Name(); }
 
@@ -108,10 +106,6 @@ public:
       // position attribute
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
       glEnableVertexAttribArray(0);
-      //x // color attribute
-      //x glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-      //x glEnableVertexAttribArray(1);
-      // texture coord attribute
       glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
       glEnableVertexAttribArray(1);
    }
@@ -123,18 +117,14 @@ public:
       used_shader_ = ShaderManager::Instance().CreateShaderProgram("orthoUI", false);
 
       //TODO Need to complete some sort of UI background/border/box?
+      pixel_textures_ = Texture::CreateTextures(pixel_texture_size, pixel_texture_size, TextureFormat::RGBA, texture_count);
 
-      // Generate Textures for PixelTypes
-      glGenTextures(texture_count, pixel_texture_id_);
-
-      for (int i = 0; i < texture_count; i++) {
-         glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
-         TextureUtility::SetTexParams();
-
-         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixel_texture_size, pixel_texture_size, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, pixel_sprites_[i].GetSprite());
-
+      for (int i = 0; i < texture_count; i++)
+      {
+         pixel_textures_[i]->Bind();
+         pixel_textures_[i]->UpdateTextureData(pixel_sprites_[i].GetSprite());
          // Setup structure for future use
-         pixel_sprites_[i].SetTextureID(pixel_texture_id_[i]);
+         pixel_sprites_[i].SetTextureID(pixel_textures_[i]->GetHandle());
 
          //? Is this trash way to do this?
          Transform& trans = pixel_sprites_[i].transform;
@@ -153,15 +143,6 @@ public:
       //TODO Remove magic numbers please
       // Set view
       projection_transform_ = glm::ortho((float)0, (float)game_settings->screen_size.x, (float)game_settings->screen_size.y, (float)0);
-      //glm::perspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
-      // view_transform_ = glm::lookAt(glm::vec3(5, 0, 5.0f), glm::vec3(5, 0, 0), glm::vec3(0, 1, 0));
-
-      //? for (int index = 0; index < static_cast<int>(E_PixelType::COUNT); index ++)
-      //? {
-      //?    pixel_texture[index] = SDL_CreateTexture(renderer, Constant::texture_default_format_transparency, SDL_TEXTUREACCESS_STATIC, pixel_texture_size, pixel_texture_size);
-      //?    SDL_SetTextureBlendMode(pixel_texture[index], SDL_BLENDMODE_BLEND);
-      //?    SDL_UpdateTexture(pixel_texture[index], nullptr, pixel_icons[index],  pixel_texture_size * sizeof(Uint32));
-      //? }
    }
 
    void DrawPaintGUI(Camera* camera)
@@ -175,18 +156,12 @@ public:
       }
 
       int modelLoc = used_shader_->GetUniformLocation("model");
-      // glActiveTexture(GL_TEXTURE0);
-      // glBindTexture(GL_TEXTURE_2D, background_image_id_);
-      // glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(background_image_.transform.GetModel()));
       int projLoc = used_shader_->GetUniformLocation("projection");
-      // glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection_transform_));
-      // glBindVertexArray(vao_);
-      // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
       for (int i = 0; i < texture_count; i++)
       {
          glActiveTexture(GL_TEXTURE0);
-         glBindTexture(GL_TEXTURE_2D, pixel_texture_id_[i]);
+         pixel_textures_[i]->Bind();
 
          if (selected_pixel->pixel_index != i)
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pixel_sprites_[i].transform.GetModel()));
@@ -212,8 +187,9 @@ private:
    Sprite pixel_sprites_[static_cast<int>(E_PixelType::COUNT)];
 
    Shader* used_shader_ = nullptr;
+   std::vector<Texture*> pixel_textures_;
+
    GLuint background_image_id_;
-   GLuint pixel_texture_id_[static_cast<int>(E_PixelType::COUNT)];
    //TODO Make some sort of class that generates this so we don't have this junk data all over the place?
    unsigned int vbo_, vao_, ebo_;
    float vertices_[20] = {
