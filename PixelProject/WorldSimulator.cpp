@@ -1,9 +1,5 @@
 #include "WorldSimulator.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "PixelUtil.h"
-#include "stb_image.h"
-
 void WorldSimulator::Start()
 {
    // Generate our chunks and the pixel data
@@ -16,8 +12,6 @@ void WorldSimulator::Start()
          WorldChunk* newChunk = new WorldChunk(chunkIndex);
          // Add chunk to map
          chunks.insert(std::make_pair(chunkIndex, newChunk));
-         //x worldChunks.push_back(newChunk);
-         // newChunk->pixels = new Uint32[chunk_total_size]{ 0 };
          is_chunk_processed[chunkIndex] = nullptr;
       }
    }
@@ -59,46 +53,25 @@ void WorldSimulator::Start()
       }
    }
 
-   //? for (size_t i = 0; i < world_dimensions.x * world_dimensions.y; i++)
-   //? {
-   //?    is_processed_queue.push(is_processed_array_[i]);
-   //? }
-
-   //short yDim = Constant::world_size_y; // (game_settings->screen_size.y / Constant::chunk_size_y) + 2;
-   //short xDim = Constant::world_size_x; // (game_settings->screen_size.x / Constant::chunk_size_x) + 2;
-
-   // map_textures = new GLuint[yDim * xDim];
-   glGenTextures(1, &map_textures);
-   glBindTexture(GL_TEXTURE_2D, map_textures);
-
-   TextureUtility::SetTexParams();
-
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, chunks[IVec2(0, 0)]->pixel_data);
+   map_texture = new Texture(Constant::chunk_size_x, Constant::chunk_size_y, TextureFormat::RED_LARGE);
 
    game_settings->default_shader->UseProgram();
-   glUniform1i(game_settings->default_shader->GetUniformLocation("ourTexture"), 0);
-
    for (int x = 0; x < world_dimensions.x; x++)
    {
       for (int y = 0; y < world_dimensions.y; y++)
       {
-         world_generator->GenerateChunk(glm::vec2(x * Constant::chunk_size_x, y * Constant::chunk_size_y), chunks[IVec2(x, y)]);
+         WorldGenerator::GenerateChunk(glm::vec2(x * Constant::chunk_size_x, y * Constant::chunk_size_y), chunks[IVec2(x, y)]);
       }
    }
 
-   // Build Noise texture
-   glActiveTexture(GL_TEXTURE1);
-   glGenTextures(1, &map_noiseTexture);
-   glBindTexture(GL_TEXTURE_2D, 1);
-   
+   noise_texture = new Texture(Constant::chunk_size_x, Constant::chunk_size_y, TextureFormat::RED_SMALL);
    map_noiseTextureData = new Uint8[Constant::chunk_total_size]{0};
+
    for (size_t i = 0; i < Constant::chunk_total_size; i++)
    {
       map_noiseTextureData[i] = rng() % 4;
    }
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, Constant::chunk_size_x, Constant::chunk_size_y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, map_noiseTextureData);
-   GLuint textureIndex = game_settings->default_shader->GetUniformLocation("textureIndex");
-   glUniform1i(textureIndex, 1);
+   noise_texture->UpdateTextureData(map_noiseTextureData);
 }
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size, const bool override_pixels)
@@ -316,8 +289,7 @@ void WorldSimulator::FixedUpdate()
 
                            // If the pixel is empty, or something beat us to update it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
-
-                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(Utility::GetType(localPixels[localIndex]));
+                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(GetP_Index(localPixels[localIndex]));
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
@@ -386,7 +358,7 @@ void WorldSimulator::FixedUpdate()
                                     neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                               }
 
-                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(Utility::GetType(neighbourPixels[neighbourIndex]));
+                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(GetP_Index(neighbourPixels[neighbourIndex]));
 #ifdef DEBUG_GAME
                               if (pixelNeighbour == nullptr) {
                                  printf("WARNING: pixelNeighbour returned NULL\n");
@@ -687,13 +659,20 @@ bool WorldSimulator::Draw(Camera* camera)
    if (camPos.y < 0)
       yChunkStart += 1;
 
-   game_settings->default_shader->UseProgram();
-   int modelLoc = game_settings->default_shader->GetUniformLocation("model");
-   int projLoc = game_settings->default_shader->GetUniformLocation("projection");
+
+   Shader* default_shader = game_settings->default_shader;
+   default_shader->UseProgram();
+
+   int modelLoc = default_shader->GetUniformLocation("model");
+   int projLoc = default_shader->GetUniformLocation("projection");
 
    // Make sure it can see our noise texture
    //TODO this may die? Not sure why or when I should set this if ever
-   glBindTexture(GL_TEXTURE_2D, 1);
+
+   glActiveTexture(GL_TEXTURE1);
+   noise_texture->Bind();
+
+   glActiveTexture(GL_TEXTURE0);
 
    for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {
@@ -703,11 +682,8 @@ bool WorldSimulator::Draw(Camera* camera)
          // Chunk doesn't exist, we don't render
          if (worldChunk == chunks.end())
             continue;
-         
-         glActiveTexture(GL_TEXTURE0);
-         glBindTexture(GL_TEXTURE_2D, map_textures);
 
-         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Constant::chunk_size_x, Constant::chunk_size_y, GL_RED_INTEGER, GL_UNSIGNED_INT, worldChunk->second->pixel_data);
+         map_texture->UpdateTextureData(worldChunk->second->pixel_data);
 
          glm::mat4 model = glm::mat4(1.0f);
          glm::vec3 modelPosition = glm::vec3(
@@ -727,7 +703,6 @@ bool WorldSimulator::Draw(Camera* camera)
          glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
       }
    }
-
    //? //TODO Replace this with a better zoom
    //? SDL_Rect zoomrect = world_render_rect;
    //? zoomrect.w *= DEBUG_ZoomLevel;

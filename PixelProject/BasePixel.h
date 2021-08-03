@@ -5,6 +5,7 @@
 #include "Constants.h"
 #include "XoshiroCpp.hpp"
 #include <random>
+#include "PixelDataMasks.h"
 
 #include "ColourUtility.h"
 
