@@ -13,7 +13,6 @@ uniform int state;
 
 void main()
 {             
-    const float gamma = 2.2;
     vec3 hdrColor = texture(scene, TexCoords).rgb;      
     vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
     float bloomBrightness = texture(bloomBlur, TexCoords).a;

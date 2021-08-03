@@ -1,13 +1,12 @@
-#version 430 core
+#version 330 core
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 BrightColor;
 
-in vec3 ourColor;
 in vec2 TexCoord;
 
 // texture samplers
-layout(binding = 0) uniform sampler2D ourTexture;
-layout(binding = 1) uniform sampler2D textureIndex;
+uniform sampler2D ourTexture;
+uniform sampler2D noiseTextureIndex;
 
 struct PixelData 
 {
@@ -27,7 +26,7 @@ uniform PixelData[10] u_Pixels;
 uniform MaskData u_PixelMask;
 uniform MaskData u_PixelBitOffset;
 
-const float LIGHT_INVERVAL = 1.0 / 8.0;
+const float LIGHT_INVERVAL = 1.0 / 7.0;
 
 void main()
 {
@@ -41,8 +40,7 @@ void main()
 		uint light = (u_PixelMask.light & value) >> u_PixelBitOffset.light;
 		float addedLight = light * LIGHT_INVERVAL;
 
-		int noiseIndex = int(floatBitsToUint(texture2D(textureIndex, TexCoord).r));
-		
+		int noiseIndex = int(floatBitsToUint(texture2D(noiseTextureIndex, TexCoord).r));
 
 		FragColor = u_Pixels[pixelType].colours[noiseIndex % (u_Pixels[pixelType].colour_count)];
 		if (addedLight != 0)
