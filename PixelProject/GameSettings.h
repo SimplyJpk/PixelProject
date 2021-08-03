@@ -23,7 +23,7 @@ struct GameSettings
 
    /* Game Settings that will be global */
    IVec2 screen_size = IVec2(1280, 720);
-   float aspect_ratio = screen_size.x / screen_size.y;
+   float aspect_ratio = static_cast<float>(screen_size.x) / static_cast<float>(screen_size.y);
 
    // Game Fixed TimeStep
    uint8_t target_sand_updates_per_seconds = 60;

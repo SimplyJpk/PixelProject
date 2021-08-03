@@ -69,19 +69,19 @@ public:
       int Right = (Left + size * 2) - 1;
       int Top = point - size;
       int Bottom = (Top + size * 2) - 1;
-      float radius = powf(size, 2);
+      auto radius = pow(size, 2);
 
       for (int index = 0; index < texture_count; index++)
       {
          Uint32* textureInfo = new Uint32[pixel_texture_size * pixel_texture_size]{0x00000000};
-         BasePixel* pixel = world_data_.GetPixelFromIndex(index);
+         BasePixel* pixel = world_data_.GetPixelFromIndex(static_cast<short>(index));
          // Generate colours for in-game colours, not UI
          pixel->GenerateColours();
          for (int y = Top; y <= Bottom; ++y)
          {
             for (int x = Left; x <= Right; ++x)
             {
-               double dist = powf(point - x, 2.0) + powf(point - y, 2.0);
+               auto dist = pow(point - x, 2) + pow(point - y, 2);
                if (dist <= radius)
                {
                   textureInfo[(y * pixel_texture_size) + x] = pixel->GetRandomColour();
