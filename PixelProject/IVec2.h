@@ -13,7 +13,7 @@ public:
    {
    }
 
-   IVec2(int x, int y)
+   IVec2(const int x, const int y)
    {
       this->x = x;
       this->y = y;
@@ -48,7 +48,7 @@ public:
    static IVec2 Down() { return IVec2(0, -1); };
 
    static IVec2 Lerp(IVec2 a, IVec2 b, float t);
-   static float Distance(IVec2 a, IVec2 b);
+   static float Distance(const IVec2& a, const IVec2& b);
 };
 
 inline IVec2& IVec2::operator=(const IVec2& other)
@@ -69,9 +69,10 @@ inline IVec2 IVec2::Lerp(IVec2 a, IVec2 b, float t)
    return result;
 }
 
-inline float IVec2::Distance(IVec2 a, IVec2 b)
+inline float IVec2::Distance(const IVec2& a, const IVec2& b)
 {
-   return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2));
+   const auto result = sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2));
+   return static_cast<float>(result);
 }
 
 inline IVec2 IVec2::operator+(const IVec2& other) const

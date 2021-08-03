@@ -21,7 +21,7 @@ enum ConsoleColour
    BrightWhite
 };
 
-static class ConsoleUtility
+class ConsoleUtility
 {
 public:
    static HANDLE GetHandle()

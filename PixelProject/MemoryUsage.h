@@ -2,7 +2,6 @@
 
 #include<Windows.h>
 #include<Psapi.h>
-#include<iostream>
 
 //TODO Don't release with this kind of junk built in (This won't work outside windows)
 class MemoryUsage
@@ -22,13 +21,13 @@ public:
       //return the usage (bytes), if I may
       if (GetProcessMemoryInfo(myHandle, &pmc, sizeof(pmc)))
       {
-         current_frame_memory_ = pmc.WorkingSetSize / (use_accurate ? 1 : 1024);
+         current_frame_memory_ = static_cast<int>(pmc.WorkingSetSize) / (use_accurate ? 1 : 1024);
          if (SDL_GetTicks() - last_check_time_ > 2000)
          {
             reference_frame_memory_ = current_frame_memory_;
             last_check_time_ = SDL_GetTicks();
          }
-         return (pmc.WorkingSetSize);
+         return (static_cast<int>(pmc.WorkingSetSize));
       }
       else
          return -1;

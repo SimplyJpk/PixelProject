@@ -41,13 +41,13 @@ public:
       ImGui_ImplOpenGL3_Init();
 
       ImGui::SetWindowSize("Debug Window", ImVec2(240, 240));
-      ImGui::SetWindowPos("Debug Window", ImVec2(settings_->screen_size.x - 245, 15));
+      ImGui::SetWindowPos("Debug Window", ImVec2(static_cast<float>(settings_->screen_size.x - 245), 15));
 
       ImGui::SetWindowSize("Frame Data", ImVec2(240, 240));
-      ImGui::SetWindowPos("Frame Data", ImVec2(settings_->screen_size.x - 245, 275));
+      ImGui::SetWindowPos("Frame Data", ImVec2(static_cast<float>(settings_->screen_size.x - 245), 275));
 #if DEBUG_GAME
       ImGui::SetWindowSize("WorldSimulator DEBUG", ImVec2(240, 240));
-      ImGui::SetWindowPos("WorldSimulator DEBUG", ImVec2(settings_->screen_size.x - 545, 275));
+      ImGui::SetWindowPos("WorldSimulator DEBUG", ImVec2(static_cast<float>(settings_->screen_size.x - 545), 275));
 #endif
       g_window = window;
 

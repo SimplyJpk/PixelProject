@@ -58,7 +58,7 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    // Input
    input_manager = InputManager::Instance();
    // Camera
-   main_cam.SetOrtho(0, game_settings->screen_size.x, game_settings->screen_size.y, 0);
+   main_cam.SetOrtho(0, static_cast<float>(game_settings->screen_size.x), static_cast<float>(game_settings->screen_size.y), 0);
    //x main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);
 
    //TODO V This should probably be static, it doesn't really need to know what is going on in the world, only where it is.
@@ -135,7 +135,7 @@ void Game::Run()
       else if (input_manager->GetKeyDown(KeyCode::I))
          renderTarget.kernal_state--;
 
-      main_cam.Update(deltaTime);
+      main_cam.Update(static_cast<float>(deltaTime));
 
       paint_manager->UpdateInput();
 
@@ -149,11 +149,13 @@ void Game::Run()
       static float average = 0.f;
       auto nanoTime = static_cast<std::chrono::nanoseconds>(clock::now() - frameStart).count() / 1000;
       average += nanoTime;
+      float nanoTimeFloat = static_cast<float>(nanoTime);
+
       static int microUpdate = 0;
       if (nanoTime > stop_watch.GetTime("SlowestUpdate"))
-         stop_watch.UpdateTime("SlowestUpdate", nanoTime);
+         stop_watch.UpdateTime("SlowestUpdate", nanoTimeFloat);
       if (nanoTime < stop_watch.GetTime("FastestUpdate"))
-         stop_watch.UpdateTime("FastestUpdate", nanoTime);
+         stop_watch.UpdateTime("FastestUpdate", nanoTimeFloat);
 
       if (microUpdate >= 12) {
          stop_watch.UpdateTime("Update_micro_avg", average / (microUpdate + 1));
@@ -162,7 +164,7 @@ void Game::Run()
       }
       else { microUpdate++; }
 
-      stop_watch.UpdateTime("NanoUpdate", nanoTime);
+      stop_watch.UpdateTime("NanoUpdate", nanoTimeFloat);
 
       auto drawStart = clock::now();
 
@@ -196,7 +198,7 @@ void Game::Run()
       frameCounter++;
       if (static_cast<duration>(clock::now() - secondCounter).count() > 1000)
       {
-         stop_watch.UpdateTime("CurrentFPS", frameCounter);
+         stop_watch.UpdateTime("CurrentFPS", static_cast<float>(frameCounter));
          secondCounter = clock::now();
          frameCounter = 0;
       }

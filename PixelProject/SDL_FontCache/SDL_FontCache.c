@@ -4,6 +4,7 @@ by Jonathan Dearborn
 
 See SDL_FontCache.h for license info.
 */
+#pragma warning (disable : 4081 4267 4244)
 
 #include "SDL_FontCache.h"
 

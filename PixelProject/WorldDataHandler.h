@@ -64,7 +64,7 @@ public:
       {
          if (pixel_colour_map_.find(pixel->type_colours[i]) != pixel_colour_map_.end())
          {
-            printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixel->Name(), i);
+            printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixel->Name().c_str(), i);
          }
          pixel_colour_map_.insert(std::make_pair(pixel->type_colours[i], pixel));
       }
