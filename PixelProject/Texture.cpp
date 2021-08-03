@@ -4,32 +4,16 @@ Texture::Texture(const int width, const int height, const TextureFormat format)
 {
    width_ = width;
    height_ = height;
-   format_ = format;
+   if (format == TextureFormat::UNKNOWN)
+      format_ = TextureFormat::RGBA;
+   else
+      format_ = format;
 
    glGenTextures(1, &texture_id_);
-   glBindTexture(GL_TEXTURE_2D, texture_id_);
-
-   switch (format) {
-   case TextureFormat::RED_SMALL:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width_, height_, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-      break;
-   case TextureFormat::RED_LARGE:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, width_, height_, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
-      break;
-   case TextureFormat::RG:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width_, height_, 0, GL_RG, GL_UNSIGNED_BYTE, nullptr);
-      break;
-   case TextureFormat::RGB:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-      break;
-   case TextureFormat::RGBA:
-   case TextureFormat::UNKNOWN:
-   default:
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-   }
+   // Bind and Set Data
+   UpdateTextureData(nullptr);
 
    TextureUtility::SetTexParams(GL_TEXTURE_2D);
-   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::Texture(const char* filePath)
@@ -44,6 +28,8 @@ Texture::Texture(const char* filePath)
    glGenTextures(1, &texture_id_);
    glBindTexture(GL_TEXTURE_2D, texture_id_);
 
+   //TODO Will this work with my INT?
+   //TODO Test this with loading images
    switch (comp)
    {
    case STBI_grey:
@@ -74,10 +60,19 @@ Texture::Texture(const char* filePath)
 
    loaded_pixels_ = texture;
    TextureUtility::SetTexParams(GL_TEXTURE_2D);
-   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::Bind() const
 {
    glBindTexture(GL_TEXTURE_2D, texture_id_);
+}
+
+std::vector<Texture*> Texture::CreateTextures(const int width, const int height, const TextureFormat format, const int count)
+{
+   std::vector<Texture*> textures;
+   for (int i = 0; i < count; i++)
+   {
+      textures.push_back(new Texture(width, height, format));
+   }
+   return textures;
 }

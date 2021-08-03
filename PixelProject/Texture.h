@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <stb_image.h>
 #include <string>
+#include <vector>
 
 #include "ConsoleUtility.h"
 #include "TextureFormatData.h"
@@ -17,6 +18,8 @@ public:
    Texture(const int width, const int height, const TextureFormat format);
    // Load an image and use as a texture, should support most general extensions
    Texture(const char* filePath = nullptr);
+
+   static std::vector<Texture*> CreateTextures(const int width, const int height, const TextureFormat format, const int count);
 
    ~Texture()
    {
@@ -56,9 +59,14 @@ public:
    {
       return static_cast<TextureFormat>(format_);
    }
+
    std::string GetFileName() const
    {
       return file_name_;
+   }
+   void SetName(const std::string name)
+   {
+      file_name_ = name;
    }
 
 private:

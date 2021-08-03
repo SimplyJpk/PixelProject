@@ -32,19 +32,20 @@ namespace Rendering::TextureData
 
    SHORT_TYPE RED_SMALL[SHORT_V] = { GL_TEXTURE_2D, GL_RED, GL_RED, GL_UNSIGNED_BYTE };
    SHORT_TYPE RED_LARGE[SHORT_V] = { GL_TEXTURE_2D, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT };
-   SHORT_TYPE RG[SHORT_V] = { GL_TEXTURE_2D, GL_RG, GL_RG, GL_UNSIGNED_BYTE };
-   SHORT_TYPE RGB[SHORT_V] = { GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE };
-   SHORT_TYPE RGBA[SHORT_V] = { GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE };
+   SHORT_TYPE RG[SHORT_V] = { GL_TEXTURE_2D, GL_RG, GL_RG, GL_UNSIGNED_INT_8_8_8_8 };
+   SHORT_TYPE RGB[SHORT_V] = { GL_TEXTURE_2D, GL_RGB, GL_RGB, GL_UNSIGNED_INT_8_8_8_8 };
+   SHORT_TYPE RGBA[SHORT_V] = { GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8 };
 
 #undef SHORT_TYPE
 #undef SHORT_V
 }
 
-constexpr static GLuint format_data_types[static_cast<int>(TextureFormat::TYPE_COUNT)][static_cast<int>(TextureFormatData::VAR_COUNT)] =
+constexpr static const GLuint* format_data_types[static_cast<int>(TextureFormat::TYPE_COUNT)] =
 {
-   { *Rendering::TextureData::RED_SMALL },
-   { *Rendering::TextureData::RED_LARGE},
-   { *Rendering::TextureData::RG },
-   { *Rendering::TextureData::RGB },
-   { *Rendering::TextureData::RGBA }
+   Rendering::TextureData::RGBA, // Unknown
+   Rendering::TextureData::RED_SMALL,
+   Rendering::TextureData::RED_LARGE,
+   Rendering::TextureData::RG,
+   Rendering::TextureData::RGB,
+   Rendering::TextureData::RGBA
 };
