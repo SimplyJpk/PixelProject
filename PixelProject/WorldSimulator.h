@@ -24,8 +24,9 @@
 
 #include <SDL_opengl.h>
 
-#include <GL/glu.h>
+#include <GL/GLU.h>
 
+#include "Texture.h"
 #include "TextureUtility.h"
 #include "WorldGenerator.h"
 
@@ -78,8 +79,9 @@ public:
    u_long DEBUG_FrameCounter = 0;
    float DEBUG_ZoomLevel = 1;
 
-   GLuint map_textures;
-   GLuint map_noiseTexture;
+   Texture* map_texture;
+   Texture* noise_texture;
+
    Uint8* map_noiseTextureData;
    unsigned int VBO;
    unsigned int VAO;
