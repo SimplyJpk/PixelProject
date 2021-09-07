@@ -126,7 +126,7 @@ public:
       DrawFrameData();
       ImGui::Begin("Debug Window");
       ImGui::Text("Screen Size: W-%i\tH-%i", settings_->screen_size.x, settings_->screen_size.y);
-      IVec2 mousePos = InputManager::Instance()->MousePosition();
+      IVec2 mousePos = InputManager::Instance().MousePosition();
       ImGui::Text("MousePos: X: %i\tY:%i\n", mousePos.x, mousePos.y);
       ImGui::TextColored(mem_usage.IsMemoryMore() ? red : green, "Memory Used: %ikb",
                          mem_usage.ReturnMemoryUsed() / 1024);

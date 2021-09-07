@@ -56,7 +56,7 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    //TODO Look into if FC_Font will still work with opengl?
    game_settings->font = nullptr;
    // Input
-   input_manager = InputManager::Instance();
+   input_manager = &InputManager::Instance();
    // Camera
    main_cam.SetOrtho(0, static_cast<float>(game_settings->screen_size.x), static_cast<float>(game_settings->screen_size.y), 0);
    //x main_cam.SetPerspective(1.0472f, game_settings->aspect_ratio, 0.1f, 100.f);

@@ -494,7 +494,7 @@ inline int8_t WorldSimulator::CheckLogic(const int direction, BasePixel* pixel, 
 
 void WorldSimulator::UpdateInput()
 {
-   InputManager* input = InputManager::Instance();
+   InputManager* input = &InputManager::Instance();
    const IVec2 mousePos = input->MousePosition();
    const IVec2 lastFramePos = input->LastMousePosition();
 
@@ -757,7 +757,7 @@ void WorldSimulator::DebugShowChunkProcessPieces()
 
 void WorldSimulator::DebugDrawPixelRange()
 {
-   if (!InputManager::Instance()->GetKeyDown(KeyCode::R))
+   if (!InputManager::Instance().GetKeyDown(KeyCode::R))
       return;
 
    ClearWorld();

@@ -7,7 +7,7 @@ FlyCamera::FlyCamera()
 // Updates camera position and rotation
 void FlyCamera::Update(const float delta)
 {
-   if (InputManager::Instance()->IsMovementKeysDown())
+   if (InputManager::Instance().IsMovementKeysDown())
    {
       MoveCam(delta);
    }
@@ -21,7 +21,7 @@ void FlyCamera::MoveCam(const float delta)
    const auto up = Row(1);
    const auto forward = Row(2);
 
-  auto* im = InputManager::Instance();
+  auto* im = &InputManager::Instance();
 
 	// Left Right
 	if (im->IsKeyHeld(KeyCode::A))

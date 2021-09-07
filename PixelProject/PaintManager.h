@@ -29,7 +29,7 @@ public:
 
    void UpdateInput()
    {
-      auto* input = InputManager::Instance();
+      auto input = &InputManager::Instance();
       if (input->GetKeyDown(KeyCode::Tab))
       {
          if (selected_pixel->pixel_index == world_data_.PixelTypeCount() - 1)
@@ -38,7 +38,7 @@ public:
             selected_pixel = world_data_.GetPixelFromIndex(selected_pixel->pixel_index + 1);
       }
 
-      IVec2 mousePos = InputManager::Instance()->MousePosition();
+      IVec2 mousePos = InputManager::Instance().MousePosition();
       // Crude check, we only want to check if we're hovering if we're close to the items
       if (mousePos.y < pixel_texture_size * 2)
       {
@@ -149,9 +149,9 @@ public:
    {
       used_shader_->UseProgram();
 
-      if (InputManager::Instance()->GetKeyDown(KeyCode::Y))
+      if (InputManager::Instance().GetKeyDown(KeyCode::Y))
       {
-         IVec2 mousePos = InputManager::Instance()->MousePosition();
+         IVec2 mousePos = InputManager::Instance().MousePosition();
          printf("Wow");
       }
 
