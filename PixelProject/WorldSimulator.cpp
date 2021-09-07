@@ -366,8 +366,8 @@ void WorldSimulator::FixedUpdate()
                               const auto neighbourType = pixelNeighbour->GetType();
 
                               // Now we ask the Pixel what it wants to do with its neighbour
-                              int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
-                                 returnPixels);
+                              const int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
+                                                               returnPixels);
 
                               if (DEBUG_PrintPixelData)
                               {
@@ -424,13 +424,8 @@ void WorldSimulator::FixedUpdate()
       }
    }
 
-   //? while (!used_processed_queue.empty())
-   //? {
-   //?    bool* data;
-   //?    used_processed_queue.pop(data);
    memset(is_processed_array_, false, Constant::chunk_total_size * world_dimensions.x * world_dimensions.y);
-   //?    is_processed_queue.push(data);
-   //? }
+
    //TODO Improve this?
    for (auto y = 0; y < world_dimensions.y; y++)
    {
@@ -448,19 +443,19 @@ inline uint8_t WorldSimulator::GetDistanceToBorder(const short x, const short y,
    case North:
       return y + 1;
    case NorthEast:
-      return std::min(y + 1, Constant::chunk_size_x - x);
+      return std::min<uint8_t>(y + 1, Constant::chunk_size_x - x);
    case East:
       return Constant::chunk_size_x - x;
    case SouthEast:
-      return std::min(Constant::chunk_size_x - x, Constant::chunk_size_y - y);
+      return std::min<uint8_t>(Constant::chunk_size_x - x, Constant::chunk_size_y - y);
    case South:
       return Constant::chunk_size_y - y;
    case SouthWest:
-      return std::min(Constant::chunk_size_y - y, x + 1);
+      return std::min<uint8_t>(Constant::chunk_size_y - y, x + 1);
    case West:
       return x + 1;
    case NorthWest:
-      return std::min(x + 1, y + 1);
+      return std::min<uint8_t>(x + 1, y + 1);
    default: throw;
    }
 }
@@ -673,6 +668,8 @@ bool WorldSimulator::Draw(Camera* camera)
 
    glActiveTexture(GL_TEXTURE0);
 
+   glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+
    for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {
       for (int yVal = yChunkStart; yVal < yChunkEnd; yVal++)
@@ -692,10 +689,9 @@ bool WorldSimulator::Draw(Camera* camera)
          );
          model = glm::translate(model, modelPosition);
 
-         model = glm::scale(model, glm::vec3(128, 128, 1.0f));
+         model = glm::scale(model, glm::vec3(Constant::chunk_size_x, Constant::chunk_size_y, 1.0f));
 
          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
 
          glBindVertexArray(VAO);
