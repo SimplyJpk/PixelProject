@@ -335,6 +335,7 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClInclude Include="PixelDataMasks.h" />
     <ClInclude Include="PixelTypeIncludes.h" />
     <ClInclude Include="RectTransform.h" />
+    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
