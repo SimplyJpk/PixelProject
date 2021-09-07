@@ -261,7 +261,8 @@
     <PostBuildEvent>
       <Message>
       </Message>
-      <Command>XCOPY "$(SolutionDir)$(ProjectName)\shaders" "$(TargetDir)shaders\" /S/E /Y</Command>
+      <Command>XCOPY "$(SolutionDir)$(ProjectName)\shaders" "$(TargetDir)shaders\" /S/E /Y
+XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -375,6 +376,9 @@
     <None Include="shaders\post\blur.vert" />
     <None Include="shaders\rendertarget\default.frag" />
     <None Include="shaders\rendertarget\default.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\brick.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

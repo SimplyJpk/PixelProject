@@ -102,6 +102,8 @@ void Game::Run()
    auto secondCounter = clock::now();
    int frameCounter = 0;
 
+   Texture* bricks = new Texture("./textures/bricks.png");
+
    RenderTarget renderTarget(game_settings->screen_size.x, game_settings->screen_size.y);
    renderTarget.SetShader(&ShaderManager::Instance().GetShader("renderTarget"));
 
