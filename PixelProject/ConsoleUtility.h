@@ -31,7 +31,7 @@ public:
    }
    static const ConsoleColour DefaultColour = ConsoleColour::BrightWhite;
 
-   static void PrintText(const char* text, const ConsoleColour colour = ConsoleColour::BrightWhite)
+   static void PrintText(const std::string& text, const ConsoleColour colour = ConsoleColour::BrightWhite)
    {
       SetConsoleTextAttribute(GetHandle(), colour);
       std::cout << text;
