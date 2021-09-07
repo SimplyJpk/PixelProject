@@ -21,7 +21,7 @@ Gif of project from 9th July 2021
 ![image](https://user-images.githubusercontent.com/8342701/125050297-336f5900-e0e5-11eb-8247-a91476321cf0.gif)
  
 ## Work In Progress
-A Trello board has been made to give myself an idea of the direction I'm trying to take this project. https://trello.com/b/o60PZQ21/pixelproject
+A [Trello board](https://trello.com/b/o60PZQ21/pixelproject) has been made to give myself an idea of the direction I'm trying to take this project.
  
 ## Contributing
 Issues stating problems or feature requests are welcome, as are pull requests and any code contributions.
