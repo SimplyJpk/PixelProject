@@ -8,13 +8,23 @@ bool InputManager::IsValidKey(KeyCode& key_code)
    return true;
 }
 
+InputManager::InputManager()
+{
+   input_configuration_.StartLoad(input_configuration_.FilePath().c_str(), true);
+}
+
 InputManager& InputManager::Instance()
 {
    static InputManager instance;
    return instance;
 }
 
-void InputManager::Update()
+void InputManager::CallInputHandler()
+{
+
+}
+
+void InputManager::UpdateInputs()
 {
    // We clear all our states
    // Keyboard

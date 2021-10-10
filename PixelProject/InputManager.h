@@ -6,16 +6,21 @@
 #include <vector>
 
 
+#include "InputConfig.h"
 #include "InputKeyCodes.h"
 //TODO Implement an event system? Would be nice to call events from here
 
+/// <summary>
+/// A low level Input Management System, 
+/// </summary>
 class InputManager
 {
 public:
 
    static InputManager& Instance();
 
-   void Update();
+   void UpdateInputs();
+   void CallInputHandler();
 
    bool IsAnyKeyDown() const;
    bool IsMovementKeysDown();
@@ -53,8 +58,10 @@ public:
 protected:
    static inline bool IsValidKey(KeyCode& key_code);
 private:
-   InputManager() = default;
+   InputManager();
    ~InputManager() = default;
+
+   InputConfig input_configuration_;
 
    const Uint8* keyboard_ = nullptr;
    uint32_t mouse_ = 0;
