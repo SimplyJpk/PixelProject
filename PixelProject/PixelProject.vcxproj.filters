@@ -127,6 +127,15 @@
     <Filter Include="Resource Files\textures">
       <UniqueIdentifier>{9ae9cd85-b312-4b2c-b5ba-331d28309b1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Input\Commands">
+      <UniqueIdentifier>{b3d5f49d-0b60-4182-a5a4-208e886f2132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input\Commands\Interface">
+      <UniqueIdentifier>{278696e8-d1e1-444e-bba9-76de276bbb3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Input\InputSettings">
+      <UniqueIdentifier>{bb3998af-5673-4a15-8463-45f1360c763a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -408,7 +417,19 @@
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="RenderObject.h">
-      <Filter>Header Files\Rendering\FastRender</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnyInputCommand.h">
+      <Filter>Header Files\Input\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="AnyClickCommand.h">
+      <Filter>Header Files\Input\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ICommand.h">
+      <Filter>Header Files\Input\Commands\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="InputConfig.h">
+      <Filter>Header Files\Input\InputSettings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

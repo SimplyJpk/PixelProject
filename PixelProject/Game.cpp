@@ -115,6 +115,8 @@ void Game::Run()
 
       fixedRemainingTime+= deltaTime;
 
+      //? ======
+      // Fixed Update
       uint8_t frameFixedStepCounter = 0;
       while (fixedRemainingTime > game_settings->target_sand_update_time) {
          world_sim->FixedUpdate();
@@ -128,7 +130,7 @@ void Game::Run()
 
       //? ======
       //! Update
-      input_manager->Update();
+      input_manager->UpdateInputs();
       if (input_manager->IsShuttingDown()) break;
 
       //TODO maybe don't leave this here

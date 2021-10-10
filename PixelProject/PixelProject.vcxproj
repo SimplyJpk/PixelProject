@@ -305,6 +305,7 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClInclude Include="..\Includes\imgui-master\imstb_textedit.h" />
     <ClInclude Include="..\Includes\imgui-master\imstb_truetype.h" />
     <ClInclude Include="AcidPixel.h" />
+    <ClInclude Include="AnyClickCommand.h" />
     <ClInclude Include="BitWise.h" />
     <ClInclude Include="boost\threadpool.hpp" />
     <ClInclude Include="Camera.h" />
@@ -317,8 +318,11 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClInclude Include="FlyCamera.h" />
     <ClInclude Include="GoldPixel.h" />
     <ClInclude Include="GUIManager.h" />
+    <ClInclude Include="ICommand.h" />
+    <ClInclude Include="AnyInputCommand.h" />
     <ClInclude Include="InputKeyCodes.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="InputConfig.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="ISerializable.h" />
     <ClInclude Include="IVec2.h" />
