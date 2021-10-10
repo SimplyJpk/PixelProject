@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Box2D-cpp.redist.2.4.1.5\build\native\Box2D-cpp.redist.props" Condition="Exists('..\packages\Box2D-cpp.redist.2.4.1.5\build\native\Box2D-cpp.redist.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -285,6 +286,7 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="RigidBody2D.cpp" />
     <ClCompile Include="SDL_FontCache\SDL_FontCache.c" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
@@ -337,6 +339,7 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClInclude Include="RectTransform.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RigidBody2D.h" />
     <ClInclude Include="SandPixel.h" />
     <ClInclude Include="SDL_FontCache\SDL_FontCache.h" />
     <ClInclude Include="GameSettings.h" />
@@ -417,5 +420,6 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <Error Condition="!Exists('..\packages\boost_exception-vc142.1.76.0.0\build\boost_exception-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_exception-vc142.1.76.0.0\build\boost_exception-vc142.targets'))" />
     <Error Condition="!Exists('..\packages\boost_filesystem-vc142.1.76.0.0\build\boost_filesystem-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_filesystem-vc142.1.76.0.0\build\boost_filesystem-vc142.targets'))" />
     <Error Condition="!Exists('..\packages\boost_thread-vc142.1.76.0.0\build\boost_thread-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc142.1.76.0.0\build\boost_thread-vc142.targets'))" />
+    <Error Condition="!Exists('..\packages\Box2D-cpp.redist.2.4.1.5\build\native\Box2D-cpp.redist.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Box2D-cpp.redist.2.4.1.5\build\native\Box2D-cpp.redist.props'))" />
   </Target>
 </Project>
