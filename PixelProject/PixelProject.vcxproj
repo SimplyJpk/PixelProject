@@ -398,12 +398,6 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <Import Project="..\packages\boost_date_time-vc142.1.76.0.0\build\boost_date_time-vc142.targets" Condition="Exists('..\packages\boost_date_time-vc142.1.76.0.0\build\boost_date_time-vc142.targets')" />
     <Import Project="..\packages\boost_exception-vc142.1.76.0.0\build\boost_exception-vc142.targets" Condition="Exists('..\packages\boost_exception-vc142.1.76.0.0\build\boost_exception-vc142.targets')" />
     <Import Project="..\packages\boost_filesystem-vc142.1.76.0.0\build\boost_filesystem-vc142.targets" Condition="Exists('..\packages\boost_filesystem-vc142.1.76.0.0\build\boost_filesystem-vc142.targets')" />
-    <Import Project="..\packages\boost_math_c99-vc142.1.76.0.0\build\boost_math_c99-vc142.targets" Condition="Exists('..\packages\boost_math_c99-vc142.1.76.0.0\build\boost_math_c99-vc142.targets')" />
-    <Import Project="..\packages\boost_math_c99f-vc142.1.76.0.0\build\boost_math_c99f-vc142.targets" Condition="Exists('..\packages\boost_math_c99f-vc142.1.76.0.0\build\boost_math_c99f-vc142.targets')" />
-    <Import Project="..\packages\boost_math_c99l-vc142.1.76.0.0\build\boost_math_c99l-vc142.targets" Condition="Exists('..\packages\boost_math_c99l-vc142.1.76.0.0\build\boost_math_c99l-vc142.targets')" />
-    <Import Project="..\packages\boost_math_tr1-vc142.1.76.0.0\build\boost_math_tr1-vc142.targets" Condition="Exists('..\packages\boost_math_tr1-vc142.1.76.0.0\build\boost_math_tr1-vc142.targets')" />
-    <Import Project="..\packages\boost_math_tr1f-vc142.1.76.0.0\build\boost_math_tr1f-vc142.targets" Condition="Exists('..\packages\boost_math_tr1f-vc142.1.76.0.0\build\boost_math_tr1f-vc142.targets')" />
-    <Import Project="..\packages\boost_math_tr1l-vc142.1.76.0.0\build\boost_math_tr1l-vc142.targets" Condition="Exists('..\packages\boost_math_tr1l-vc142.1.76.0.0\build\boost_math_tr1l-vc142.targets')" />
     <Import Project="..\packages\boost_thread-vc142.1.76.0.0\build\boost_thread-vc142.targets" Condition="Exists('..\packages\boost_thread-vc142.1.76.0.0\build\boost_thread-vc142.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -422,12 +416,6 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <Error Condition="!Exists('..\packages\boost_date_time-vc142.1.76.0.0\build\boost_date_time-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_date_time-vc142.1.76.0.0\build\boost_date_time-vc142.targets'))" />
     <Error Condition="!Exists('..\packages\boost_exception-vc142.1.76.0.0\build\boost_exception-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_exception-vc142.1.76.0.0\build\boost_exception-vc142.targets'))" />
     <Error Condition="!Exists('..\packages\boost_filesystem-vc142.1.76.0.0\build\boost_filesystem-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_filesystem-vc142.1.76.0.0\build\boost_filesystem-vc142.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_math_c99-vc142.1.76.0.0\build\boost_math_c99-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_math_c99-vc142.1.76.0.0\build\boost_math_c99-vc142.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_math_c99f-vc142.1.76.0.0\build\boost_math_c99f-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_math_c99f-vc142.1.76.0.0\build\boost_math_c99f-vc142.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_math_c99l-vc142.1.76.0.0\build\boost_math_c99l-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_math_c99l-vc142.1.76.0.0\build\boost_math_c99l-vc142.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_math_tr1-vc142.1.76.0.0\build\boost_math_tr1-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_math_tr1-vc142.1.76.0.0\build\boost_math_tr1-vc142.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_math_tr1f-vc142.1.76.0.0\build\boost_math_tr1f-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_math_tr1f-vc142.1.76.0.0\build\boost_math_tr1f-vc142.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_math_tr1l-vc142.1.76.0.0\build\boost_math_tr1l-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_math_tr1l-vc142.1.76.0.0\build\boost_math_tr1l-vc142.targets'))" />
     <Error Condition="!Exists('..\packages\boost_thread-vc142.1.76.0.0\build\boost_thread-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc142.1.76.0.0\build\boost_thread-vc142.targets'))" />
   </Target>
 </Project>
