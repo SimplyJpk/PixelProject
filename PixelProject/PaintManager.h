@@ -29,7 +29,7 @@ public:
 
    void UpdateInput()
    {
-      auto* input = InputManager::Instance();
+      auto input = &InputManager::Instance();
       if (input->GetKeyDown(KeyCode::Tab))
       {
          if (selected_pixel->pixel_index == world_data_.PixelTypeCount() - 1)
@@ -38,7 +38,7 @@ public:
             selected_pixel = world_data_.GetPixelFromIndex(selected_pixel->pixel_index + 1);
       }
 
-      IVec2 mousePos = InputManager::Instance()->MousePosition();
+      IVec2 mousePos = InputManager::Instance().MousePosition();
       // Crude check, we only want to check if we're hovering if we're close to the items
       if (mousePos.y < pixel_texture_size * 2)
       {
@@ -69,19 +69,19 @@ public:
       int Right = (Left + size * 2) - 1;
       int Top = point - size;
       int Bottom = (Top + size * 2) - 1;
-      float radius = powf(size, 2);
+      auto radius = pow(size, 2);
 
       for (int index = 0; index < texture_count; index++)
       {
          Uint32* textureInfo = new Uint32[pixel_texture_size * pixel_texture_size]{0x00000000};
-         BasePixel* pixel = world_data_.GetPixelFromIndex(index);
+         BasePixel* pixel = world_data_.GetPixelFromIndex(static_cast<short>(index));
          // Generate colours for in-game colours, not UI
          pixel->GenerateColours();
          for (int y = Top; y <= Bottom; ++y)
          {
             for (int x = Left; x <= Right; ++x)
             {
-               double dist = powf(point - x, 2.0) + powf(point - y, 2.0);
+               auto dist = pow(point - x, 2) + pow(point - y, 2);
                if (dist <= radius)
                {
                   textureInfo[(y * pixel_texture_size) + x] = pixel->GetRandomColour();
@@ -149,9 +149,9 @@ public:
    {
       used_shader_->UseProgram();
 
-      if (InputManager::Instance()->GetKeyDown(KeyCode::Y))
+      if (InputManager::Instance().GetKeyDown(KeyCode::Y))
       {
-         IVec2 mousePos = InputManager::Instance()->MousePosition();
+         IVec2 mousePos = InputManager::Instance().MousePosition();
          printf("Wow");
       }
 

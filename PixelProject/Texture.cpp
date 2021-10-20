@@ -23,7 +23,11 @@ Texture::Texture(const char* filePath)
 
    if (!texture)
    {
-      ConsoleUtility::PrintText("TEXTURE: Failed to load Texture", ConsoleColour::Yellow);
+      ConsoleUtility::PrintText("TEXTURE: Failed to load Texture\n", ConsoleColour::Yellow);
+      if (stbi_failure_reason())
+      {
+         ConsoleUtility::PrintText(stbi_failure_reason(), ConsoleColour::Yellow);
+      }
    }
    glGenTextures(1, &texture_id_);
    glBindTexture(GL_TEXTURE_2D, texture_id_);

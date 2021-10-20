@@ -1,11 +1,5 @@
 #include "InputManager.h"
 
-#include <cstdio>
-
-InputManager* InputManager::instance_ = nullptr;
-
-InputManager::InputManager() = default;
-
 bool InputManager::IsValidKey(KeyCode& key_code)
 {
    const int key = static_cast<int>(key_code);
@@ -14,11 +8,10 @@ bool InputManager::IsValidKey(KeyCode& key_code)
    return true;
 }
 
-InputManager* InputManager::Instance()
+InputManager& InputManager::Instance()
 {
-   if (!instance_)
-      instance_ = new InputManager();
-   return instance_;
+   static InputManager instance;
+   return instance;
 }
 
 void InputManager::Update()
@@ -91,7 +84,7 @@ void InputManager::Update()
    }
 }
 
-bool InputManager::IsAnyKeyDown()
+bool InputManager::IsAnyKeyDown() const
 {
    return is_any_key_down_;
 }

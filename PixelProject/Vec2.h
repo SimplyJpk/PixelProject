@@ -8,26 +8,25 @@ public:
    float x = 0.0f;
    float y = 0.0f;
 
-   Vec2(float x, float y)
+   Vec2(const float x, const float y)
    {
       this->x = x;
       this->y = y;
    }
 
-   Vec2()
-   {
-   };
+   Vec2() = default;
 
-   Vec2 operator +(Vec2 other)
+   Vec2 operator +(const Vec2 other) const
    {
-      this->x + other.x;
-      this->y + other.y;
+      auto result = Vec2(this->x + other.x, this->y + other.y);
+      return result;
    }
 
-   Vec2 operator =(Vec2 other)
+   Vec2& operator =(const Vec2 other)
    {
       this->x = other.x;
       this->y = other.y;
+      return *this;
    }
 
    static Vec2 Zero() { return Vec2(0, 0); };

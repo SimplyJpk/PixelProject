@@ -124,6 +124,9 @@
     <Filter Include="Resource Files\shaders\post">
       <UniqueIdentifier>{979328da-75d2-4d36-8192-aebe2b445950}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\textures">
+      <UniqueIdentifier>{9ae9cd85-b312-4b2c-b5ba-331d28309b1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -404,6 +407,9 @@
     <ClInclude Include="TextureFormatData.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="RenderObject.h">
+      <Filter>Header Files\Rendering\FastRender</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -444,5 +450,10 @@
     <None Include="shaders\post\bloom.frag">
       <Filter>Resource Files\shaders\post</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\brick.png">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

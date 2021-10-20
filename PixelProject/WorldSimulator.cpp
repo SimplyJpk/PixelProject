@@ -89,18 +89,16 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
 
    const short max = pixel_type->colour_count;
 
-   const IVec2 newPoint = IVec2(DEBUG_ZoomLevel * point.x, DEBUG_ZoomLevel * point.y);
+   const auto camPosition = cam->GetPosition();
 
-   auto camPosition = cam->GetPosition();
-   
-   int XCenter = static_cast<int>(camPosition.x) + point.x;
-   int YCenter = static_cast<int>(camPosition.y) + point.y;
+   const int XCenter = static_cast<int>(camPosition.x) + point.x;
+   const int YCenter = static_cast<int>(camPosition.y) + point.y;
 
-   int Left = XCenter - size;
-   int Right = XCenter + size;
-   int Top =  YCenter - size;
-   int Bottom = YCenter + size;
-   float radius = powf(size, 2);
+   const int Left = XCenter - size;
+   const int Right = XCenter + size;
+   const int Top =  YCenter - size;
+   const int Bottom = YCenter + size;
+   const auto radius = pow(size, 2);
 
    const int WorldDimX = world_dimensions.x * Constant::chunk_size_x;
    const int WorldDimY = world_dimensions.y * Constant::chunk_size_y;
@@ -109,17 +107,17 @@ void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int si
    {
       if (y < 0 || y >= WorldDimY)
          continue;
-      const int yFloor = floor(y / Constant::chunk_size_y);
+      const int yFloor = static_cast<int>(floor(y / Constant::chunk_size_y));
       if (yFloor > world_dimensions.y) continue;
 
       for (int x = Left; x <= Right; ++x)
       {
          if (x < 0 || x >= WorldDimX)
             continue;
-         const int xFloor = floor(x / Constant::chunk_size_x);
+         const int xFloor = static_cast<int>(floor(x / Constant::chunk_size_x));
          if (xFloor > world_dimensions.x) continue;
 
-         const auto dist = powf(XCenter - x, 2.0) + powf(YCenter - y, 2.0);
+         const auto dist = pow(XCenter - x, 2.0) + pow(YCenter - y, 2.0);
          if (dist <= radius)
          {
             const Uint32 index = ((y - (yFloor * Constant::chunk_size_y)) * Constant::chunk_size_x) + (x - (xFloor * Constant::chunk_size_x));
@@ -368,8 +366,8 @@ void WorldSimulator::FixedUpdate()
                               const auto neighbourType = pixelNeighbour->GetType();
 
                               // Now we ask the Pixel what it wants to do with its neighbour
-                              int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
-                                 returnPixels);
+                              const int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
+                                                               returnPixels);
 
                               if (DEBUG_PrintPixelData)
                               {
@@ -426,13 +424,8 @@ void WorldSimulator::FixedUpdate()
       }
    }
 
-   //? while (!used_processed_queue.empty())
-   //? {
-   //?    bool* data;
-   //?    used_processed_queue.pop(data);
    memset(is_processed_array_, false, Constant::chunk_total_size * world_dimensions.x * world_dimensions.y);
-   //?    is_processed_queue.push(data);
-   //? }
+
    //TODO Improve this?
    for (auto y = 0; y < world_dimensions.y; y++)
    {
@@ -450,19 +443,20 @@ inline uint8_t WorldSimulator::GetDistanceToBorder(const short x, const short y,
    case North:
       return y + 1;
    case NorthEast:
-      return std::min(y + 1, Constant::chunk_size_x - x);
+      return std::min<uint8_t>(y + 1, Constant::chunk_size_x - x);
    case East:
       return Constant::chunk_size_x - x;
    case SouthEast:
-      return std::min(Constant::chunk_size_x - x, Constant::chunk_size_y - y);
+      return std::min<uint8_t>(Constant::chunk_size_x - x, Constant::chunk_size_y - y);
    case South:
       return Constant::chunk_size_y - y;
    case SouthWest:
-      return std::min(Constant::chunk_size_y - y, x + 1);
+      return std::min<uint8_t>(Constant::chunk_size_y - y, x + 1);
    case West:
       return x + 1;
    case NorthWest:
-      return std::min(x + 1, y + 1);
+      return std::min<uint8_t>(x + 1, y + 1);
+   default: throw;
    }
 }
 
@@ -500,7 +494,7 @@ inline int8_t WorldSimulator::CheckLogic(const int direction, BasePixel* pixel, 
 
 void WorldSimulator::UpdateInput()
 {
-   InputManager* input = InputManager::Instance();
+   InputManager* input = &InputManager::Instance();
    const IVec2 mousePos = input->MousePosition();
    const IVec2 lastFramePos = input->LastMousePosition();
 
@@ -508,8 +502,8 @@ void WorldSimulator::UpdateInput()
    if (input->GetMouseButton(MouseLeft))
    {
       //TODO Improve
-      float distance = IVec2::Distance(mousePos, lastFramePos);
-      int steps = (distance / DEBUG_PenSize) + 1;
+      const float distance = IVec2::Distance(mousePos, lastFramePos);
+      const int steps = static_cast<int>((distance / DEBUG_PenSize)) + 1;
       for (int i = 0; i <= steps; i++)
       {
          IVec2 pixel = IVec2::Lerp(lastFramePos, mousePos, (1.0f / steps) * i);
@@ -674,6 +668,8 @@ bool WorldSimulator::Draw(Camera* camera)
 
    glActiveTexture(GL_TEXTURE0);
 
+   glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
+
    for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {
       for (int yVal = yChunkStart; yVal < yChunkEnd; yVal++)
@@ -693,10 +689,9 @@ bool WorldSimulator::Draw(Camera* camera)
          );
          model = glm::translate(model, modelPosition);
 
-         model = glm::scale(model, glm::vec3(128, 128, 1.0f));
+         model = glm::scale(model, glm::vec3(Constant::chunk_size_x, Constant::chunk_size_y, 1.0f));
 
          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
 
          glBindVertexArray(VAO);
@@ -762,7 +757,7 @@ void WorldSimulator::DebugShowChunkProcessPieces()
 
 void WorldSimulator::DebugDrawPixelRange()
 {
-   if (!InputManager::Instance()->GetKeyDown(KeyCode::R))
+   if (!InputManager::Instance().GetKeyDown(KeyCode::R))
       return;
 
    ClearWorld();

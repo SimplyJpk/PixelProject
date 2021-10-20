@@ -12,11 +12,12 @@
 class InputManager
 {
 public:
-   static InputManager* Instance();
+
+   static InputManager& Instance();
 
    void Update();
 
-   bool IsAnyKeyDown();
+   bool IsAnyKeyDown() const;
    bool IsMovementKeysDown();
 
    // Mouse
@@ -43,15 +44,17 @@ public:
    IVec2 MousePosition() const { return mouse_pos_; }
    IVec2 LastMousePosition() const { return mouse_last_frame_pos_; }
 
-   void operator=(InputManager const&) const { }
+   InputManager(const InputManager&) = delete;
+   InputManager(InputManager&&) = delete;
+   void operator=(const InputManager&) = delete;
+   void operator=(InputManager&&) = delete;
 
    bool IsShuttingDown() { return GetKeyDown(KeyCode::Escape); };
 protected:
    static inline bool IsValidKey(KeyCode& key_code);
 private:
-   InputManager();
-   InputManager(InputManager const&) { }
-   static InputManager* instance_;
+   InputManager() = default;
+   ~InputManager() = default;
 
    const Uint8* keyboard_ = nullptr;
    uint32_t mouse_ = 0;

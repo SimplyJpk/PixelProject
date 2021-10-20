@@ -99,7 +99,7 @@ void RenderTarget::DrawTargetQuad(const int x, const int y, const bool clear) co
 
 	 // DEBUG for drawing bloom
 	 static int status = 0;
-	 if (InputManager::Instance()->GetKeyDown(KeyCode::_9))
+	 if (InputManager::Instance().GetKeyDown(KeyCode::_9))
 	 {
 	    status += 1;
       if (status >= 3)
