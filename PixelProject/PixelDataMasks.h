@@ -24,11 +24,13 @@ namespace PMaskData
    inline constexpr static uint8_t light_count = 3;
    inline constexpr static uint8_t light_depth = 5 + 1;
 
+   inline constexpr static Uint32 remaining_bits = 0b0000'0000'0011'1111'1111'1111'0000'0000;
 
 }
 
 namespace PBit
 {
+	constexpr static Uint32 IndexMaxValue() { return static_cast<uint8_t>(1 << PMaskData::index_count) - 1; }
 	constexpr static Uint32 IndexBits() { return PMaskData::index_bits; }
 	constexpr static Uint32 IndexDepth() { return PMaskData::index_depth - 1; }
 	constexpr static uint8_t Index(const Uint32 pixel)
@@ -36,6 +38,7 @@ namespace PBit
 		return (((1 << PMaskData::index_count) - 1) & ((pixel & PMaskData::index_bits) >> (PMaskData::index_depth - 1)));
 	}
 
+	constexpr static Uint32 LifetimeMaxValue() { return static_cast<uint8_t>(1 << PMaskData::lifetime_count) - 1; }
 	constexpr static Uint32 LifetimeDepth() { return PMaskData::lifetime_depth - 1; }
 	constexpr static Uint32 LifetimeBits() { return PMaskData::lifetime_bits; }
 	constexpr static uint8_t Lifetime(const Uint32 pixel)
@@ -50,6 +53,7 @@ namespace PBit
 		pixel |= (life << (PMaskData::lifetime_depth - 1));
 	}
 
+	constexpr static Uint32 BehaviourMaxValue() { return static_cast<uint8_t>(1 << PMaskData::behaviour_count) - 1; }
 	constexpr static Uint32 BehaviourDepth() { return PMaskData::behaviour_depth - 1; }
 	constexpr static Uint32 BehaviourBits() { return PMaskData::behaviour_bits; }
 	constexpr static uint8_t Behaviour(const Uint32 pixel)
@@ -57,6 +61,7 @@ namespace PBit
 		return (((1 << PMaskData::behaviour_count) - 1) & ((pixel & PMaskData::behaviour_bits) >> (PMaskData::behaviour_depth - 1)));
 	}
 
+	constexpr static Uint32 LightMaxValue() { return static_cast<uint8_t>(1 << PMaskData::light_count) - 1; }
 	constexpr static Uint32 LightDepth() { return PMaskData::light_depth - 1; }
 	constexpr static Uint32 LightBits() { return PMaskData::light_bits; }
 	constexpr static uint8_t Light(const Uint32 pixel)
