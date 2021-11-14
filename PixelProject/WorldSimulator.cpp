@@ -285,9 +285,9 @@ void WorldSimulator::FixedUpdate()
                            // continue;
                            // //? DEBUG
 
-                           // If the pixel is empty, or something beat us to update it
+                           // If the pixel is empty space, or if the cell has already been updated we skip over it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
-                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(GetP_Index(localPixels[localIndex]));
+                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(PBit::Index(localPixels[localIndex]));
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
@@ -356,13 +356,14 @@ void WorldSimulator::FixedUpdate()
                                     neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                               }
 
-                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(GetP_Index(neighbourPixels[neighbourIndex]));
+                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(PBit::Index(neighbourPixels[neighbourIndex]));
 #ifdef DEBUG_GAME
                               if (pixelNeighbour == nullptr) {
                                  printf("WARNING: pixelNeighbour returned NULL\n");
                                  continue;
                               }
 #endif
+                              // Grab our neighbours pixel type to simplify the lookup.
                               const auto neighbourType = pixelNeighbour->GetType();
 
                               // Now we ask the Pixel what it wants to do with its neighbour

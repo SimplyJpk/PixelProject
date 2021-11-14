@@ -22,7 +22,7 @@ public:
 
    Uint32 GetNewPixel() override
    {
-      constexpr Uint32 lightLevel = 5 << GetPixelLightDepth();
+      constexpr Uint32 lightLevel = 5 << PBit::LightDepth();
 
       return lightLevel | pixel_index;
    }

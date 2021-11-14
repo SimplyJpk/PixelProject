@@ -1,6 +1,4 @@
 #pragma once
-
-#pragma once
 #include "BasePixel.h"
 
 class FirePixel : public BasePixel
@@ -51,7 +49,8 @@ public:
 
    Uint32 GetNewPixel() override
    {
-      constexpr Uint32 lightLevel = 7 << GetPixelLightDepth();
+      // We always want it to glow
+      constexpr Uint32 lightLevel = 7 << PBit::LightDepth();
 
       return lightLevel | pixel_index;
    }
