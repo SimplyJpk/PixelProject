@@ -8,6 +8,9 @@ public:
    std::string Name() override { return "Fire"; }
    bool IsUpdateable() override { return true; }
 
+   short minLifetime = 5;
+   uint8_t currentLifetime = PBit::LifetimeMaxValue();
+
    FirePixel()
    {
       colour_count = 3;
@@ -52,7 +55,26 @@ public:
       // We always want it to glow
       constexpr Uint32 lightLevel = 7 << PBit::LightDepth();
 
-      return lightLevel | pixel_index;
+      Uint32 lifeTime = currentLifetime-- << PBit::LifetimeDepth();
+      if (currentLifetime < minLifetime)
+          currentLifetime = PBit::LifetimeMaxValue();
+
+      return lightLevel | pixel_index | lifeTime;
+   }
+
+   bool PixelLifeTimeUpdate(Uint32& pixel, const uint8_t rng_value) override {
+      //TODO Maybe Make a subtract 1 method for lifetime so we don't have to do this every frame
+
+      // 1 in 5 chance to reduce lifetime.
+      if (rng_value < 80)
+         return true;
+
+      auto lifetime = PBit::Lifetime(pixel);
+      lifetime -= 1;
+
+      PBit::SetLifetime(pixel, lifetime);
+
+      return lifetime > 0;
    }
 
 private:
@@ -61,12 +83,6 @@ private:
       switch (type)
       {
       case E_PixelType::Space:
-         if (rng() % 30 == 0)
-         {
-            return_pixels[0] = E_PixelType::Space;
-            return_pixels[1] = E_PixelType::Space;
-            return E_LogicResults::DualReturnPixel;
-         }
          return rng() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
 
 
@@ -77,7 +93,7 @@ private:
 
 
       case E_PixelType::Wood:
-         if (rng() % 13 == 0)
+         if (rng() % 10 == 0)
          {
             return_pixels[0] = E_PixelType::Fire;
             return_pixels[1] = E_PixelType::Fire;
