@@ -104,6 +104,11 @@ private:
 
       case E_PixelType::Fire:
          return E_LogicResults::FailedUpdate;
+
+      case E_PixelType::Water:
+         return_pixels[0] = E_PixelType::Steam;
+         return_pixels[1] = E_PixelType::Space;
+         return E_LogicResults::DualReturnPixel;
       }
 
       return_pixels[0] = E_PixelType::Space;
