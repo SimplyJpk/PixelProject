@@ -21,9 +21,9 @@ public:
 
       pixel_update_order_count_ = 2;
       InsertPixelUpdateOrder(0, std::vector<short>() =
-                             {North, NorthEast, NorthWest, SouthEast, SouthWest, South});
+         { North, NorthEast, NorthWest, SouthEast, SouthWest, South });
       InsertPixelUpdateOrder(1, std::vector<short>() =
-                             {North, NorthWest, NorthEast, SouthWest, SouthEast, South});
+         { North, NorthWest, NorthEast, SouthWest, SouthEast, South });
    }
 
    int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
@@ -57,7 +57,7 @@ public:
 
       Uint32 lifeTime = currentLifetime-- << PBit::LifetimeDepth();
       if (currentLifetime < minLifetime)
-          currentLifetime = PBit::LifetimeMaxValue();
+         currentLifetime = PBit::LifetimeMaxValue();
 
       return lightLevel | pixel_index | lifeTime;
    }
