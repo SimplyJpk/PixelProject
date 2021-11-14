@@ -69,6 +69,9 @@ public:
    // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
 
+   // The Pixel updates itself without moving, pixels that use lifetimes may change their internal values.
+   virtual bool PixelLifeTimeUpdate(Uint32& pixelValue, uint8_t rnd_value) { return true;};
+
    virtual Uint32 GetNewPixel()
    {
       return pixel_index;

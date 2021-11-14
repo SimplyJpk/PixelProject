@@ -219,6 +219,8 @@ void WorldSimulator::FixedUpdate()
             // Submit a lambda object to the pool.
             post(thread_pool, [this, chunkIndex]() mutable
                {
+                  uint8_t chunkRngValue = rng() % 101;
+
                   //Now we know our chunk indexes we create a local group to simplify lookup
                   auto* localPixels = chunks[chunkIndex]->pixel_data;
 
@@ -288,6 +290,12 @@ void WorldSimulator::FixedUpdate()
                            // If the pixel is empty space, or if the cell has already been updated we skip over it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
                            BasePixel* pixel = world_data_handler.GetPixelFromIndex(PBit::Index(localPixels[localIndex]));
+
+                           // We update lifetime, and if it is 0 we kill the pixel
+                           if (!pixel->PixelLifeTimeUpdate(localPixels[localIndex], chunkRngValue)) {
+                              localPixels[localIndex] = 0;
+                              continue;
+                           }
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
