@@ -233,18 +233,27 @@ void WorldSimulator::FixedUpdate()
                         neighbourIsProcessed = isProcessed;
                         isPixelsLocal = true;
                      }
+
+                     const short xFrom = x_loop_from_to_dir_[piece][x_dir_][From];
+                     const short xTo = x_loop_from_to_dir_[piece][x_dir_][To];
+                     const short xDir = x_loop_from_to_dir_[piece][x_dir_][Dir];
+
+                     const short yFrom = y_loop_from_to_dir_[piece][y_dir_][From];
+                     const short yTo = y_loop_from_to_dir_[piece][y_dir_][To];
+                     const short yDir = y_loop_from_to_dir_[piece][y_dir_][Dir];
+
                      /// <summary>
                      /// Our Inner Chunk Update
                      /// </summary>
                      for (auto
-                        x = x_loop_from_to_dir_[piece][x_dir_][From];
-                        x != x_loop_from_to_dir_[piece][x_dir_][To];
-                        x += x_loop_from_to_dir_[piece][x_dir_][Dir])
+                        x = xFrom;
+                        x != xTo;
+                        x += xDir)
                      {
                         for (auto
-                           y = y_loop_from_to_dir_[piece][y_dir_][From];
-                           y != y_loop_from_to_dir_[piece][y_dir_][To];
-                           y += y_loop_from_to_dir_[piece][y_dir_][Dir])
+                           y = yFrom;
+                           y != yTo;
+                           y += yDir)
                         {
                            const short localIndex = (y * Constant::chunk_size_x) + x;
 
