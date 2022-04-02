@@ -69,6 +69,9 @@ public:
 
    //? SDL_Texture* world_texture = nullptr;
 
+   // {0,0}, {1,1}, {0,1}, {1,0} as array
+   uint8_t chunkUpdateOffset[4][2] = { { 0,0 }, {1,1}, {0,1}, {1,0} };
+
    bool DEBUG_DrawChunkLines = false;
    bool DEBUG_DropSand = false;
    int DEBUG_SandDropRate = 20;
@@ -161,7 +164,7 @@ public:
    bool Draw(Camera* camera) override;
 
 protected:
-   uint8_t GetDistanceToBorder(short x, short y, short direction);
+   uint8_t GetDistanceToBorder(short x, short y, short direction) const;
    // Ugly, can we improve this?
    short x_dir_ = -1, y_dir_ = 1;
 
@@ -226,5 +229,5 @@ private:
    void DebugShowChunkProcessPieces();
    void DebugDrawPixelRange();
 
-   inline static Xoshiro256PlusPlus rng;
+   Xoshiro256PlusPlus rng;
 };

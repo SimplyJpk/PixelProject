@@ -173,7 +173,7 @@ void RenderTarget::SetupBuffer(unsigned int width, unsigned int height)
 
 void RenderTarget::SetupVertex()
 {
-	 float vertexData[] = {
+	 static const float vertexData[] = {
 			// positions        // texture Coords
 			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
 			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
