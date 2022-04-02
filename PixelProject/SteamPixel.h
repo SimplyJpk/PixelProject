@@ -4,12 +4,13 @@
 class SteamPixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Steam; }
-   std::string Name() override { return "Steam"; }
-   bool IsUpdateable() override { return true; }
 
    SteamPixel()
    {
+      pixel_type = E_PixelType::Steam;
+      is_updateable = true;
+      SetPixelName("Steam");
+
       colour_count = 2;
       // Browns
       type_colours[0] = 0xC7D5E0FF;

@@ -291,6 +291,9 @@ void WorldSimulator::FixedUpdate()
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
                            BasePixel* pixel = world_data_handler.GetPixelFromIndex(PBit::Index(localPixels[localIndex]));
 
+                           if (!pixel->is_updateable)
+                              continue;
+
                            // We update lifetime, and if it is 0 we kill the pixel
                            if (!pixel->PixelLifeTimeUpdate(localPixels[localIndex], chunkRngValue)) {
                               localPixels[localIndex] = 0;
@@ -315,7 +318,7 @@ void WorldSimulator::FixedUpdate()
                               short neighbourIndex;
                               uint32_t pixelIndexChange = 0;
 
-                              uint8_t maxPixelRange = pixel->MaxUpdateRange();
+                              uint8_t maxPixelRange = pixel->MaxUpdateRange;
                               uint8_t borderRange = GetDistanceToBorder(x, y, direction);
 
                               switch (piece)
@@ -372,7 +375,7 @@ void WorldSimulator::FixedUpdate()
                               }
 #endif
                               // Grab our neighbours pixel type to simplify the lookup.
-                              const auto neighbourType = pixelNeighbour->GetType();
+                              const auto neighbourType = pixelNeighbour->pixel_type;
 
                               // Now we ask the Pixel what it wants to do with its neighbour
                               const int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
@@ -812,7 +815,7 @@ void WorldSimulator::DebugDrawPixelRange()
    world_data_handler.FillWithPixelUpdateOrders(chunk_direction_order);
 
    BasePixel* pixel = paint_manager->selected_pixel;
-   short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange();
+   short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange;
 
    const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
    for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)

@@ -19,7 +19,7 @@ public:
 
    // Information from Pixel Colours
    // Returns the name of a PixelType from a Pixel Colour
-   std::string GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->Name(); }
+   char* GetPixelName(const Uint32 pixel) { return pixel_colour_map_[pixel]->pixel_name; }
    // Returns the BasePixel based on the pixel colour passed in
    inline BasePixel* GetPixelFromPixelColour(const Uint32 pixel) { return pixel_colour_map_[pixel]; }
 
@@ -32,7 +32,7 @@ public:
    // Information from PixelType (Enum)
    BasePixel* GetPixelFromType(const E_PixelType type) { return pixel_types_[type]; }
    // Returns the name of a PixelType from the PixelType passed in
-   std::string GetPixelName(const E_PixelType type) { return pixel_types_[type]->Name(); }
+   char* GetPixelName(const E_PixelType type) { return pixel_types_[type]->pixel_name; }
 
    // Returns the number of main pixel types that exist in the game
    int PixelTypeCount() const { return pixel_type_counter_; }
@@ -58,13 +58,13 @@ public:
       pixel_type_list_[pixel_type_counter_] = pixel;
       pixel_type_counter_++;
 
-      pixel_types_[pixel->GetType()] = pixel;
+      pixel_types_[pixel->pixel_type] = pixel;
       // Add our colours to our Lookup table
       for (short i = 0; i < pixel->colour_count; i++)
       {
          if (pixel_colour_map_.find(pixel->type_colours[i]) != pixel_colour_map_.end())
          {
-            printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixel->Name().c_str(), i);
+            printf("WorldDataHandler already contains a Pixel of type '%s' with Colour Index: '%i'", pixel->pixel_name, i);
          }
          pixel_colour_map_.insert(std::make_pair(pixel->type_colours[i], pixel));
       }

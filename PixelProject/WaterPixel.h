@@ -4,12 +4,15 @@
 class WaterPixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Water; }
-   std::string Name() override { return "Water"; }
-   bool IsUpdateable() override { return true; }
 
    WaterPixel()
    {
+      pixel_type = E_PixelType::Water;
+      is_updateable = true;
+      SetPixelName("Water");
+
+      MaxUpdateRange = 8;
+
       colour_count = 3;
       // Browns
       type_colours[0] = 0x0000FFFF;
@@ -29,7 +32,7 @@ public:
                              });
    }
 
-   inline int8_t MaxUpdateRange() override { return 8; }
+   //x inline int8_t MaxUpdateRange() override { return 8; }
 
    int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
    int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }

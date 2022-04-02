@@ -4,12 +4,13 @@
 class AcidPixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Acid; }
-   std::string Name() override { return "Acid"; }
-   bool IsUpdateable() override { return true; }
 
    AcidPixel()
    {
+      pixel_type = E_PixelType::Acid;
+      is_updateable = true;
+      SetPixelName("Acid");
+
       colour_count = 3;
       // Yellows
       type_colours[0] = 0xB0BF1AFF;

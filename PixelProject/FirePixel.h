@@ -4,15 +4,15 @@
 class FirePixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Fire; }
-   std::string Name() override { return "Fire"; }
-   bool IsUpdateable() override { return true; }
-
    short minLifetime = 5;
    uint8_t currentLifetime = PBit::LifetimeMaxValue();
 
    FirePixel()
    {
+      pixel_type = E_PixelType::Fire;
+      is_updateable = true;
+      SetPixelName("Fire");
+
       colour_count = 3;
       // Browns
       type_colours[0] = 0xE25822FF;
