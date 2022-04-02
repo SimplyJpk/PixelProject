@@ -545,6 +545,18 @@ void WorldSimulator::UpdateInput()
       }
    }
 
+   if (input->GetKeyButton(KeyCode::I))
+   {
+      game_settings->IncreaseFixedTimeStep(1);
+      printf("Fixed Update Speed: %i\n", game_settings->target_sand_updates_per_seconds);
+   }
+   else if (input->GetKeyButton(KeyCode::U))
+   {
+      game_settings->IncreaseFixedTimeStep(-1);
+      game_settings->IncreaseFixedTimeStep(-1);
+      printf("Fixed Update Speed: %i\n", game_settings->target_sand_updates_per_seconds);
+   }
+
    if (input->GetKeyDown(KeyCode::D))
    {
       DEBUG_DrawChunkLines = !DEBUG_DrawChunkLines;
