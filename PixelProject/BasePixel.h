@@ -49,7 +49,7 @@ public:
    short pixel_index = -1;
    short colour_count = 0;
 
-   Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : rng() % (colour_count))]; }
+   Uint32 GetRandomColour() const { return type_colours[(colour_count <= 1 ? 0 : rng() % (colour_count))]; }
    Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
 
    float render_colours[Constant::pixel_max_colour_count][4] = { 0.0f };
@@ -82,7 +82,7 @@ protected:
       }
    };
 
-   void InsertPixelUpdateOrder(const int index, std::vector<short> directions)
+   void InsertPixelUpdateOrder(const int index, const std::vector<short> directions)
    {
       if (index < Constant::pixel_max_pixel_update_order)
       {
