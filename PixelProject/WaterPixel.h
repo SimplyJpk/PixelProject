@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class WaterPixel : public BasePixel
+class WaterPixel final : public BasePixel
 {
 public:
 
