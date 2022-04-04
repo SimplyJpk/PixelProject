@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class GoldPixel : public BasePixel
+class GoldPixel final : public BasePixel
 {
 public:
 

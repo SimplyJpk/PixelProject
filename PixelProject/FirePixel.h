@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class FirePixel : public BasePixel
+class FirePixel final : public BasePixel
 {
 public:
    short minLifetime = 5;
