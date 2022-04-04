@@ -25,74 +25,82 @@ public:
    }
 
 protected:
-   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (direction)
+      switch (data.Dir())
       {
       case E_ChunkDirection::North:
-         return NorthLogic(neighbour, pixel_results);
+         NorthLogic(data);
+         return;
       case E_ChunkDirection::East:
       case E_ChunkDirection::West:
       case E_ChunkDirection::SouthEast:
       case E_ChunkDirection::South:
       case E_ChunkDirection::SouthWest:
-         return Logic(neighbour, pixel_results);
+         Logic(data);
+         return;
       default:
-         return E_LogicResults::FailedUpdate;
+         data.SetResult(E_LogicResults::FailedUpdate);
       }
    }
 
 private:
-   inline int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2])
+   void NorthLogic(PixelUpdateResult& data)
    {
-      if (type == E_PixelType::Water)
+      if (data.NeighbourType() == E_PixelType::Water)
       {
-         return_pixels[0] = E_PixelType::Water;
-         return E_LogicResults::FirstReturnPixel;
+         data.SetLocal(E_PixelType::Water);
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.SetResult(E_LogicResults::FailedUpdate);
    }
 
-   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
+   void Logic(PixelUpdateResult& data)
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+         data.SetResult(E_LogicResults::SuccessUpdate);
+         return;
 
          // 3 in 4 chance to move down in water, otherwise we convert the Acid into water
       case E_PixelType::Water:
-         if (rng() % 10 != 0)
-            return E_LogicResults::SuccessUpdate;
+         if (rng() % 10 != 0) {
+            data.SetResult(E_LogicResults::SuccessUpdate);
+            return;
+         }
          else {
-            return_pixels[0] = E_PixelType::Water;
-            return E_LogicResults::FirstReturnPixel;
+            data.SetLocal(E_PixelType::Water);
+            return;
          }
 
       case E_PixelType::Acid:
-         if (rng() % 6 == 0)
-            return E_LogicResults::NoChange;
-         return E_LogicResults::FailedUpdate;
+         if (rng() % 6 == 0) {
+            data.SetResult(E_LogicResults::NoChange);
+            return;
+         }
+         data.SetResult(E_LogicResults::FailedUpdate);
+         return;
 
       case E_PixelType::Ground:
-         return E_LogicResults::FailedUpdate;
+         data.SetResult(E_LogicResults::FailedUpdate);
+         return;
 
       default:
          int test = rng() % 5;
          if (test <= 1)
          {
-            return_pixels[0] = E_PixelType::Space;
-            return_pixels[1] = E_PixelType::Acid;
-            return E_LogicResults::DualReturnPixel;
+            data.SetLocalAndNeighbour(E_PixelType::Space, E_PixelType::Acid);
+            return;
          }
          else if (test == 2)
          {
-            return_pixels[0] = E_PixelType::Space;
-            return_pixels[1] = E_PixelType::Space;
-            return E_LogicResults::DualReturnPixel;
+            data.SetLocalAndNeighbour(E_PixelType::Space, E_PixelType::Space);
+            return;
          }
 
-         return E_LogicResults::FailedUpdate;
+         data.SetResult(E_LogicResults::FailedUpdate);
+         return;
       }
    }
 };

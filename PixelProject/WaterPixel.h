@@ -35,29 +35,32 @@ public:
    //x inline int8_t MaxUpdateRange() override { return 8; }
 
 protected:
-   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (direction)
+      switch (data.Dir())
       {
       case E_ChunkDirection::East:
       case E_ChunkDirection::West:
       case E_ChunkDirection::SouthEast:
       case E_ChunkDirection::South:
       case E_ChunkDirection::SouthWest:
-         return Logic(neighbour);
+         Logic(data);
+         return;
       default:
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
       }
    }
 
 private:
-   inline int8_t Logic(const E_PixelType type)
+   void Logic(PixelUpdateResult& data)
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+         data.Pass();
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
+      return;
    }
 };

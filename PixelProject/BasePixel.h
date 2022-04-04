@@ -6,6 +6,7 @@
 #include "XoshiroCpp.hpp"
 #include <random>
 #include "PixelDataMasks.h"
+#include "PixelUpdateResult.h"
 
 #include "ColourUtility.h"
 
@@ -59,7 +60,8 @@ public:
 
 
    // Pixel Logic, this replaces all the quardrant logic into one virtual call
-   virtual int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) = 0;
+   // virtual int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) = 0;
+   virtual void UpdatePixel(PixelUpdateResult& data) = 0;
 
    // The Pixel updates itself without moving, pixels that use lifetimes may change their internal values.
    virtual bool PixelLifeTimeUpdate(Uint32& pixelValue, uint8_t rnd_value) { return true;}

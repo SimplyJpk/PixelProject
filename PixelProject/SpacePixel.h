@@ -25,9 +25,9 @@ public:
    }
 
 protected:
-   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
 
 private:
