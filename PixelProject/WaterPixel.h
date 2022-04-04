@@ -34,14 +34,24 @@ public:
 
    //x inline int8_t MaxUpdateRange() override { return 8; }
 
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+protected:
+   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   {
+      switch (direction)
+      {
+      case E_ChunkDirection::East:
+      case E_ChunkDirection::West:
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+         return Logic(neighbour);
+      default:
+         return E_LogicResults::FailedUpdate;
+      }
+   }
 
 private:
-   static int8_t Logic(const E_PixelType type)
+   inline int8_t Logic(const E_PixelType type)
    {
       switch (type)
       {
@@ -50,6 +60,4 @@ private:
       }
       return E_LogicResults::FailedUpdate;
    }
-
-private:
 };

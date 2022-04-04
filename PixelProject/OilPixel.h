@@ -33,15 +33,26 @@ public:
                              });
    }
 
-   int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return NorthLogic(type, 4); }
-   int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return NorthLogic(type, 4); }
-   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return NorthLogic(type); }
-
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+protected:
+   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   {
+      switch (direction)
+      {
+      case E_ChunkDirection::North:
+         return NorthLogic(neighbour);
+      case E_ChunkDirection::NorthEast:
+      case E_ChunkDirection::NorthWest:
+         return NorthLogic(neighbour, 4);
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+      case E_ChunkDirection::West:
+      case E_ChunkDirection::East:
+         return Logic(neighbour);
+      default:
+         return E_LogicResults::FailedUpdate;
+      }
+   }
 
 private:
    inline int8_t NorthLogic(const E_PixelType type, const int odds = 2)
@@ -63,6 +74,4 @@ private:
       }
       return E_LogicResults::FailedUpdate;
    }
-
-private:
 };

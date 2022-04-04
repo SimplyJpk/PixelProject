@@ -24,5 +24,11 @@ public:
       return pixel_index;
    }
 
+protected:
+   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   {
+      return E_LogicResults::FailedUpdate;
+   }
+
 private:
 };

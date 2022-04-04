@@ -25,7 +25,25 @@ public:
    }
 
 protected:
-   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   {
+      switch (direction)
+      {
+      case E_ChunkDirection::North:
+         return NorthLogic(neighbour, pixel_results);
+      case E_ChunkDirection::East:
+      case E_ChunkDirection::West:
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+         return Logic(neighbour, pixel_results);
+      default:
+         return E_LogicResults::FailedUpdate;
+      }
+   }
+
+private:
+   inline int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2])
    {
       if (type == E_PixelType::Water)
       {
@@ -34,12 +52,7 @@ protected:
       }
       return E_LogicResults::FailedUpdate;
    }
-   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-private:
+
    inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
    {
       switch (type)
