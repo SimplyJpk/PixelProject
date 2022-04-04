@@ -310,8 +310,8 @@ void WorldSimulator::FixedUpdate()
                               short neighbourIndex;
                               uint32_t pixelIndexChange = 0;
 
-                              uint8_t maxPixelRange = pixel->MaxUpdateRange;
-                              uint8_t borderRange = GetDistanceToBorder(x, y, direction);
+                              //TODO uint8_t maxPixelRange = pixel->MaxUpdateRange;
+                              //TODO uint8_t borderRange = GetDistanceToBorder(x, y, direction);
 
                               switch (piece)
                               {

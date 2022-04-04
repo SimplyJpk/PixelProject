@@ -38,7 +38,8 @@ public:
       return lightLevel | pixel_index | lifeTime;
    }
 
-   bool PixelLifeTimeUpdate(Uint32& pixel, const uint8_t rng_value) override {
+   bool PixelLifeTimeUpdate(Uint32& pixel, const uint8_t rng_value) override
+   {
       //TODO Maybe Make a subtract 1 method for lifetime so we don't have to do this every frame
 
       // 1 in 5 chance to reduce lifetime.
