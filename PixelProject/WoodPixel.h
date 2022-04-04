@@ -4,12 +4,13 @@
 class WoodPixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Wood; }
-   std::string Name() override { return "Wood"; }
-   bool IsUpdateable() override { return false; }
 
    WoodPixel()
    {
+      pixel_type = E_PixelType::Wood;
+      is_updateable = false;
+      SetPixelName("Wood");
+
       colour_count = 3;
       // Browns
       type_colours[0] = 0x421010FF;

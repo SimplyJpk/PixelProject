@@ -25,7 +25,7 @@ public:
 
    const short texture_count = static_cast<int>(E_PixelType::COUNT);
 
-   std::string SelectedPixelName() const { return selected_pixel->Name(); }
+   char* SelectedPixelName() const { return selected_pixel->pixel_name; }
 
    void UpdateInput()
    {

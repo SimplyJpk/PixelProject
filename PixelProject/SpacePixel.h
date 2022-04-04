@@ -4,12 +4,13 @@
 class SpacePixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Space; }
-   std::string Name() override { return "Space"; }
-   bool IsUpdateable() override { return false; }
 
    SpacePixel()
    {
+      pixel_type = E_PixelType::Space;
+      is_updateable = false;
+      SetPixelName("Space");
+
       colour_count = 1;
       // Browns
       type_colours[0] = 0x00000000;

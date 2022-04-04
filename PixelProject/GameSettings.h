@@ -29,6 +29,12 @@ struct GameSettings
    uint8_t target_sand_updates_per_seconds = 60;
    double target_sand_update_time = 1000.0 / target_sand_updates_per_seconds;
 
+   void IncreaseFixedTimeStep(const int8_t count)
+   {
+      target_sand_updates_per_seconds += count;
+      target_sand_update_time = 1000.0 / target_sand_updates_per_seconds;
+   }
+
    float target_frames_per_second = 60.0f;
    float calculated_frame_delay = 1000.0f / target_frames_per_second;
    // Max number of updates we want the fixed update to run, this prevents complete lockup.

@@ -12,12 +12,16 @@
 using namespace PixelProject;
 using namespace XoshiroCpp;
 
+constexpr auto MAX_PIXEL_NAME_LENGTH = 10;
+
 class BasePixel
 {
 public:
-   virtual E_PixelType GetType() = 0;
-   virtual std::string Name() = 0;
-   virtual bool IsUpdateable() = 0;
+   E_PixelType pixel_type = E_PixelType::UNDEFINED;
+   char pixel_name[MAX_PIXEL_NAME_LENGTH] = "None";
+   
+   bool is_updateable = false;
+   bool ignore_pixel_update = true;
 
    inline static Xoshiro256PlusPlus rng;
 
@@ -50,7 +54,8 @@ public:
 
    float render_colours[Constant::pixel_max_colour_count][4] = { 0.0f };
 
-   virtual inline int8_t MaxUpdateRange() { return 1; }
+   uint8_t MaxUpdateRange = 1;
+   //x virtual inline int8_t MaxUpdateRange() { return 1; }
 
    // Calls the derived North (UP) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
@@ -68,6 +73,9 @@ public:
    virtual int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
    // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
    virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+
+   // The Pixel updates itself without moving, pixels that use lifetimes may change their internal values.
+   virtual bool PixelLifeTimeUpdate(Uint32& pixelValue, uint8_t rnd_value) { return true;}
 
    virtual Uint32 GetNewPixel()
    {
@@ -98,6 +106,14 @@ protected:
             else
                pixel_update_order_[index][i] = E_ChunkDirection::DIR_COUNT;
          }
+      }
+   }
+
+   void SetPixelName(const char* name)
+   {
+      if (strlen(name) > 0)
+      {
+         strcpy_s(pixel_name, MAX_PIXEL_NAME_LENGTH, name);
       }
    }
 private:

@@ -160,7 +160,6 @@ void WorldSimulator::FixedUpdate()
    }
    //TODO Remove above
 
-   uint8_t xStage, yStage;
    int chunkUpdates = 0;
 
    x_dir_ = (x_dir_ == 0 ? 1 : 0); // rng() % 2;
@@ -186,27 +185,11 @@ void WorldSimulator::FixedUpdate()
    // Update the world in a checker pattern
    for (auto i = 0; i < 4; i++)
    {
-      switch (i)
-      {
-      case 0: xStage = 0;
-         yStage = 0;
-         break;
-      case 1: xStage = 1;
-         yStage = 1;
-         break;
-      case 2: xStage = 1;
-         yStage = 0;
-         break;
-      case 3: xStage = 0;
-         yStage = 1;
-         break;
-      }
-
-      for (auto xChunk = xStage; xChunk < world_dimensions.x; xChunk += 2)
+      for (auto xChunk = chunkUpdateOffset[i][0]; xChunk < world_dimensions.x; xChunk += 2)
       {
          if (xChunk >= world_dimensions.x)
             continue;
-         for (auto yChunk = world_dimensions.y - (yStage + 1); yChunk >= 0; yChunk -= 2)
+         for (auto yChunk = world_dimensions.y - (chunkUpdateOffset[i][1] + 1); yChunk >= 0; yChunk -= 2)
          {
             if (yChunk < 0)
                continue;
@@ -219,6 +202,8 @@ void WorldSimulator::FixedUpdate()
             // Submit a lambda object to the pool.
             post(thread_pool, [this, chunkIndex]() mutable
                {
+                  const uint8_t chunkRngValue = rng() % 101;
+
                   //Now we know our chunk indexes we create a local group to simplify lookup
                   auto* localPixels = chunks[chunkIndex]->pixel_data;
 
@@ -226,8 +211,6 @@ void WorldSimulator::FixedUpdate()
 
                   bool* isProcessed = is_chunk_processed[chunkIndex];
                   bool* neighbourIsProcessed = isProcessed;
-
-                  E_PixelType returnPixels[2];
 
                   WorldChunk** neighbourChunks = chunks[chunkIndex]->neighbour_chunks;
 
@@ -242,7 +225,7 @@ void WorldSimulator::FixedUpdate()
                   };
 
                   bool isPixelsLocal = true;
-                  for (auto piece : pieceOrder)
+                  for (const auto piece : pieceOrder)
                   {
                      if (piece == 4)
                      {
@@ -250,18 +233,27 @@ void WorldSimulator::FixedUpdate()
                         neighbourIsProcessed = isProcessed;
                         isPixelsLocal = true;
                      }
+
+                     const short xFrom = x_loop_from_to_dir_[piece][x_dir_][From];
+                     const short xTo = x_loop_from_to_dir_[piece][x_dir_][To];
+                     const short xDir = x_loop_from_to_dir_[piece][x_dir_][Dir];
+
+                     const short yFrom = y_loop_from_to_dir_[piece][y_dir_][From];
+                     const short yTo = y_loop_from_to_dir_[piece][y_dir_][To];
+                     const short yDir = y_loop_from_to_dir_[piece][y_dir_][Dir];
+
                      /// <summary>
                      /// Our Inner Chunk Update
                      /// </summary>
                      for (auto
-                        x = x_loop_from_to_dir_[piece][x_dir_][From];
-                        x != x_loop_from_to_dir_[piece][x_dir_][To];
-                        x += x_loop_from_to_dir_[piece][x_dir_][Dir])
+                        x = xFrom;
+                        x != xTo;
+                        x += xDir)
                      {
                         for (auto
-                           y = y_loop_from_to_dir_[piece][y_dir_][From];
-                           y != y_loop_from_to_dir_[piece][y_dir_][To];
-                           y += y_loop_from_to_dir_[piece][y_dir_][Dir])
+                           y = yFrom;
+                           y != yTo;
+                           y += yDir)
                         {
                            const short localIndex = (y * Constant::chunk_size_x) + x;
 
@@ -285,13 +277,24 @@ void WorldSimulator::FixedUpdate()
                            // continue;
                            // //? DEBUG
 
-                           // If the pixel is empty, or something beat us to update it
+                           // If the pixel is empty space, or if the cell has already been updated we skip over it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
-                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(GetP_Index(localPixels[localIndex]));
+                           BasePixel* pixel = world_data_handler.GetPixelFromIndex(PBit::Index(localPixels[localIndex]));
+
+                           if (!pixel->is_updateable)
+                              continue;
+
+                           // We update lifetime, and if it is 0 we kill the pixel
+                           if (!pixel->PixelLifeTimeUpdate(localPixels[localIndex], chunkRngValue)) {
+                              localPixels[localIndex] = 0;
+                              continue;
+                           }
 
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
                            {
+                              E_PixelType returnPixels[2];
+
                               short direction = pixelDirOrder[directionIndex];
                               // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
                               if (direction == DIR_COUNT) break;
@@ -307,7 +310,7 @@ void WorldSimulator::FixedUpdate()
                               short neighbourIndex;
                               uint32_t pixelIndexChange = 0;
 
-                              uint8_t maxPixelRange = pixel->MaxUpdateRange();
+                              uint8_t maxPixelRange = pixel->MaxUpdateRange;
                               uint8_t borderRange = GetDistanceToBorder(x, y, direction);
 
                               switch (piece)
@@ -356,14 +359,15 @@ void WorldSimulator::FixedUpdate()
                                     neighbourIndex = localIndex + static_cast<short>(pixelIndexChange);
                               }
 
-                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(GetP_Index(neighbourPixels[neighbourIndex]));
+                              auto* pixelNeighbour = world_data_handler.GetPixelFromIndex(PBit::Index(neighbourPixels[neighbourIndex]));
 #ifdef DEBUG_GAME
                               if (pixelNeighbour == nullptr) {
                                  printf("WARNING: pixelNeighbour returned NULL\n");
                                  continue;
                               }
 #endif
-                              const auto neighbourType = pixelNeighbour->GetType();
+                              // Grab our neighbours pixel type to simplify the lookup.
+                              const auto neighbourType = pixelNeighbour->pixel_type;
 
                               // Now we ask the Pixel what it wants to do with its neighbour
                               const int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
@@ -420,6 +424,7 @@ void WorldSimulator::FixedUpdate()
       }
       while (thread_pool_tasks > 0)
       {
+         //TODO Can this be improved? Waiting for 1 creates overhead and slows down the application, but a hard wait likely isn't the most efficient
          // Sleep(1);
       }
    }
@@ -436,7 +441,7 @@ void WorldSimulator::FixedUpdate()
    }
 }
 
-inline uint8_t WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction)
+inline uint8_t WorldSimulator::GetDistanceToBorder(const short x, const short y, const short direction) const
 {
    switch (direction)
    {
@@ -534,6 +539,18 @@ void WorldSimulator::UpdateInput()
       {
          DEBUG_PenSize = 1;
       }
+   }
+
+   if (input->GetKeyButton(KeyCode::I))
+   {
+      game_settings->IncreaseFixedTimeStep(1);
+      printf("Fixed Update Speed: %i\n", game_settings->target_sand_updates_per_seconds);
+   }
+   else if (input->GetKeyButton(KeyCode::U))
+   {
+      game_settings->IncreaseFixedTimeStep(-1);
+      game_settings->IncreaseFixedTimeStep(-1);
+      printf("Fixed Update Speed: %i\n", game_settings->target_sand_updates_per_seconds);
    }
 
    if (input->GetKeyDown(KeyCode::D))
@@ -669,7 +686,7 @@ bool WorldSimulator::Draw(Camera* camera)
    glActiveTexture(GL_TEXTURE0);
 
    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
-
+   
    for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
    {
       for (int yVal = yChunkStart; yVal < yChunkEnd; yVal++)
@@ -698,11 +715,12 @@ bool WorldSimulator::Draw(Camera* camera)
          glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
       }
    }
+
    //? //TODO Replace this with a better zoom
    //? SDL_Rect zoomrect = world_render_rect;
    //? zoomrect.w *= DEBUG_ZoomLevel;
    //? zoomrect.h *= DEBUG_ZoomLevel;
-
+   
    return true;
 }
 
@@ -791,7 +809,7 @@ void WorldSimulator::DebugDrawPixelRange()
    world_data_handler.FillWithPixelUpdateOrders(chunk_direction_order);
 
    BasePixel* pixel = paint_manager->selected_pixel;
-   short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange();
+   short maxPixelRange = paint_manager->selected_pixel->MaxUpdateRange;
 
    const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
    for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)

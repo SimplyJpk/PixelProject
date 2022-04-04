@@ -4,12 +4,14 @@
 class GroundPixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Ground; }
-   std::string Name() override { return "Ground"; }
-   bool IsUpdateable() override { return false; }
 
    GroundPixel()
    {
+      pixel_type = E_PixelType::Ground;
+      is_updateable = false;
+      SetPixelName("Ground");
+      
+
       colour_count = 3;
       // Browns
       type_colours[0] = 0x964b00FF;
@@ -22,7 +24,7 @@ public:
 
    Uint32 GetNewPixel() override
    {
-      constexpr Uint32 lightLevel = 5 << GetPixelLightDepth();
+      constexpr Uint32 lightLevel = 5 << PBit::LightDepth();
 
       return lightLevel | pixel_index;
    }

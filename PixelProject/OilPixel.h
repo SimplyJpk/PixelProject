@@ -3,15 +3,15 @@
 #pragma once
 #include "BasePixel.h"
 
-class OilPixel : public BasePixel
+class OilPixel final : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Oil; }
-   std::string Name() override { return "Oil"; }
-   bool IsUpdateable() override { return true; }
-
    OilPixel()
    {
+      pixel_type = E_PixelType::Oil;
+      is_updateable = true;
+      SetPixelName("Oil");
+
       colour_count = 3;
       // Browns
       type_colours[0] = 0x373A36FF;

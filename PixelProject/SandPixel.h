@@ -4,12 +4,13 @@
 class SandPixel : public BasePixel
 {
 public:
-   E_PixelType GetType() override { return E_PixelType::Sand; }
-   std::string Name() override { return "Sand"; }
-   bool IsUpdateable() override { return true; }
 
    SandPixel()
    {
+      pixel_type = E_PixelType::Sand;
+      is_updateable = true;
+      SetPixelName("Sand");
+
       colour_count = 3;
       // Yellows
       type_colours[0] = 0xE2D9AEFF;
