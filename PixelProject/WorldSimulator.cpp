@@ -370,8 +370,9 @@ void WorldSimulator::FixedUpdate()
                               const auto neighbourType = pixelNeighbour->pixel_type;
 
                               // Now we ask the Pixel what it wants to do with its neighbour
-                              const int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
-                                                               returnPixels);
+                              const int8_t result = pixel->UpdatePixel(neighbourType, returnPixels, pixelDirOrder[directionIndex]);
+                                 
+                              // CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType, returnPixels);
 
                               if (DEBUG_PrintPixelData)
                               {
@@ -469,33 +470,6 @@ inline bool WorldSimulator::DoesChunkHaveNeighbour(WorldChunk** neighbours, cons
 {
    return neighbours[direction] != nullptr;
 }
-
-inline int8_t WorldSimulator::CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
-   E_PixelType* return_pixels)
-{
-   switch (direction)
-   {
-   case North:
-      return pixel->NorthLogic(neighbour_type, return_pixels);
-   case NorthEast:
-      return pixel->NorthEastLogic(neighbour_type, return_pixels);
-   case East:
-      return pixel->EastLogic(neighbour_type, return_pixels);
-   case SouthEast:
-      return pixel->SouthEastLogic(neighbour_type, return_pixels);
-   case South:
-      return pixel->SouthLogic(neighbour_type, return_pixels);
-   case SouthWest:
-      return pixel->SouthWestLogic(neighbour_type, return_pixels);
-   case West:
-      return pixel->WestLogic(neighbour_type, return_pixels);
-   case NorthWest:
-      return pixel->NorthWestLogic(neighbour_type, return_pixels);
-   default:
-      return E_LogicResults::FailedUpdate;
-   }
-}
-
 
 void WorldSimulator::UpdateInput()
 {

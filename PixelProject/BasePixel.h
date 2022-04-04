@@ -57,22 +57,9 @@ public:
    uint8_t MaxUpdateRange = 1;
    //x virtual inline int8_t MaxUpdateRange() { return 1; }
 
-   // Calls the derived North (UP) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived North-East (UP RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived East (RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived South-East (DOWN RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived South (DOWN) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived South-West (DOWN RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived West (RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+
+   // Pixel Logic, this replaces all the quardrant logic into one virtual call
+   virtual int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) = 0;
 
    // The Pixel updates itself without moving, pixels that use lifetimes may change their internal values.
    virtual bool PixelLifeTimeUpdate(Uint32& pixelValue, uint8_t rnd_value) { return true;}
