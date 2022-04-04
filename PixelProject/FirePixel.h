@@ -55,9 +55,9 @@ public:
    }
 
 protected:
-   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (direction)
+      switch (data.Dir())
       {
       case E_ChunkDirection::North:
       case E_ChunkDirection::NorthEast:
@@ -65,47 +65,48 @@ protected:
       case E_ChunkDirection::SouthEast:
       case E_ChunkDirection::South:
       case E_ChunkDirection::SouthWest:
-         return Logic(neighbour, pixel_results);
+         Logic(data);
+         return;
       default:
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
       }
    }
 
 private:
-   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
+   void Logic(PixelUpdateResult& data)
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return rng() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         rng() % 2 == 0 ? data.Pass() : data.Fail();
+         return;
 
 
       case E_PixelType::Oil:
-         return_pixels[0] = E_PixelType::Fire;
-         return_pixels[1] = E_PixelType::Fire;
-         return E_LogicResults::DualReturnPixel;
+         data.SetLocalAndNeighbour(E_PixelType::Fire, E_PixelType::Fire);
+         return;
 
 
       case E_PixelType::Wood:
          if (rng() % 10 == 0)
          {
-            return_pixels[0] = E_PixelType::Fire;
-            return_pixels[1] = E_PixelType::Fire;
-            return E_LogicResults::DualReturnPixel;
+            data.SetLocalAndNeighbour(E_PixelType::Fire, E_PixelType::Fire);
+            return;
          }
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
+         return;
 
 
       case E_PixelType::Fire:
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
+         return;
 
       case E_PixelType::Water:
-         return_pixels[0] = E_PixelType::Steam;
-         return_pixels[1] = E_PixelType::Space;
-         return E_LogicResults::DualReturnPixel;
+         data.SetLocalAndNeighbour(E_PixelType::Steam, E_PixelType::Space);
+         return;
       }
 
-      return_pixels[0] = E_PixelType::Space;
-      return E_LogicResults::FirstReturnPixel;
+      data.SetLocal(E_PixelType::Space);
+      return;
    }
 };

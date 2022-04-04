@@ -1,6 +1,4 @@
 ﻿#pragma once
-
-#pragma once
 #include "BasePixel.h"
 
 class OilPixel final : public BasePixel
@@ -34,44 +32,48 @@ public:
    }
 
 protected:
-   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (direction)
+      switch (data.Dir())
       {
-      case E_ChunkDirection::North:
-         return NorthLogic(neighbour);
-      case E_ChunkDirection::NorthEast:
-      case E_ChunkDirection::NorthWest:
-         return NorthLogic(neighbour, 4);
-      case E_ChunkDirection::SouthEast:
-      case E_ChunkDirection::South:
-      case E_ChunkDirection::SouthWest:
-      case E_ChunkDirection::West:
-      case E_ChunkDirection::East:
-         return Logic(neighbour);
-      default:
-         return E_LogicResults::FailedUpdate;
+         case E_ChunkDirection::North:
+            NorthLogic(data, 2);
+            return;
+         case E_ChunkDirection::NorthEast:
+         case E_ChunkDirection::NorthWest:
+            NorthLogic(data, 4);
+            return;
+         case E_ChunkDirection::SouthEast:
+         case E_ChunkDirection::South:
+         case E_ChunkDirection::SouthWest:
+         case E_ChunkDirection::West:
+         case E_ChunkDirection::East:
+            Logic(data);
+            return;
       }
+      data.Fail();
    }
 
 private:
-   inline int8_t NorthLogic(const E_PixelType type, const int odds = 2)
+   void NorthLogic(PixelUpdateResult& data, int odds )
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Water:
-         return rng() % odds == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         rng() % odds == 0 ? data.Pass() : data.Fail();
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
 
-   inline int8_t Logic(const E_PixelType type)
+   void Logic(PixelUpdateResult& data)
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+         data.Pass();
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
 };

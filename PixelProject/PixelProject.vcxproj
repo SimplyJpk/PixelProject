@@ -337,6 +337,7 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClInclude Include="Game.h" />
     <ClInclude Include="PixelDataMasks.h" />
     <ClInclude Include="PixelTypeIncludes.h" />
+    <ClInclude Include="PixelUpdateResult.h" />
     <ClInclude Include="RectTransform.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="RenderTarget.h" />

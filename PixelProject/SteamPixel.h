@@ -24,46 +24,49 @@ public:
    }
 
 protected:
-   int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (direction)
+      switch (data.Dir())
       {
       case E_ChunkDirection::North:
       case E_ChunkDirection::NorthEast:
       case E_ChunkDirection::NorthWest:
       case E_ChunkDirection::South:
-         return Logic(neighbour, pixel_results);
+         Logic(data);
+         return;
       default:
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
       }
    }
 
 private:
-   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
+   void Logic(PixelUpdateResult& data)
    {
       int rngValue = rng() % 1000;
-      switch (type)
+      switch (data.NeighbourType())
       {
-         case E_PixelType::Space:
-         case E_PixelType::Steam:
-         case E_PixelType::Water:
-            if (rngValue <= 600)
-            {
-               return E_LogicResults::SuccessUpdate;
-            }
-            else if (rngValue <= 605)
-            {
-               return_pixels[0] = E_PixelType::Water;
-               return E_LogicResults::FirstReturnPixel;
-            }
-         return E_LogicResults::FailedUpdate;
-         default:
-            if (rngValue <= 50)
-            {
-               return_pixels[0] = E_PixelType::Water;
-               return E_LogicResults::FirstReturnPixel;
-            }
+      case E_PixelType::Space:
+      case E_PixelType::Steam:
+      case E_PixelType::Water:
+         if (rngValue <= 600)
+         {
+            data.Pass();
+            return;
+         }
+         else if (rngValue <= 605)
+         {
+            data.SetLocal(E_PixelType::Water);
+            return;
+         }
+         data.Fail();
+         return;
+      default:
+         if (rngValue <= 50)
+         {
+            data.SetLocal(E_PixelType::Water);
+            return;
+         }
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
 };
