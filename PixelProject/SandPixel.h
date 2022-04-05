@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class SandPixel : public BasePixel
+class SandPixel final : public BasePixel
 {
 public:
 
@@ -25,21 +25,35 @@ public:
    }
 
 protected:
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-private:
-   int8_t Logic(const E_PixelType type)
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (type)
+      switch (data.Dir())
+      {
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+         Logic(data);
+         return;
+      default:
+         data.Fail();
+      }
+   }
+
+private:
+   void Logic(PixelUpdateResult& data)
+   {
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+         data.Pass();
+         return;
       case E_PixelType::Water:
-         return (rng() % 3 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
+         (rng() % 3 == 0 ? data.Pass() : data.Fail());
+         return;
       case E_PixelType::Oil:
-         return (rng() % 10 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate);
+         (rng() % 10 == 0 ? data.Pass() : data.Fail());
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
 };

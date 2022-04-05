@@ -6,6 +6,7 @@
 #include "XoshiroCpp.hpp"
 #include <random>
 #include "PixelDataMasks.h"
+#include "PixelUpdateResult.h"
 
 #include "ColourUtility.h"
 
@@ -49,7 +50,7 @@ public:
    short pixel_index = -1;
    short colour_count = 0;
 
-   Uint32 GetRandomColour() { return type_colours[(colour_count <= 1 ? 0 : rng() % (colour_count))]; }
+   Uint32 GetRandomColour() const { return type_colours[(colour_count <= 1 ? 0 : rng() % (colour_count))]; }
    Uint32 type_colours[Constant::pixel_max_colour_count] = {0};
 
    float render_colours[Constant::pixel_max_colour_count][4] = { 0.0f };
@@ -57,22 +58,10 @@ public:
    uint8_t MaxUpdateRange = 1;
    //x virtual inline int8_t MaxUpdateRange() { return 1; }
 
-   // Calls the derived North (UP) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived North-East (UP RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived East (RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived South-East (DOWN RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived South (DOWN) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived South-West (DOWN RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived West (RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
-   // Calls the derived North-West (UP RIGHT) Pixel logic, returning a E_LogicResults value.
-   virtual int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) { return false; }
+
+   // Pixel Logic, this replaces all the quardrant logic into one virtual call
+   // virtual int8_t UpdatePixel(const E_PixelType neighbour, E_PixelType pixel_results[2], int8_t direction) = 0;
+   virtual void UpdatePixel(PixelUpdateResult& data) = 0;
 
    // The Pixel updates itself without moving, pixels that use lifetimes may change their internal values.
    virtual bool PixelLifeTimeUpdate(Uint32& pixelValue, uint8_t rnd_value) { return true;}
@@ -95,7 +84,7 @@ protected:
       }
    };
 
-   void InsertPixelUpdateOrder(const int index, std::vector<short> directions)
+   void InsertPixelUpdateOrder(const int index, const std::vector<short> directions)
    {
       if (index < Constant::pixel_max_pixel_update_order)
       {

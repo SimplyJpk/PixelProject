@@ -87,7 +87,7 @@ namespace PixelProject::Constant
 }
 
 // Can be used to Identify the Index of a Pixel
-enum class E_PixelType
+enum class E_PixelType : int8_t
 {
    UNDEFINED = -1,
    Space,

@@ -1,5 +1,7 @@
 #include "WorldSimulator.h"
 
+#include "PixelUpdateResult.h"
+
 void WorldSimulator::Start()
 {
    // Generate our chunks and the pixel data
@@ -257,26 +259,6 @@ void WorldSimulator::FixedUpdate()
                         {
                            const short localIndex = (y * Constant::chunk_size_x) + x;
 
-                           // //? DEBUG
-                           // localPixels[localIndex] = 0x00000000;
-                           // switch (i)
-                           // {
-                           // // case 0:
-                           // //    localPixels[localIndex] += 0x40000000;
-                           // //    break;
-                           // // case 1:
-                           // //    localPixels[localIndex] += 0x00400000;
-                           // //    break;
-                           // case 2: 
-                           //   localPixels[localIndex] += 0x00004000; // These ones
-                           //   break;
-                           // case 3:
-                           //    localPixels[localIndex] += 0x40000000; // These ones
-                           //    break;
-                           // }
-                           // continue;
-                           // //? DEBUG
-
                            // If the pixel is empty space, or if the cell has already been updated we skip over it
                            if (localPixels[localIndex] == 0 || isProcessed[localIndex]) continue;
                            BasePixel* pixel = world_data_handler.GetPixelFromIndex(PBit::Index(localPixels[localIndex]));
@@ -293,7 +275,7 @@ void WorldSimulator::FixedUpdate()
                            const short* pixelDirOrder = chunk_direction_order[pixel->pixel_index];
                            for (auto directionIndex = 0; directionIndex < static_cast<short>(DIR_COUNT); directionIndex++)
                            {
-                              E_PixelType returnPixels[2];
+                              PixelUpdateResult pixelUpdateResult;
 
                               short direction = pixelDirOrder[directionIndex];
                               // If Direction is DIR_COUNT all other values will be DIR_COUNT and can be safely aborted.
@@ -310,8 +292,8 @@ void WorldSimulator::FixedUpdate()
                               short neighbourIndex;
                               uint32_t pixelIndexChange = 0;
 
-                              uint8_t maxPixelRange = pixel->MaxUpdateRange;
-                              uint8_t borderRange = GetDistanceToBorder(x, y, direction);
+                              //TODO uint8_t maxPixelRange = pixel->MaxUpdateRange;
+                              //TODO uint8_t borderRange = GetDistanceToBorder(x, y, direction);
 
                               switch (piece)
                               {
@@ -367,11 +349,16 @@ void WorldSimulator::FixedUpdate()
                               }
 #endif
                               // Grab our neighbours pixel type to simplify the lookup.
-                              const auto neighbourType = pixelNeighbour->pixel_type;
+                              // const auto neighbourType = pixelNeighbour->pixel_type;
+                              pixelUpdateResult.SetNeighbour(pixelNeighbour->pixel_type);
+                              pixelUpdateResult.SetDirection(static_cast<E_ChunkDirection>(pixelDirOrder[directionIndex]));
 
                               // Now we ask the Pixel what it wants to do with its neighbour
-                              const int8_t result = CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType,
-                                                               returnPixels);
+                              pixel->UpdatePixel(pixelUpdateResult);
+
+                              // const int8_t result = pixel->UpdatePixel(neighbourType, returnPixels, pixelDirOrder[directionIndex]);
+
+                              // CheckLogic(pixelDirOrder[directionIndex], pixel, neighbourType, returnPixels);
 
                               if (DEBUG_PrintPixelData)
                               {
@@ -380,7 +367,7 @@ void WorldSimulator::FixedUpdate()
                                     neighbourIndex);
                               }
 
-                              switch (result)
+                              switch (pixelUpdateResult.Result())
                               {
                               case E_LogicResults::SuccessUpdate:
                                  std::swap(localPixels[localIndex], neighbourPixels[neighbourIndex]);
@@ -389,18 +376,18 @@ void WorldSimulator::FixedUpdate()
 
 
                               case E_LogicResults::FirstReturnPixel:
-                                 localPixels[localIndex] = world_data_handler.GetNewPixelOfType(returnPixels[0]);
+                                 localPixels[localIndex] = world_data_handler.GetNewPixelOfType(pixelUpdateResult.NewLocal());
                                  isProcessed[localIndex] = true;
                                  break;
                               case E_LogicResults::SecondReturnPixel:
-                                 neighbourPixels[neighbourIndex] = world_data_handler.GetNewPixelOfType(returnPixels[1]);
+                                 neighbourPixels[neighbourIndex] = world_data_handler.GetNewPixelOfType(pixelUpdateResult.NewNeighbour());
                                  neighbourIsProcessed[neighbourIndex] = true;
                                  break;
                               case E_LogicResults::DualReturnPixel:
-                                 localPixels[localIndex] = world_data_handler.GetNewPixelOfType(returnPixels[0]);
+                                 localPixels[localIndex] = world_data_handler.GetNewPixelOfType(pixelUpdateResult.NewLocal());
                                  isProcessed[localIndex] = true;
 
-                                 neighbourPixels[neighbourIndex] = world_data_handler.GetNewPixelOfType(returnPixels[1]);
+                                 neighbourPixels[neighbourIndex] = world_data_handler.GetNewPixelOfType(pixelUpdateResult.NewNeighbour());
                                  neighbourIsProcessed[neighbourIndex] = true;
                                  break;
                               case E_LogicResults::NoChange:
@@ -469,33 +456,6 @@ inline bool WorldSimulator::DoesChunkHaveNeighbour(WorldChunk** neighbours, cons
 {
    return neighbours[direction] != nullptr;
 }
-
-inline int8_t WorldSimulator::CheckLogic(const int direction, BasePixel* pixel, const E_PixelType neighbour_type,
-   E_PixelType* return_pixels)
-{
-   switch (direction)
-   {
-   case North:
-      return pixel->NorthLogic(neighbour_type, return_pixels);
-   case NorthEast:
-      return pixel->NorthEastLogic(neighbour_type, return_pixels);
-   case East:
-      return pixel->EastLogic(neighbour_type, return_pixels);
-   case SouthEast:
-      return pixel->SouthEastLogic(neighbour_type, return_pixels);
-   case South:
-      return pixel->SouthLogic(neighbour_type, return_pixels);
-   case SouthWest:
-      return pixel->SouthWestLogic(neighbour_type, return_pixels);
-   case West:
-      return pixel->WestLogic(neighbour_type, return_pixels);
-   case NorthWest:
-      return pixel->NorthWestLogic(neighbour_type, return_pixels);
-   default:
-      return E_LogicResults::FailedUpdate;
-   }
-}
-
 
 void WorldSimulator::UpdateInput()
 {

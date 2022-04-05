@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class WoodPixel : public BasePixel
+class WoodPixel final : public BasePixel
 {
 public:
 
@@ -19,6 +19,12 @@ public:
 
       pixel_update_order_count_ = 0;
       InsertPixelUpdateOrder(0, std::vector<short>() = {});
+   }
+
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
+   {
+      data.Fail();
    }
 
 private:
