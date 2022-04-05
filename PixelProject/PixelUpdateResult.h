@@ -1,12 +1,16 @@
 #pragma once
 
 /**
- * Container Type\n
- * [0] = E_LogicResults\n
- * [1] = NeighbourType\n
- * [2] = NewPixel = E_PixelType (Local)\n
- * [3] = NewPixel = E_PixelType (Neighbour)\n
- * [4] = E_ChunkDirection (Pixel Update Direction)
+ Container Type\n
+ [0] = E_LogicResults\n
+ [1] = NeighbourType\n
+ [2] = NewPixel = E_PixelType (Local)\n
+ [3] = NewPixel = E_PixelType (Neighbour)\n
+ [4] = E_ChunkDirection (Pixel Update Direction)
+ 
+ Mess of a container class that is updates during pixel updates. This was made to pass only 1 reference around instead of 3 value types and 1 reference.
+ This proves to be faster, if only because most updates only require setting the first value of the container (Fail/Pass) before continuing.
+ Readability however, gets thrown out the window.
  */
 class PixelUpdateResult
 {
