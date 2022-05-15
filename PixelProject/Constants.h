@@ -5,7 +5,10 @@ namespace PixelProject::Constant
 {
    // Chunk Size
    constexpr short chunk_size_x = 128;
+   constexpr short chunk_half_x = chunk_size_x / 2;
    constexpr short chunk_size_y = 128;
+   constexpr short chunk_half_y = chunk_size_y / 2;
+
    constexpr short chunk_total_size = chunk_size_x * chunk_size_y;
 
    // Corner Indexes of Chunks
