@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class SpacePixel : public BasePixel
+class SpacePixel final : public BasePixel
 {
 public:
 
@@ -22,6 +22,12 @@ public:
    Uint32 GetNewPixel() override
    {
       return pixel_index;
+   }
+
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
+   {
+      data.Fail();
    }
 
 private:

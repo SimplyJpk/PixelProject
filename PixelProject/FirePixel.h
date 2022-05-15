@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class FirePixel : public BasePixel
+class FirePixel final : public BasePixel
 {
 public:
    short minLifetime = 5;
@@ -26,30 +26,6 @@ public:
          { North, NorthWest, NorthEast, SouthWest, SouthEast, South });
    }
 
-   int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
-   {
-      return Logic(type, return_pixels);
-   }
-
-   int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
-   {
-      return Logic(type, return_pixels);
-   }
-
-   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
-   {
-      return Logic(type, return_pixels);
-   }
-
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
-   {
-      return Logic(type, return_pixels);
-   }
-
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-
    Uint32 GetNewPixel() override
    {
       // We always want it to glow
@@ -62,7 +38,8 @@ public:
       return lightLevel | pixel_index | lifeTime;
    }
 
-   bool PixelLifeTimeUpdate(Uint32& pixel, const uint8_t rng_value) override {
+   bool PixelLifeTimeUpdate(Uint32& pixel, const uint8_t rng_value) override
+   {
       //TODO Maybe Make a subtract 1 method for lifetime so we don't have to do this every frame
 
       // 1 in 5 chance to reduce lifetime.
@@ -77,43 +54,59 @@ public:
       return lifetime > 0;
    }
 
-private:
-   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (type)
+      switch (data.Dir())
+      {
+      case E_ChunkDirection::North:
+      case E_ChunkDirection::NorthEast:
+      case E_ChunkDirection::NorthWest:
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+         Logic(data);
+         return;
+      default:
+         data.Fail();
+      }
+   }
+
+private:
+   void Logic(PixelUpdateResult& data)
+   {
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return rng() % 2 == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         rng() % 2 == 0 ? data.Pass() : data.Fail();
+         return;
 
 
       case E_PixelType::Oil:
-         return_pixels[0] = E_PixelType::Fire;
-         return_pixels[1] = E_PixelType::Fire;
-         return E_LogicResults::DualReturnPixel;
+         data.SetLocalAndNeighbour(E_PixelType::Fire, E_PixelType::Fire);
+         return;
 
 
       case E_PixelType::Wood:
          if (rng() % 10 == 0)
          {
-            return_pixels[0] = E_PixelType::Fire;
-            return_pixels[1] = E_PixelType::Fire;
-            return E_LogicResults::DualReturnPixel;
+            data.SetLocalAndNeighbour(E_PixelType::Fire, E_PixelType::Fire);
+            return;
          }
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
+         return;
 
 
       case E_PixelType::Fire:
-         return E_LogicResults::FailedUpdate;
+         data.Fail();
+         return;
 
       case E_PixelType::Water:
-         return_pixels[0] = E_PixelType::Steam;
-         return_pixels[1] = E_PixelType::Space;
-         return E_LogicResults::DualReturnPixel;
+         data.SetLocalAndNeighbour(E_PixelType::Steam, E_PixelType::Space);
+         return;
       }
 
-      return_pixels[0] = E_PixelType::Space;
-      return E_LogicResults::FirstReturnPixel;
+      data.SetLocal(E_PixelType::Space);
+      return;
    }
-
-private:
 };

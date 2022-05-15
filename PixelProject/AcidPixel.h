@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class AcidPixel : public BasePixel
+class AcidPixel final : public BasePixel
 {
 public:
 
@@ -25,61 +25,82 @@ public:
    }
 
 protected:
-   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      if (type == E_PixelType::Water)
+      switch (data.Dir())
       {
-         return_pixels[0] = E_PixelType::Water;
-         return E_LogicResults::FirstReturnPixel;
+      case E_ChunkDirection::North:
+         NorthLogic(data);
+         return;
+      case E_ChunkDirection::East:
+      case E_ChunkDirection::West:
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+         Logic(data);
+         return;
+      default:
+         data.SetResult(E_LogicResults::FailedUpdate);
       }
-      return E_LogicResults::FailedUpdate;
    }
-   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
+
 private:
-   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
+   void NorthLogic(PixelUpdateResult& data)
    {
-      switch (type)
+      if (data.NeighbourType() == E_PixelType::Water)
+      {
+         data.SetLocal(E_PixelType::Water);
+         return;
+      }
+      data.SetResult(E_LogicResults::FailedUpdate);
+   }
+
+   void Logic(PixelUpdateResult& data)
+   {
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+         data.SetResult(E_LogicResults::SuccessUpdate);
+         return;
 
          // 3 in 4 chance to move down in water, otherwise we convert the Acid into water
       case E_PixelType::Water:
-         if (rng() % 10 != 0)
-            return E_LogicResults::SuccessUpdate;
+         if (rng() % 10 != 0) {
+            data.SetResult(E_LogicResults::SuccessUpdate);
+            return;
+         }
          else {
-            return_pixels[0] = E_PixelType::Water;
-            return E_LogicResults::FirstReturnPixel;
+            data.SetLocal(E_PixelType::Water);
+            return;
          }
 
       case E_PixelType::Acid:
-         if (rng() % 6 == 0)
-            return E_LogicResults::NoChange;
-         return E_LogicResults::FailedUpdate;
+         if (rng() % 6 == 0) {
+            data.SetResult(E_LogicResults::NoChange);
+            return;
+         }
+         data.SetResult(E_LogicResults::FailedUpdate);
+         return;
 
       case E_PixelType::Ground:
-         return E_LogicResults::FailedUpdate;
+         data.SetResult(E_LogicResults::FailedUpdate);
+         return;
 
       default:
          int test = rng() % 5;
          if (test <= 1)
          {
-            return_pixels[0] = E_PixelType::Space;
-            return_pixels[1] = E_PixelType::Acid;
-            return E_LogicResults::DualReturnPixel;
+            data.SetLocalAndNeighbour(E_PixelType::Space, E_PixelType::Acid);
+            return;
          }
          else if (test == 2)
          {
-            return_pixels[0] = E_PixelType::Space;
-            return_pixels[1] = E_PixelType::Space;
-            return E_LogicResults::DualReturnPixel;
+            data.SetLocalAndNeighbour(E_PixelType::Space, E_PixelType::Space);
+            return;
          }
 
-         return E_LogicResults::FailedUpdate;
+         data.SetResult(E_LogicResults::FailedUpdate);
+         return;
       }
    }
 };

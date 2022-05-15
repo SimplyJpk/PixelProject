@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class WaterPixel : public BasePixel
+class WaterPixel final : public BasePixel
 {
 public:
 
@@ -34,22 +34,33 @@ public:
 
    //x inline int8_t MaxUpdateRange() override { return 8; }
 
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-
-private:
-   static int8_t Logic(const E_PixelType type)
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      switch (type)
+      switch (data.Dir())
       {
-      case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+      case E_ChunkDirection::East:
+      case E_ChunkDirection::West:
+      case E_ChunkDirection::SouthEast:
+      case E_ChunkDirection::South:
+      case E_ChunkDirection::SouthWest:
+         Logic(data);
+         return;
+      default:
+         data.Fail();
       }
-      return E_LogicResults::FailedUpdate;
    }
 
 private:
+   void Logic(PixelUpdateResult& data)
+   {
+      switch (data.NeighbourType())
+      {
+      case E_PixelType::Space:
+         data.Pass();
+         return;
+      }
+      data.Fail();
+      return;
+   }
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class SteamPixel : public BasePixel
+class SteamPixel final : public BasePixel
 {
 public:
 
@@ -23,48 +23,50 @@ public:
                              {North, NorthWest, NorthEast, South});
    }
 
-   int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
    {
-      return Logic(type, return_pixels);
+      switch (data.Dir())
+      {
+      case E_ChunkDirection::North:
+      case E_ChunkDirection::NorthEast:
+      case E_ChunkDirection::NorthWest:
+      case E_ChunkDirection::South:
+         Logic(data);
+         return;
+      default:
+         data.Fail();
+      }
    }
-
-   int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override
-   {
-      return Logic(type, return_pixels);
-   }
-
-   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
-
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type, return_pixels); }
 
 private:
-   inline int8_t Logic(const E_PixelType type, E_PixelType return_pixels[2])
+   void Logic(PixelUpdateResult& data)
    {
       int rngValue = rng() % 1000;
-      switch (type)
+      switch (data.NeighbourType())
       {
-         case E_PixelType::Space:
-         case E_PixelType::Steam:
-         case E_PixelType::Water:
-            if (rngValue <= 600)
-            {
-               return E_LogicResults::SuccessUpdate;
-            }
-            else if (rngValue <= 605)
-            {
-               return_pixels[0] = E_PixelType::Water;
-               return E_LogicResults::FirstReturnPixel;
-            }
-         return E_LogicResults::FailedUpdate;
-         default:
-            if (rngValue <= 50)
-            {
-               return_pixels[0] = E_PixelType::Water;
-               return E_LogicResults::FirstReturnPixel;
-            }
+      case E_PixelType::Space:
+      case E_PixelType::Steam:
+      case E_PixelType::Water:
+         if (rngValue <= 600)
+         {
+            data.Pass();
+            return;
+         }
+         else if (rngValue <= 605)
+         {
+            data.SetLocal(E_PixelType::Water);
+            return;
+         }
+         data.Fail();
+         return;
+      default:
+         if (rngValue <= 50)
+         {
+            data.SetLocal(E_PixelType::Water);
+            return;
+         }
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
-
-private:
 };

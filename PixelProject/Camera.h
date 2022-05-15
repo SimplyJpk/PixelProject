@@ -3,6 +3,8 @@
 #include <glm/ext.hpp>
 #include <SDL.h>
 
+#include "IVec2.h"
+
 class Camera
 {
 public:
@@ -12,6 +14,9 @@ public:
    // Update camera Position and Rotation
    virtual void Update(float delta);
    void SetOrtho(float left, float right, float bottom, float top);
+
+   void ApplyZoom(float zoom);
+   float GetZoom() const { return cameraZoom; }
 
    // Set Perspective view of camera
    void SetPerspective(float field_of_view, float aspect_ratio, float near, float far);
@@ -32,6 +37,10 @@ public:
    glm::vec4* GetFrustumPlanes();
 
 protected:
+   float width, height;
+
+   float cameraZoom = 1.0f;
+
    bool isOrtho = false;
    // Generates the Frustum when ever the Camera moves
    void GenerateFrustum();

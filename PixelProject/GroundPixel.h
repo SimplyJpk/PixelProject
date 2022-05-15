@@ -1,7 +1,7 @@
 #pragma once
 #include "BasePixel.h"
 
-class GroundPixel : public BasePixel
+class GroundPixel final : public BasePixel
 {
 public:
 
@@ -28,5 +28,12 @@ public:
 
       return lightLevel | pixel_index;
    }
+
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
+   {
+      data.Fail();
+   }
+
 private:
 };

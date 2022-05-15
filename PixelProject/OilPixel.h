@@ -1,6 +1,4 @@
 ﻿#pragma once
-
-#pragma once
 #include "BasePixel.h"
 
 class OilPixel final : public BasePixel
@@ -33,36 +31,49 @@ public:
                              });
    }
 
-   int8_t NorthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return NorthLogic(type, 4); }
-   int8_t NorthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return NorthLogic(type, 4); }
-   int8_t NorthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return NorthLogic(type); }
-
-   int8_t SouthEastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t SouthWestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t WestLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
-   int8_t EastLogic(const E_PixelType type, E_PixelType return_pixels[2]) override { return Logic(type); }
+protected:
+   void UpdatePixel(PixelUpdateResult& data) override
+   {
+      switch (data.Dir())
+      {
+         case E_ChunkDirection::North:
+            NorthLogic(data, 2);
+            return;
+         case E_ChunkDirection::NorthEast:
+         case E_ChunkDirection::NorthWest:
+            NorthLogic(data, 4);
+            return;
+         case E_ChunkDirection::SouthEast:
+         case E_ChunkDirection::South:
+         case E_ChunkDirection::SouthWest:
+         case E_ChunkDirection::West:
+         case E_ChunkDirection::East:
+            Logic(data);
+            return;
+      }
+      data.Fail();
+   }
 
 private:
-   inline int8_t NorthLogic(const E_PixelType type, const int odds = 2)
+   void NorthLogic(PixelUpdateResult& data, int odds )
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Water:
-         return rng() % odds == 0 ? E_LogicResults::SuccessUpdate : E_LogicResults::FailedUpdate;
+         rng() % odds == 0 ? data.Pass() : data.Fail();
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
 
-   inline int8_t Logic(const E_PixelType type)
+   void Logic(PixelUpdateResult& data)
    {
-      switch (type)
+      switch (data.NeighbourType())
       {
       case E_PixelType::Space:
-         return E_LogicResults::SuccessUpdate;
+         data.Pass();
+         return;
       }
-      return E_LogicResults::FailedUpdate;
+      data.Fail();
    }
-
-private:
 };

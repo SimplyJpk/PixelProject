@@ -44,9 +44,8 @@ void InputManager::Update()
          is_key_held_[event.key.keysym.scancode] = false;
          break;
       case SDL_MOUSEMOTION:
-         //TODO May need to remove the +1
-         mouse_x_ = event.motion.x + 1;
-         mouse_y_ = event.motion.y + 1;
+         mouse_x_ = event.motion.x;
+         mouse_y_ = event.motion.y;
          mouse_last_frame_pos_ = mouse_pos_;
          mouse_pos_ = IVec2(mouse_x_, mouse_y_);
          break;

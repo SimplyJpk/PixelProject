@@ -19,8 +19,24 @@ void Camera::Update(float delta)
 void Camera::SetOrtho(float left, float right, float bottom, float top)
 {
    projection_transform_ = glm::ortho(left, right, bottom, top);
+   
    isOrtho = true;
    UpdateProjectionView();
+
+   // set width and height
+   width = right - left;
+   height =  bottom - top;
+}
+
+void Camera::ApplyZoom(float zoom)
+{
+   if (zoom <= 0)
+      zoom = 0.1f;
+   else if (zoom > 10)
+      zoom = 10;
+
+   projection_transform_ = glm::ortho(0.0f, width * zoom, height * zoom, 0.0f);   
+   cameraZoom = zoom;
 }
 
 // Set the camera Perspective
