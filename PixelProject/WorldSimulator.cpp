@@ -78,48 +78,48 @@ void WorldSimulator::Start()
 
 void WorldSimulator::Pen(const IVec2& point, BasePixel* pixel_type, const int size, const bool override_pixels)
 {
-   // Grab our CameraPosition in Pixels
-   // const SDL_Rect cameraPos = cam->view_port;
-   // Calculate the Position of the Camera in the world in Chunks
-   // const Vec2 cameraWorldPosition = Vec2(static_cast<float>(cameraPos.x) / Constant::chunk_size_x,
-   //                                       static_cast<float>(cameraPos.y) / Constant::chunk_size_y);
-   // Same as above, but now we round to floor
-   // const IVec2 cameraChunk = IVec2(cameraWorldPosition.x, cameraWorldPosition.y);
-   // // Now we remove our position to get our offset
-   // const IVec2 cameraWorldOffset = IVec2((cameraWorldPosition.x - cameraChunk.x) * Constant::chunk_size_x,
-   //                                       (cameraWorldPosition.y - cameraChunk.y) * Constant::chunk_size_y);
-
    const short max = pixel_type->colour_count;
+
+   const float zoom = cam->GetZoom();
 
    const auto camPosition = cam->GetPosition();
 
-   const int XCenter = static_cast<int>(camPosition.x) + point.x;
-   const int YCenter = static_cast<int>(camPosition.y) + point.y;
+   // Translate point to world space, where orthoView is the size of the screen, camPosition is a movable offset
+   const IVec2 worldPoint = IVec2(
+       static_cast<int>(point.x + camPosition.x),
+       static_cast<int>(point.y + camPosition.y)) * zoom;
 
-   const int Left = XCenter - size;
-   const int Right = XCenter + size;
-   const int Top =  YCenter - size;
-   const int Bottom = YCenter + size;
+   // Calculate the center of the pen
+   const IVec2 pen_center = IVec2(worldPoint.x + (size / 2), worldPoint.y + (size / 2));
+
    const auto radius = pow(size, 2);
+
+   const IVec2 pen_top_left = pen_center - IVec2(radius, radius);
+   const IVec2 pen_bottom_right = pen_center + IVec2(radius, radius);
 
    const int WorldDimX = world_dimensions.x * Constant::chunk_size_x;
    const int WorldDimY = world_dimensions.y * Constant::chunk_size_y;
 
-   for (int y = Top; y <= Bottom; ++y)
+   // Loop from top left to bottom right
+
+   for (int y = pen_top_left.y; y <= pen_bottom_right.y; y++)
    {
+
       if (y < 0 || y >= WorldDimY)
          continue;
       const int yFloor = static_cast<int>(floor(y / Constant::chunk_size_y));
       if (yFloor > world_dimensions.y) continue;
 
-      for (int x = Left; x <= Right; ++x)
+      for (int x = pen_top_left.x; x <= pen_bottom_right.x; x++)
       {
+
          if (x < 0 || x >= WorldDimX)
             continue;
          const int xFloor = static_cast<int>(floor(x / Constant::chunk_size_x));
          if (xFloor > world_dimensions.x) continue;
 
-         const auto dist = pow(XCenter - x, 2.0) + pow(YCenter - y, 2.0);
+
+         const auto dist = pow(pen_center.x - x, 2.0) + pow(pen_center.y - y, 2.0);
          if (dist <= radius)
          {
             const Uint32 index = ((y - (yFloor * Constant::chunk_size_y)) * Constant::chunk_size_x) + (x - (xFloor * Constant::chunk_size_x));
@@ -140,9 +140,6 @@ void WorldSimulator::Update()
 
 void WorldSimulator::FixedUpdate()
 {
-   //? DebugDrawPixelRange();
-   //? return;
-
    //TODO Remove this
    DEBUG_FrameCounter++;
    if (DEBUG_DropSand)
@@ -374,7 +371,7 @@ void WorldSimulator::FixedUpdate()
                                  neighbourIsProcessed[neighbourIndex] = true;
                                  break;
 
-
+                                 
                               case E_LogicResults::FirstReturnPixel:
                                  localPixels[localIndex] = world_data_handler.GetNewPixelOfType(pixelUpdateResult.NewLocal());
                                  isProcessed[localIndex] = true;
@@ -565,10 +562,13 @@ void WorldSimulator::UpdateInput()
    if (input->GetKeyDown(KeyCode::E))
    {
       DEBUG_ZoomLevel += 0.01f;
+      cam->ApplyZoom(DEBUG_ZoomLevel);
+      
    }
    else if (input->GetKeyDown(KeyCode::R))
    {
       DEBUG_ZoomLevel += -0.01f;
+      cam->ApplyZoom(DEBUG_ZoomLevel);
    }
 
 
@@ -615,27 +615,20 @@ void WorldSimulator::ClearWorld()
 
 bool WorldSimulator::Draw(Camera* camera)
 {
-   glm::vec3 camPos = camera->GetPosition();
+   const glm::vec3 camPos = camera->GetPosition();
+
    const IVec2 screenSize = game_settings->screen_size;
 
-   int xChunkStart = static_cast<int>(floor(camPos.x / Constant::chunk_size_x));
-   int xChunkEnd = xChunkStart + (screenSize.x / Constant::chunk_size_x) + 2;
-   int xOffset = static_cast<int>(camPos.x) % Constant::chunk_size_x;
-   if (camPos.x < 0)
-      xChunkStart += 1;
+   const float camZoom = cam->GetZoom();
 
-   int yChunkStart = static_cast<int>(floor(camPos.y / Constant::chunk_size_y));
-   int yChunkEnd = yChunkStart + (screenSize.y / Constant::chunk_size_y) + 2;
-   int yOffset = static_cast<int>(camPos.y) % Constant::chunk_size_y;
-   if (camPos.y < 0)
-      yChunkStart += 1;
-
+   // // Position offset local to chunk including zoom
+   const IVec2 camPosOffset = IVec2(camPos.x * camZoom, camPos.y * camZoom);
 
    Shader* default_shader = game_settings->default_shader;
    default_shader->UseProgram();
 
-   int modelLoc = default_shader->GetUniformLocation("model");
-   int projLoc = default_shader->GetUniformLocation("projection");
+   const int modelLoc = default_shader->GetUniformLocation("model");
+   const int projLoc = default_shader->GetUniformLocation("projection");
 
    // Make sure it can see our noise texture
    //TODO this may die? Not sure why or when I should set this if ever
@@ -646,11 +639,15 @@ bool WorldSimulator::Draw(Camera* camera)
    glActiveTexture(GL_TEXTURE0);
 
    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
-   
-   for (int xVal = xChunkStart; xVal < xChunkEnd; xVal++)
+
+   int chunksDrawn = 0;
+   for (int xVal = 0; xVal < world_dimensions.x; xVal++)
    {
-      for (int yVal = yChunkStart; yVal < yChunkEnd; yVal++)
+      for (int yVal = 0; yVal < world_dimensions.y; yVal++)
       {
+         if (xVal < 0 || yVal < 0 || xVal >= world_dimensions.x || yVal >= world_dimensions.y)
+            continue;
+
          auto worldChunk = chunks.find(IVec2(xVal, yVal));
          // Chunk doesn't exist, we don't render
          if (worldChunk == chunks.end())
@@ -659,11 +656,22 @@ bool WorldSimulator::Draw(Camera* camera)
          map_texture->UpdateTextureData(worldChunk->second->pixel_data);
 
          glm::mat4 model = glm::mat4(1.0f);
+
+         // Set model position
+
+
          glm::vec3 modelPosition = glm::vec3(
-            -xOffset + (((xVal - xChunkStart) + 1) * Constant::chunk_size_x) - (Constant::chunk_size_x / 2) + xVal, // + xVal is for fake grid TODO make a proper visual grid
-            -yOffset + (((yVal - yChunkStart) + 1) * Constant::chunk_size_y) - (Constant::chunk_size_y / 2) + yVal,
+            -camPosOffset.x + (((xVal)+1) * Constant::chunk_size_x) - (Constant::chunk_half_x), // + xVal, // + xVal is for fake grid TODO make a proper visual grid
+            -camPosOffset.y + (((yVal)+1) * Constant::chunk_size_y) - (Constant::chunk_half_y), // + yVal,
             1.0f
          );
+                  
+         // Don't render if it's off screen
+         if (modelPosition.x + Constant::chunk_size_x < 0 || modelPosition.y + Constant::chunk_size_y < 0)
+            continue;
+         if (modelPosition.x - Constant::chunk_size_x > screenSize.x * camZoom || modelPosition.y - Constant::chunk_size_y > screenSize.y * camZoom)
+            continue;
+
          model = glm::translate(model, modelPosition);
 
          model = glm::scale(model, glm::vec3(Constant::chunk_size_x, Constant::chunk_size_y, 1.0f));
@@ -673,13 +681,12 @@ bool WorldSimulator::Draw(Camera* camera)
 
          glBindVertexArray(VAO);
          glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-      }
-   }
 
-   //? //TODO Replace this with a better zoom
-   //? SDL_Rect zoomrect = world_render_rect;
-   //? zoomrect.w *= DEBUG_ZoomLevel;
-   //? zoomrect.h *= DEBUG_ZoomLevel;
+         chunksDrawn++;
+
+      }
+
+   }
    
    return true;
 }
