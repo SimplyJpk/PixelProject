@@ -128,6 +128,13 @@ private:
       AddPixelData(new AcidPixel());
       AddPixelData(new GoldPixel());
       AddPixelData(new SteamPixel());
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Sand)));
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Water)));
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Oil)));
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Fire)));
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Acid)));
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Gold)));
+      AddPixelData(new SourceBlock(GetPixelFromType(E_PixelType::Steam)));
    }
    ~WorldDataHandler() = default;
 

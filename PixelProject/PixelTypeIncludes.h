@@ -10,3 +10,4 @@
 #include "AcidPixel.h"
 #include "GoldPixel.h"
 #include "SteamPixel.h"
+#include "SourceBlock.h"

@@ -349,6 +349,7 @@ XCOPY "$(SolutionDir)$(ProjectName)\textures" "$(TargetDir)textures\" /S/E /Y</C
     <ClInclude Include="SpacePixel.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SteamPixel.h" />
+    <ClInclude Include="SourceBlock.h" />
     <ClInclude Include="StopWatchData.h" />
     <ClInclude Include="StringUtility.h" />
     <ClInclude Include="Texture.h" />

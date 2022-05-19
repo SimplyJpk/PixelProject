@@ -413,6 +413,9 @@
     <ClInclude Include="PixelUpdateResult.h">
       <Filter>Header Files\World\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="SourceBlock.h">
+      <Filter>Header Files\World\Pixels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
