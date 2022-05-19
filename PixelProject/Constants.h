@@ -96,13 +96,20 @@ enum class E_PixelType : int8_t
    Space,
    Ground,
    Sand,
+   SandSourceBlock,
    Water,
+   WaterSourceBlock,
    Wood,
    Oil,
+   OilSourceBlock,
    Fire,
+   FireSourceBlock,
    Acid,
+   AcidSourceBlock,
    Gold,
+   GoldSourceBlock,
    Steam,
+   SteamSourceBlock,
    COUNT
 };
 
