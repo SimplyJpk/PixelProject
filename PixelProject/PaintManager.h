@@ -15,7 +15,9 @@
 #include "TextureUtility.h"
 
 //TODO Namespace for this?
-constexpr int8_t pixel_texture_size = 32;
+constexpr int8_t pixel_texture_size = 16;
+constexpr int8_t offset_distance = 8;
+constexpr int8_t pixels_per_row = 16;
 
 class PaintManager
 {
@@ -40,12 +42,12 @@ public:
 
       IVec2 mousePos = InputManager::Instance().MousePosition();
       // Crude check, we only want to check if we're hovering if we're close to the items
-      if (mousePos.y < pixel_texture_size * 2)
+      if (mousePos.y < pixel_texture_size * 10)
       {
          for (short index = 0; index < texture_count; index++)
          {
             Sprite* sprite = &pixel_sprites_[index];
-            glm::vec4 bounds = sprite->transform.GetBounds();
+            const glm::vec4 bounds = sprite->transform.GetBounds();
             // If we're moused over
             if (mousePos.x > bounds.x && mousePos.x < bounds.z &&
                mousePos.y > bounds.y && mousePos.y < bounds.w)
@@ -119,6 +121,8 @@ public:
       //TODO Need to complete some sort of UI background/border/box?
       pixel_textures_ = Texture::CreateTextures(pixel_texture_size, pixel_texture_size, TextureFormat::RGBA, texture_count);
 
+      const int iconOffset = pixel_texture_size / 2;
+
       for (int i = 0; i < texture_count; i++)
       {
          pixel_textures_[i]->Bind();
@@ -126,11 +130,15 @@ public:
          // Setup structure for future use
          pixel_sprites_[i].SetTextureID(pixel_textures_[i]->GetHandle());
 
+         // 8 pixels per row
+         int x = (i % pixels_per_row) + 1;
+         int y = (i / pixels_per_row) + 1;
+
          //? Is this trash way to do this?
          Transform& trans = pixel_sprites_[i].transform;
-         glm::vec3 position = glm::vec3(
-            ((pixel_texture_size / 2) * i) + (i * pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
-            (pixel_texture_size / 2) + (pixel_texture_size * 2) - ((pixel_texture_size * 2) / 2),
+         const glm::vec3 position = glm::vec3(
+            iconOffset + (pixel_texture_size * 2 * x) + (iconOffset * x),
+            (pixel_texture_size * 2 * y) + (iconOffset * (y - 1)),
             0
          );
          trans.SetPosition(position);
